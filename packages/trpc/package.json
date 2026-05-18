@@ -3,13 +3,17 @@
   "version": "1.0.0",
   "private": true,
   "exports": {
-    "./server": "./src/server.ts"
+    "./server": "./server/index.ts",
+    "./client": "./client/index.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@trpc/server": "^11.17.0"
+    "@trpc/client": "^11.17.0",
+    "@trpc/server": "^11.17.0",
+    "trpc-to-openapi": "^3.2.0",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@starform/typescript-config": "workspace:*",
