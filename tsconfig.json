@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "module": "nodenext",
+    "target": "esnext",
+    "moduleDetection": "force",
+    "verbatimModuleSyntax": true,
+    "isolatedModules": true,
+    "noUncheckedSideEffectImports": true,
+
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+
+    "jsx": "react-jsx",
+
+    "sourceMap": true,
+    "declaration": true,
+    "declarationMap": true,
+
+    "skipLibCheck": true,
+    "types": ["node"]
+  }
+}
