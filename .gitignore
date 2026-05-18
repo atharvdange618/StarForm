@@ -10,3 +10,7 @@ next-env.d.ts
 .turbo/
 turbo.log
 .vercel
+
+# Project context and ADRs (hackathon briefs, design decisions)
+context/
+docs/
