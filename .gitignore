@@ -9,6 +9,7 @@ out/
 next-env.d.ts
 .turbo/
 turbo.log
+CONTEXT.md
 .vercel
 
 # Project context and ADRs (hackathon briefs, design decisions)
