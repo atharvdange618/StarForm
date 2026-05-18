@@ -1,13 +1,20 @@
 {
   "name": "@starform/trpc",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+  "private": true,
+  "exports": {
+    "./server": "./src/server.ts"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@trpc/server": "^11.17.0"
+  },
+  "devDependencies": {
+    "@starform/typescript-config": "workspace:*",
+    "@types/node": "^20.19.41",
+    "typescript": "^6.0.3"
+  },
   "type": "module"
 }

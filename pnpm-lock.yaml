@@ -219,7 +219,21 @@ importers:
 
   packages/services: {}
 
-  packages/trpc: {}
+  packages/trpc:
+    dependencies:
+      '@trpc/server':
+        specifier: ^11.17.0
+        version: 11.17.0(typescript@6.0.3)
+    devDependencies:
+      '@starform/typescript-config':
+        specifier: workspace:*
+        version: link:../typescript-config
+      '@types/node':
+        specifier: ^20.19.41
+        version: 20.19.41
+      typescript:
+        specifier: ^6.0.3
+        version: 6.0.3
 
   packages/typescript-config: {}
 

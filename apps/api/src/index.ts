@@ -1,8 +1,8 @@
-import http from "node:http";
-import { logger } from "@starform/logger";
-import { app as expressApplication } from "./server";
+import http from 'node:http';
+import { logger } from '@starform/logger';
+import { app as expressApplication } from './server';
 
-import { env } from "./env";
+import { env } from './env';
 
 async function init() {
   try {
@@ -12,7 +12,7 @@ async function init() {
       logger.info(`http server is running on PORT ${PORT}`);
     });
   } catch (err) {
-    logger.error(`Error creating http server`, { err });
+    logger.error({ err }, `Error creating http server`);
     process.exit(1);
   }
 }
