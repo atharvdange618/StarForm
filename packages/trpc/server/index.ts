@@ -6,5 +6,6 @@ export const serverRouter = router({
   health: healthRouter,
 });
 
-export { createContext } from './context';
+export { createContext, createServerContext } from './context';
+export type { Context } from './context';
 export type ServerRouter = typeof serverRouter;

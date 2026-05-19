@@ -84,6 +84,9 @@ importers:
 
   apps/web:
     dependencies:
+      '@starform/trpc':
+        specifier: workspace:*
+        version: link:../../packages/trpc
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -221,6 +224,9 @@ importers:
 
   packages/trpc:
     dependencies:
+      '@starform/logger':
+        specifier: workspace:*
+        version: link:../logger
       '@trpc/client':
         specifier: ^11.17.0
         version: 11.17.0(@trpc/server@11.17.0(typescript@6.0.3))(typescript@6.0.3)

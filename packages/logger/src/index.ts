@@ -4,7 +4,17 @@ const nodeEnv = process.env.NODE_ENV;
 const level = process.env.LOG_LEVEL ?? (nodeEnv === 'production' ? 'info' : 'debug');
 
 const transport =
-  nodeEnv !== 'production' ? { target: 'pino-pretty', options: { colorize: true } } : undefined;
+  nodeEnv !== 'production'
+    ? {
+        target: 'pino-pretty',
+        options: {
+          colorize: true,
+          singleLine: true,
+          ignore: 'pid,hostname',
+          translateTime: 'SYS:HH:MM:ss.l',
+        },
+      }
+    : undefined;
 
 export const logger = pino({
   level,

@@ -9,6 +9,7 @@ import { apiReference } from '@scalar/express-api-reference';
 import { serverRouter, createContext } from '@starform/trpc/server';
 
 import { env } from './env';
+import { requestId } from './middleware/requestId';
 
 export const app = express();
 const openApiDocument = generateOpenApiDocument(serverRouter, {
@@ -25,6 +26,7 @@ if (env.NODE_ENV !== 'production') {
   );
 }
 
+app.use(requestId);
 app.use(express.json());
 
 app.get('/', (req, res) => {
