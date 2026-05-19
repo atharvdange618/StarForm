@@ -16,6 +16,8 @@ export const visibilityEnum = pgEnum('visibility', ['public', 'unlisted']);
 
 export const statusEnum = pgEnum('status', ['draft', 'published', 'archived']);
 
+export const planEnum = pgEnum('plan', ['free', 'pro', 'enterprise']);
+
 export const users = pgTable(
   'users',
   {
@@ -24,6 +26,7 @@ export const users = pgTable(
     email: text('email').notNull().unique(),
     name: text('name'),
     roles: text('roles').array().notNull().default(['respondent']),
+    plan: planEnum('plan').notNull().default('free'),
     createdAt: timestamp('created_at').notNull().defaultNow(),
     updatedAt: timestamp('updated_at').notNull().defaultNow(),
     deletedAt: timestamp('deleted_at'),
@@ -172,3 +175,4 @@ export type Submission = typeof submissions.$inferSelect;
 export type NewSubmission = typeof submissions.$inferInsert;
 export type Theme = typeof themes.$inferSelect;
 export type NewTheme = typeof themes.$inferInsert;
+export type Plan = 'free' | 'pro' | 'enterprise';

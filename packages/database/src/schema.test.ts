@@ -7,6 +7,7 @@ import {
   themes,
   visibilityEnum,
   statusEnum,
+  planEnum,
 } from './schema';
 
 describe('Database schema exports', () => {
@@ -49,5 +50,11 @@ describe('Database schema exports', () => {
   it('should have all 5 tables', () => {
     const tables = [users, forms, formVersions, submissions, themes];
     expect(tables).toHaveLength(5);
+  });
+
+  it('should define plan enum values', () => {
+    expect(planEnum.enumValues).toContain('free');
+    expect(planEnum.enumValues).toContain('pro');
+    expect(planEnum.enumValues).toContain('enterprise');
   });
 });
