@@ -1,14 +1,7 @@
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
-import { z } from 'zod';
+import { env } from './env.js';
 import * as schema from './schema.js';
-
-const envSchema = z.object({
-  DATABASE_URL: z.string().url(),
-  NODE_ENV: z.enum(['development', 'production']).default('development'),
-});
-
-const env = envSchema.parse(process.env);
 
 const globalForDb = globalThis as unknown as {
   db: ReturnType<typeof drizzle> | undefined;

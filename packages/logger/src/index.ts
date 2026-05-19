@@ -1,10 +1,8 @@
 import pino from 'pino';
-
-const nodeEnv = process.env.NODE_ENV;
-const level = process.env.LOG_LEVEL ?? (nodeEnv === 'production' ? 'info' : 'debug');
+import { env } from './env.js';
 
 const transport =
-  nodeEnv !== 'production'
+  env.NODE_ENV !== 'production'
     ? {
         target: 'pino-pretty',
         options: {
@@ -17,7 +15,7 @@ const transport =
     : undefined;
 
 export const logger = pino({
-  level,
+  level: env.LOG_LEVEL,
   transport,
   redact: {
     paths: ['req.headers.authorization', 'req.headers.cookie', 'err.config.headers'],
@@ -36,7 +34,7 @@ export type ChildLoggerOptions = pino.ChildLoggerOptions;
 
 export function createLogger(opts?: pino.LoggerOptions): pino.Logger {
   return pino({
-    level,
+    level: env.LOG_LEVEL,
     transport,
     ...opts,
   });
