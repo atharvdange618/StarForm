@@ -11,9 +11,12 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@clerk/express": "^2.1.19",
+    "@starform/database": "workspace:*",
     "@starform/logger": "workspace:*",
     "@trpc/client": "^11.17.0",
     "@trpc/server": "^11.17.0",
+    "drizzle-orm": "^0.41.0",
     "trpc-to-openapi": "^3.2.0",
     "zod": "^4.4.3"
   },

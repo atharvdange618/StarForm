@@ -35,3 +35,17 @@ export const protectedProcedure = publicProcedure.use(async (opts) => {
   }
   return opts.next();
 });
+
+export const creatorProcedure = protectedProcedure.use(async (opts) => {
+  if (!opts.ctx.user?.roles.includes('creator')) {
+    throw new TRPCError({ code: 'FORBIDDEN', message: 'Creator role required' });
+  }
+  return opts.next();
+});
+
+export const respondentProcedure = protectedProcedure.use(async (opts) => {
+  if (!opts.ctx.user?.roles.includes('respondent')) {
+    throw new TRPCError({ code: 'FORBIDDEN', message: 'Respondent role required' });
+  }
+  return opts.next();
+});

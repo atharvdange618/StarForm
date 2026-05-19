@@ -1,34 +1,91 @@
 import { randomUUID } from 'node:crypto';
-import { logger, type Logger } from '@starform/logger';
+
+import { eq } from 'drizzle-orm';
+import { getAuth } from '@clerk/express';
 import type { CreateExpressContextOptions } from '@trpc/server/adapters/express';
+
+import { logger, type Logger } from '@starform/logger';
+import { db, users } from '@starform/database';
 
 type ExpressReq = CreateExpressContextOptions['req'] & {
   id?: string;
 };
 
+export interface ContextUser {
+  userId: string;
+  roles: string[];
+  plan: 'free' | 'pro' | 'enterprise';
+  email: string;
+  name: string | null;
+}
+
 export interface Context {
-  user: { userId: string } | null;
+  user: ContextUser | null;
   req: ExpressReq;
   log: Logger;
 }
 
 export async function createContext(opts: CreateExpressContextOptions): Promise<Context> {
-  // Never throw here. Auth enforcement happens in protectedProcedure.
-  // This function only builds context - attach user if token is valid, null otherwise.
-  //
-  // When Clerk is wired up:
-  //   try {
-  //     const { req } = opts;
-  //     const session = await clerkClient.sessions.verifySession(token);
-  //     return { user: { userId: session.userId } };
-  //   } catch {
-  //     return { user: null };
-  //   }
-
   const req = opts.req as ExpressReq;
   const log = logger.child({ reqId: req.id });
 
-  return { user: null, req, log };
+  try {
+    const auth = getAuth(req);
+    const clerkUserId = auth.userId;
+
+    if (!clerkUserId) {
+      return { user: null, req, log };
+    }
+
+    const [existingUser] = await db
+      .select()
+      .from(users)
+      .where(eq(users.clerkId, clerkUserId))
+      .limit(1);
+
+    if (existingUser) {
+      return {
+        user: {
+          userId: existingUser.id,
+          roles: existingUser.roles,
+          plan: existingUser.plan as ContextUser['plan'],
+          email: existingUser.email,
+          name: existingUser.name,
+        },
+        req,
+        log,
+      };
+    }
+
+    const inserted = await db
+      .insert(users)
+      .values({
+        clerkId: clerkUserId,
+        email: `${clerkUserId}@placeholder.starform.dev`,
+        name: null,
+      })
+      .returning();
+
+    if (!inserted[0]) {
+      return { user: null, req, log };
+    }
+
+    const newUser = inserted[0];
+
+    return {
+      user: {
+        userId: newUser.id,
+        roles: newUser.roles,
+        plan: newUser.plan as ContextUser['plan'],
+        email: newUser.email,
+        name: newUser.name,
+      },
+      req,
+      log,
+    };
+  } catch {
+    return { user: null, req, log };
+  }
 }
 
 export function createServerContext(): Context {

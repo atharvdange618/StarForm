@@ -1,6 +1,7 @@
 import express from 'express';
 import { logger } from '@starform/logger';
 import cors from 'cors';
+import { clerkMiddleware } from '@clerk/express';
 
 import * as trpcExpress from '@trpc/server/adapters/express';
 import { generateOpenApiDocument, createOpenApiExpressMiddleware } from 'trpc-to-openapi';
@@ -28,6 +29,7 @@ if (env.NODE_ENV !== 'production') {
 
 app.use(requestId);
 app.use(express.json());
+app.use(clerkMiddleware());
 
 app.get('/', (req, res) => {
   return res.json({ message: 'StarForm is up and running...' });
