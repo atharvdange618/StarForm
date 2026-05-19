@@ -7,7 +7,8 @@
     "./client": "./client/index.ts"
   },
   "scripts": {
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
   },
   "dependencies": {
     "@starform/logger": "workspace:*",
@@ -19,7 +20,8 @@
   "devDependencies": {
     "@starform/typescript-config": "workspace:*",
     "@types/node": "^20.19.41",
-    "typescript": "^6.0.3"
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.6"
   },
   "type": "module"
 }

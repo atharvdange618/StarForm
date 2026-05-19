@@ -9,112 +9,112 @@ import {
   boolean,
   uniqueIndex,
   index,
-} from "drizzle-orm/pg-core";
-import { relations } from "drizzle-orm";
+} from 'drizzle-orm/pg-core';
+import { relations } from 'drizzle-orm';
 
-export const visibilityEnum = pgEnum("visibility", ["public", "unlisted"]);
+export const visibilityEnum = pgEnum('visibility', ['public', 'unlisted']);
 
-export const statusEnum = pgEnum("status", ["draft", "published", "archived"]);
+export const statusEnum = pgEnum('status', ['draft', 'published', 'archived']);
 
 export const users = pgTable(
-  "users",
+  'users',
   {
-    id: uuid("id").primaryKey().defaultRandom(),
-    clerkId: text("clerk_id").notNull().unique(),
-    email: text("email").notNull().unique(),
-    name: text("name"),
-    roles: text("roles").array().notNull().default(["respondent"]),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
-    updatedAt: timestamp("updated_at").notNull().defaultNow(),
-    deletedAt: timestamp("deleted_at"),
+    id: uuid('id').primaryKey().defaultRandom(),
+    clerkId: text('clerk_id').notNull().unique(),
+    email: text('email').notNull().unique(),
+    name: text('name'),
+    roles: text('roles').array().notNull().default(['respondent']),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+    updatedAt: timestamp('updated_at').notNull().defaultNow(),
+    deletedAt: timestamp('deleted_at'),
   },
   (table) => [
-    uniqueIndex("users_clerk_id_idx").on(table.clerkId),
-    uniqueIndex("users_email_idx").on(table.email),
+    uniqueIndex('users_clerk_id_idx').on(table.clerkId),
+    uniqueIndex('users_email_idx').on(table.email),
   ],
 );
 
 export const themes = pgTable(
-  "themes",
+  'themes',
   {
-    id: uuid("id").primaryKey().defaultRandom(),
-    name: text("name").notNull(),
-    config: jsonb("config").notNull(),
-    isGlobal: boolean("is_global").notNull().default(false),
-    creatorId: uuid("creator_id").references(() => users.id),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
-    updatedAt: timestamp("updated_at").notNull().defaultNow(),
-    deletedAt: timestamp("deleted_at"),
+    id: uuid('id').primaryKey().defaultRandom(),
+    name: text('name').notNull(),
+    config: jsonb('config').notNull(),
+    isGlobal: boolean('is_global').notNull().default(false),
+    creatorId: uuid('creator_id').references(() => users.id),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+    updatedAt: timestamp('updated_at').notNull().defaultNow(),
+    deletedAt: timestamp('deleted_at'),
   },
-  (table) => [index("themes_creator_id_idx").on(table.creatorId)],
+  (table) => [index('themes_creator_id_idx').on(table.creatorId)],
 );
 
 export const forms = pgTable(
-  "forms",
+  'forms',
   {
-    id: uuid("id").primaryKey().defaultRandom(),
-    creatorId: uuid("creator_id")
+    id: uuid('id').primaryKey().defaultRandom(),
+    creatorId: uuid('creator_id')
       .notNull()
       .references(() => users.id),
-    title: text("title").notNull(),
-    description: text("description"),
-    slug: text("slug").notNull().unique(),
-    visibility: visibilityEnum("visibility").notNull().default("public"),
-    status: statusEnum("status").notNull().default("draft"),
-    fields: jsonb("fields").notNull().default([]),
-    themeId: uuid("theme_id").references(() => themes.id),
-    config: jsonb("config").default({}),
-    publishedVersion: integer("published_version"),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
-    updatedAt: timestamp("updated_at").notNull().defaultNow(),
-    deletedAt: timestamp("deleted_at"),
+    title: text('title').notNull(),
+    description: text('description'),
+    slug: text('slug').notNull().unique(),
+    visibility: visibilityEnum('visibility').notNull().default('public'),
+    status: statusEnum('status').notNull().default('draft'),
+    fields: jsonb('fields').notNull().default([]),
+    themeId: uuid('theme_id').references(() => themes.id),
+    config: jsonb('config').default({}),
+    publishedVersion: integer('published_version'),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+    updatedAt: timestamp('updated_at').notNull().defaultNow(),
+    deletedAt: timestamp('deleted_at'),
   },
   (table) => [
-    index("forms_creator_id_idx").on(table.creatorId),
-    uniqueIndex("forms_slug_idx").on(table.slug),
-    index("forms_status_idx").on(table.status),
+    index('forms_creator_id_idx').on(table.creatorId),
+    uniqueIndex('forms_slug_idx').on(table.slug),
+    index('forms_status_idx').on(table.status),
+    index('forms_creator_status_idx').on(table.creatorId, table.status),
   ],
 );
 
 export const formVersions = pgTable(
-  "form_versions",
+  'form_versions',
   {
-    id: uuid("id").primaryKey().defaultRandom(),
-    formId: uuid("form_id")
+    id: uuid('id').primaryKey().defaultRandom(),
+    formId: uuid('form_id')
       .notNull()
-      .references(() => forms.id, { onDelete: "cascade" }),
-    version: integer("version").notNull(),
-    fields: jsonb("fields").notNull(),
-    config: jsonb("config"),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
+      .references(() => forms.id, { onDelete: 'cascade' }),
+    version: integer('version').notNull(),
+    fields: jsonb('fields').notNull(),
+    config: jsonb('config'),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
   },
   (table) => [
-    index("form_versions_form_id_idx").on(table.formId),
-    uniqueIndex("form_versions_form_id_version_idx").on(
-      table.formId,
-      table.version,
-    ),
+    index('form_versions_form_id_idx').on(table.formId),
+    uniqueIndex('form_versions_form_id_version_idx').on(table.formId, table.version),
   ],
 );
 
 export const submissions = pgTable(
-  "submissions",
+  'submissions',
   {
-    id: uuid("id").primaryKey().defaultRandom(),
-    formId: uuid("form_id")
+    id: uuid('id').primaryKey().defaultRandom(),
+    formId: uuid('form_id')
       .notNull()
       .references(() => forms.id),
-    formVersionId: uuid("form_version_id")
+    formVersionId: uuid('form_version_id')
       .notNull()
       .references(() => formVersions.id),
-    respondentHash: text("respondent_hash"),
-    data: jsonb("data").notNull(),
-    metadata: jsonb("metadata"),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
+    respondentHash: text('respondent_hash'),
+    data: jsonb('data').notNull(),
+    metadata: jsonb('metadata'),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
   },
   (table) => [
-    index("submissions_form_id_idx").on(table.formId),
-    index("submissions_form_version_id_idx").on(table.formVersionId),
+    index('submissions_form_id_idx').on(table.formId),
+    index('submissions_form_version_id_idx').on(table.formVersionId),
+    index('submissions_respondent_hash_idx').on(table.respondentHash),
+    index('submissions_form_created_idx').on(table.formId, table.createdAt),
   ],
 );
 

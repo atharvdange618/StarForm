@@ -15,3 +15,5 @@ CONTEXT.md
 # Project context and ADRs (hackathon briefs, design decisions)
 context/
 docs/
+plan.md
+review.txt

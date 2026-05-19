@@ -15,7 +15,7 @@ export const app = express();
 const openApiDocument = generateOpenApiDocument(serverRouter, {
   title: 'StarForm OpenAPI',
   version: '1.0.0',
-  baseUrl: env.BASE_URL.concat('/api'),
+  baseUrl: env.BASE_URL.concat('/api/v1'),
 });
 
 if (env.NODE_ENV !== 'production') {
@@ -46,7 +46,7 @@ logger.debug(`docs: ${env.BASE_URL}/docs`);
 app.use('/docs', apiReference({ url: '/openapi.json' }));
 
 app.use(
-  '/api',
+  '/api/v1',
   createOpenApiExpressMiddleware({
     router: serverRouter,
     createContext,

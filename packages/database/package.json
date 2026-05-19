@@ -8,17 +8,22 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
-    "db:studio": "drizzle-kit studio"
+    "db:studio": "drizzle-kit studio",
+    "seed": "tsx src/seed.ts",
+    "test": "vitest run"
   },
   "dependencies": {
     "drizzle-orm": "^0.41.0",
-    "postgres": "^3.4.5"
+    "postgres": "^3.4.5",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
-    "drizzle-kit": "^0.30.6",
     "@starform/typescript-config": "workspace:*",
     "@types/node": "^20.19.41",
-    "typescript": "^6.0.3"
+    "drizzle-kit": "^0.30.6",
+    "tsx": "^4.22.1",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.6"
   },
   "keywords": [],
   "author": "",

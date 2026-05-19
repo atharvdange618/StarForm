@@ -1,22 +1,23 @@
-import { drizzle } from "drizzle-orm/postgres-js";
-import postgres from "postgres";
-import * as schema from "./schema";
+import { drizzle } from 'drizzle-orm/postgres-js';
+import postgres from 'postgres';
+import { z } from 'zod';
+import * as schema from './schema.js';
+
+const envSchema = z.object({
+  DATABASE_URL: z.string().url(),
+  NODE_ENV: z.enum(['development', 'production']).default('development'),
+});
+
+const env = envSchema.parse(process.env);
 
 const globalForDb = globalThis as unknown as {
   db: ReturnType<typeof drizzle> | undefined;
 };
 
-const connectionString = process.env.DATABASE_URL;
+const queryClient = postgres(env.DATABASE_URL);
 
-if (!connectionString) {
-  throw new Error("DATABASE_URL is not set");
-}
+export const db = globalForDb.db ?? drizzle(queryClient, { schema, casing: 'snake_case' });
 
-const queryClient = postgres(connectionString);
-
-export const db =
-  globalForDb.db ?? drizzle(queryClient, { schema, casing: "snake_case" });
-
-if (process.env.NODE_ENV !== "production") {
+if (env.NODE_ENV !== 'production') {
   globalForDb.db = db;
 }
