@@ -8,6 +8,7 @@ describe('env schema', () => {
     BASE_URL: z.string().default('http://localhost:8000'),
     DATABASE_URL: z.string().url(),
     CLERK_SECRET_KEY: z.string().min(1),
+    CLERK_PUBLISHABLE_KEY: z.string().min(1),
   });
 
   it('should accept valid env values', () => {
@@ -15,9 +16,11 @@ describe('env schema', () => {
       NODE_ENV: 'development',
       DATABASE_URL: 'postgresql://localhost:5432/test',
       CLERK_SECRET_KEY: 'sk_test_abc123',
+      CLERK_PUBLISHABLE_KEY: 'pk_test_abc123',
     });
     expect(result.DATABASE_URL).toBe('postgresql://localhost:5432/test');
     expect(result.CLERK_SECRET_KEY).toBe('sk_test_abc123');
+    expect(result.CLERK_PUBLISHABLE_KEY).toBe('pk_test_abc123');
   });
 
   it('should apply default for PORT', () => {
@@ -25,6 +28,7 @@ describe('env schema', () => {
       NODE_ENV: 'development',
       DATABASE_URL: 'postgresql://localhost:5432/test',
       CLERK_SECRET_KEY: 'sk_test_abc123',
+      CLERK_PUBLISHABLE_KEY: 'pk_test_abc123',
     });
     expect(result.PORT).toBeUndefined();
   });
@@ -35,6 +39,7 @@ describe('env schema', () => {
         NODE_ENV: 'development',
         DATABASE_URL: 'not-a-url',
         CLERK_SECRET_KEY: 'sk_test_abc123',
+        CLERK_PUBLISHABLE_KEY: 'pk_test_abc123',
       }),
     ).toThrow();
   });
@@ -44,6 +49,17 @@ describe('env schema', () => {
       envSchema.parse({
         NODE_ENV: 'development',
         DATABASE_URL: 'postgresql://localhost:5432/test',
+        CLERK_PUBLISHABLE_KEY: 'pk_test_abc123',
+      }),
+    ).toThrow();
+  });
+
+  it('should reject missing CLERK_PUBLISHABLE_KEY', () => {
+    expect(() =>
+      envSchema.parse({
+        NODE_ENV: 'development',
+        DATABASE_URL: 'postgresql://localhost:5432/test',
+        CLERK_SECRET_KEY: 'sk_test_abc123',
       }),
     ).toThrow();
   });

@@ -1,5 +1,6 @@
 import { currentUser } from '@clerk/nextjs/server';
 import { UserButton } from '@clerk/nextjs';
+import { TRPCExample } from '@/components/trpc-example';
 
 export default async function Home() {
   const user = await currentUser();
@@ -48,6 +49,7 @@ export default async function Home() {
             {user ? 'Dashboard' : 'Sign In'}
           </a>
         </div>
+        <TRPCExample />
       </main>
     </div>
   );

@@ -6,6 +6,7 @@ const envSchema = z.object({
   BASE_URL: z.string().default('http://localhost:8000'),
   DATABASE_URL: z.string().url(),
   CLERK_SECRET_KEY: z.string().min(1),
+  CLERK_PUBLISHABLE_KEY: z.string().min(1),
 });
 
 function createEnv(env: NodeJS.ProcessEnv) {

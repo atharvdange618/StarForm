@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono, Roboto, Figtree } from 'next/font/google';
-import { ClerkProvider } from '@clerk/nextjs';
+import { Providers } from './providers';
 import './globals.css';
 import { cn } from '@/lib/utils';
 
@@ -22,7 +22,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={cn('font-sans', roboto.variable, figtreeHeading.variable)}>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <ClerkProvider>{children}</ClerkProvider>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );
