@@ -31,9 +31,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={cn('font-sans', roboto.variable, figtreeHeading.variable)}>
+    <html
+      lang="en"
+      className={cn('font-sans', roboto.variable, figtreeHeading.variable)}
+      suppressHydrationWarning
+    >
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${cormorant.variable} ${lora.variable} antialiased`}
+        suppressHydrationWarning
       >
         <Providers>{children}</Providers>
       </body>

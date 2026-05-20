@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { httpBatchLink } from '@trpc/client';
+import { ThemeProvider } from 'next-themes';
 import { ClerkProvider, useAuth } from '@clerk/nextjs';
 import { trpc } from '@/lib/trpc';
 
@@ -33,7 +34,9 @@ function TRPCProvider({ children }: { children: React.ReactNode }) {
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <ClerkProvider>
-      <TRPCProvider>{children}</TRPCProvider>
+      <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+        <TRPCProvider>{children}</TRPCProvider>
+      </ThemeProvider>
     </ClerkProvider>
   );
 }
