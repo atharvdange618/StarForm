@@ -9,22 +9,23 @@
     "lint": "turbo lint",
     "typecheck": "turbo typecheck",
     "test": "turbo run test",
+    "test:integration": "pnpm --filter @starform/database db:push:test && pnpm --filter @starform/trpc test",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "prepare": "husky"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "packageManager": "pnpm@11.1.3",
   "type": "module",
   "devDependencies": {
     "@commitlint/cli": "^21.0.1",
     "@commitlint/config-conventional": "^21.0.1",
     "husky": "^9.1.7",
+    "@starform/eslint-config": "workspace:*",
+    "eslint": "^9.39.4",
     "lint-staged": "^17.0.4",
     "prettier": "^3.8.3",
-    "turbo": "^2.9.14"
+    "turbo": "^2.9.14",
+    "typescript": "^5.9.3"
   },
   "lint-staged": {
     "*": "prettier --ignore-unknown --write"
