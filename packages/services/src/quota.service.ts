@@ -1,6 +1,8 @@
 import { count, and, eq, gte, inArray } from 'drizzle-orm';
 import { TRPCError } from '@trpc/server';
-import { db, forms, submissions, type Plan } from '@starform/database';
+import { db } from '@starform/database/client';
+import { forms, submissions } from '@starform/database';
+import type { Plan } from '@starform/database';
 
 const PLAN_LIMITS: Record<
   Plan,
@@ -20,7 +22,8 @@ export async function checkFormLimit(userId: string, userPlan: Plan): Promise<vo
     .from(forms)
     .where(and(eq(forms.creatorId, userId), eq(forms.status, 'published')));
 
-  if (result.count >= limit) {
+  const formCount = result?.count ?? 0;
+  if (formCount >= limit) {
     throw new TRPCError({
       code: 'TOO_MANY_REQUESTS',
       message: `Free plan limited to ${limit} published forms. Upgrade to Pro for unlimited forms.`,
@@ -56,7 +59,8 @@ export async function checkSubmissionLimit(creatorId: string, userPlan: Plan): P
       ),
     );
 
-  if (result.count >= limit) {
+  const submissionCount = result?.count ?? 0;
+  if (submissionCount >= limit) {
     throw new TRPCError({
       code: 'TOO_MANY_REQUESTS',
       message: `Free plan limited to ${limit} submissions per month. Upgrade to Pro for more.`,
