@@ -23,7 +23,7 @@ export const users = pgTable(
   {
     id: uuid('id').primaryKey().defaultRandom(),
     clerkId: text('clerk_id').notNull().unique(),
-    email: text('email').notNull().unique(),
+    email: text('email').unique(),
     name: text('name'),
     roles: text('roles').array().notNull().default(['respondent']),
     plan: planEnum('plan').notNull().default('free'),
@@ -112,6 +112,7 @@ export const submissions = pgTable(
     data: jsonb('data').notNull(),
     metadata: jsonb('metadata'),
     createdAt: timestamp('created_at').notNull().defaultNow(),
+    deletedAt: timestamp('deleted_at'),
   },
   (table) => [
     index('submissions_form_id_idx').on(table.formId),

@@ -1,15 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import { TRPCError } from '@trpc/server';
 
-import { serverRouter } from '../index';
 import { createServerContext } from '../context';
-import {
-  tRPCContext,
-  publicProcedure,
-  protectedProcedure,
-  creatorProcedure,
-  respondentProcedure,
-} from '../trpc';
+import { tRPCContext, publicProcedure, protectedProcedure, creatorProcedure } from '../trpc';
 
 describe('auth procedures', () => {
   it('publicProcedure should not require auth', () => {
@@ -18,7 +11,6 @@ describe('auth procedures', () => {
 
   it('protectedProcedure should throw UNAUTHORIZED when user is null', async () => {
     const ctx = createServerContext();
-    const caller = serverRouter.createCaller(ctx);
 
     const testRouter = tRPCContext.router({
       test: protectedProcedure.query(async () => 'ok'),
@@ -36,6 +28,7 @@ describe('auth procedures', () => {
       ...ctx,
       user: {
         userId: 'test-user-id',
+        clerkId: 'test-clerk-id',
         roles: ['respondent'],
         plan: 'free' as const,
         email: 'test@test.com',
@@ -57,7 +50,8 @@ describe('auth procedures', () => {
     const authedCtx = {
       ...ctx,
       user: {
-        userId: 'test-creator-id',
+        userId: 'creator_123',
+        clerkId: 'clerk_creator_123',
         roles: ['respondent', 'creator'],
         plan: 'pro' as const,
         email: 'creator@test.com',
@@ -79,6 +73,7 @@ describe('auth procedures', () => {
       ...ctx,
       user: {
         userId: 'test-user-id',
+        clerkId: 'test-clerk-id',
         roles: ['respondent'],
         plan: 'free' as const,
         email: 'test@test.com',
@@ -92,26 +87,5 @@ describe('auth procedures', () => {
 
     const testCaller = testRouter.createCaller(authedCtx);
     await expect(testCaller.test()).resolves.toBe('ok');
-  });
-
-  it('respondentProcedure should throw FORBIDDEN when user lacks respondent role', async () => {
-    const ctx = createServerContext();
-    const authedCtx = {
-      ...ctx,
-      user: {
-        userId: 'test-user-id',
-        roles: ['creator'],
-        plan: 'free' as const,
-        email: 'creator@test.com',
-        name: null,
-      },
-    };
-
-    const testRouter = tRPCContext.router({
-      test: respondentProcedure.query(async () => 'ok'),
-    });
-
-    const testCaller = testRouter.createCaller(authedCtx);
-    await expect(testCaller.test()).rejects.toMatchObject({ code: 'FORBIDDEN' });
   });
 });

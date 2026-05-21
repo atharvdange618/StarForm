@@ -33,19 +33,16 @@ export const protectedProcedure = publicProcedure.use(async (opts) => {
   if (opts.ctx.user === null) {
     throw new TRPCError({ code: 'UNAUTHORIZED', message: 'Authentication required' });
   }
-  return opts.next();
+  return opts.next({
+    ctx: {
+      user: opts.ctx.user,
+    },
+  });
 });
 
 export const creatorProcedure = protectedProcedure.use(async (opts) => {
   if (!opts.ctx.user?.roles.includes('creator')) {
     throw new TRPCError({ code: 'FORBIDDEN', message: 'Creator role required' });
-  }
-  return opts.next();
-});
-
-export const respondentProcedure = protectedProcedure.use(async (opts) => {
-  if (!opts.ctx.user?.roles.includes('respondent')) {
-    throw new TRPCError({ code: 'FORBIDDEN', message: 'Respondent role required' });
   }
   return opts.next();
 });

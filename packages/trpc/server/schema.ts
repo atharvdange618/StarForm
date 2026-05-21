@@ -200,6 +200,9 @@ export function buildSubmissionSchema(fields: FieldDefinition[]) {
       case 'date':
         fieldSchema = z.string();
         break;
+      default:
+        fieldSchema = z.unknown();
+        break;
     }
 
     if (field.required) {

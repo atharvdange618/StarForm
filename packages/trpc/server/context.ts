@@ -5,7 +5,8 @@ import { getAuth } from '@clerk/express';
 import type { CreateExpressContextOptions } from '@trpc/server/adapters/express';
 
 import { logger, type Logger } from '@starform/logger';
-import { db, users } from '@starform/database';
+import { db } from '@starform/database/client';
+import { users } from '@starform/database';
 
 type ExpressReq = CreateExpressContextOptions['req'] & {
   id?: string;
@@ -13,9 +14,10 @@ type ExpressReq = CreateExpressContextOptions['req'] & {
 
 export interface ContextUser {
   userId: string;
+  clerkId: string;
   roles: string[];
   plan: 'free' | 'pro' | 'enterprise';
-  email: string;
+  email: string | null;
   name: string | null;
 }
 
@@ -47,6 +49,7 @@ export async function createContext(opts: CreateExpressContextOptions): Promise<
       return {
         user: {
           userId: existingUser.id,
+          clerkId: existingUser.clerkId,
           roles: existingUser.roles,
           plan: existingUser.plan as ContextUser['plan'],
           email: existingUser.email,
@@ -57,11 +60,13 @@ export async function createContext(opts: CreateExpressContextOptions): Promise<
       };
     }
 
+    const email = typeof auth.sessionClaims?.email === 'string' ? auth.sessionClaims.email : null;
+
     const inserted = await db
       .insert(users)
       .values({
         clerkId: clerkUserId,
-        email: `${clerkUserId}@placeholder.starform.dev`,
+        email,
         name: null,
       })
       .returning();
@@ -75,6 +80,7 @@ export async function createContext(opts: CreateExpressContextOptions): Promise<
     return {
       user: {
         userId: newUser.id,
+        clerkId: newUser.clerkId,
         roles: newUser.roles,
         plan: newUser.plan as ContextUser['plan'],
         email: newUser.email,
