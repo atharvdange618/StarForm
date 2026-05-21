@@ -22,7 +22,17 @@ const openApiDocument = generateOpenApiDocument(serverRouter, {
   baseUrl: env.BASE_URL.concat('/api/v1'),
 });
 
-app.use(helmet());
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      useDefaults: true,
+      directives: {
+        scriptSrc: ["'self'", 'https://cdn.jsdelivr.net', "'unsafe-inline'"],
+        connectSrc: ["'self'", 'https://api.scalar.com'],
+      },
+    },
+  }),
+);
 
 if (env.NODE_ENV !== 'production') {
   app.use(

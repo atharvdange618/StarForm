@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { router, publicProcedure, creatorProcedure } from '../../trpc';
 import { submissionService, formService } from '@starform/services';
-import { buildSubmissionSchema } from '../../schema';
+import { buildSubmissionSchema, submissionOutputSchema } from '../../schema';
 import { TRPCError } from '@trpc/server';
 import type { FieldDefinition } from '../../schema';
 
@@ -23,6 +23,7 @@ export const submissionRouter = router({
         respondentHash: z.string().optional(),
       }),
     )
+    .output(submissionOutputSchema)
     .mutation(async ({ input }) => {
       const form = await formService.getBySlug(input.slug);
 
@@ -55,6 +56,7 @@ export const submissionRouter = router({
       },
     })
     .input(z.object({ formId: z.string().uuid(), page: z.number().int().min(1).optional() }))
+    .output(z.array(submissionOutputSchema))
     .query(async ({ ctx, input }) => {
       return await submissionService.list(input.formId, ctx.user.userId, input.page || 1, 20);
     }),
@@ -70,6 +72,7 @@ export const submissionRouter = router({
       },
     })
     .input(z.object({ id: z.string().uuid() }))
+    .output(submissionOutputSchema)
     .query(async ({ input }) => {
       return await submissionService.getById(input.id);
     }),

@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { router, protectedProcedure } from '../../trpc';
 import { userService } from '@starform/services';
+import { zodUndefinedModel, userOutputSchema } from '../../schema';
 
 export const userRouter = router({
   me: protectedProcedure
@@ -13,6 +14,8 @@ export const userRouter = router({
         summary: 'Get current user profile',
       },
     })
+    .input(zodUndefinedModel)
+    .output(userOutputSchema.optional())
     .query(async ({ ctx }) => {
       return await userService.me(ctx.user.clerkId);
     }),
@@ -28,6 +31,7 @@ export const userRouter = router({
       },
     })
     .input(z.object({ name: z.string().optional() }))
+    .output(userOutputSchema.optional())
     .mutation(async ({ ctx, input }) => {
       return await userService.updateProfile(ctx.user.clerkId, input);
     }),

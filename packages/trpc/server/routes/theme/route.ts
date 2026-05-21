@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { router, protectedProcedure, creatorProcedure } from '../../trpc';
 import { themeService } from '@starform/services';
+import { themeOutputSchema, zodUndefinedModel } from '../../schema';
 
 const themeConfigSchema = z.object({
   colors: z
@@ -33,6 +34,8 @@ export const themeRouter = router({
         summary: 'List themes',
       },
     })
+    .input(zodUndefinedModel)
+    .output(z.array(themeOutputSchema))
     .query(async ({ ctx }) => {
       return await themeService.list(ctx.user.userId);
     }),
@@ -48,6 +51,7 @@ export const themeRouter = router({
       },
     })
     .input(z.object({ id: z.string().uuid() }))
+    .output(themeOutputSchema)
     .query(async ({ input }) => {
       return await themeService.getById(input.id);
     }),
@@ -69,6 +73,7 @@ export const themeRouter = router({
         isGlobal: z.boolean().optional(),
       }),
     )
+    .output(themeOutputSchema.optional())
     .mutation(async ({ ctx, input }) => {
       return await themeService.create(ctx.user.userId, {
         name: input.name,

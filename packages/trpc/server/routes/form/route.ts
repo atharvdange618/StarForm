@@ -1,7 +1,13 @@
 import { z } from 'zod';
 import { router, creatorProcedure, publicProcedure } from '../../trpc';
 import { formService } from '@starform/services';
-import { formCreateSchema, formUpdateSchema, publishConfigSchema } from '../../schema';
+import {
+  formCreateSchema,
+  formUpdateSchema,
+  publishConfigSchema,
+  formOutputSchema,
+  zodUndefinedModel,
+} from '../../schema';
 
 export const formRouter = router({
   create: creatorProcedure
@@ -15,6 +21,7 @@ export const formRouter = router({
       },
     })
     .input(formCreateSchema)
+    .output(formOutputSchema)
     .mutation(async ({ ctx, input }) => {
       return await formService.create(ctx.user.userId, input);
     }),
@@ -29,6 +36,8 @@ export const formRouter = router({
         summary: 'List your forms',
       },
     })
+    .input(zodUndefinedModel)
+    .output(z.array(formOutputSchema))
     .query(async ({ ctx }) => {
       return await formService.list(ctx.user.userId);
     }),
@@ -44,6 +53,7 @@ export const formRouter = router({
       },
     })
     .input(z.object({ id: z.string().uuid() }))
+    .output(formOutputSchema)
     .query(async ({ ctx, input }) => {
       return await formService.getById(input.id, ctx.user.userId);
     }),
@@ -59,6 +69,7 @@ export const formRouter = router({
       },
     })
     .input(z.object({ slug: z.string() }))
+    .output(formOutputSchema)
     .query(async ({ input }) => {
       return await formService.getBySlug(input.slug);
     }),
@@ -74,6 +85,7 @@ export const formRouter = router({
       },
     })
     .input(z.object({ id: z.string().uuid(), data: formUpdateSchema }))
+    .output(formOutputSchema)
     .mutation(async ({ ctx, input }) => {
       return await formService.update(input.id, ctx.user.userId, input.data);
     }),
@@ -89,6 +101,7 @@ export const formRouter = router({
       },
     })
     .input(z.object({ id: z.string().uuid(), config: publishConfigSchema }))
+    .output(formOutputSchema)
     .mutation(async ({ ctx, input }) => {
       return await formService.publish(input.id, ctx.user.userId, input.config);
     }),
@@ -104,6 +117,7 @@ export const formRouter = router({
       },
     })
     .input(z.object({ id: z.string().uuid() }))
+    .output(formOutputSchema)
     .mutation(async ({ ctx, input }) => {
       return await formService.archive(input.id, ctx.user.userId);
     }),
@@ -119,6 +133,7 @@ export const formRouter = router({
       },
     })
     .input(z.object({ id: z.string().uuid() }))
+    .output(formOutputSchema)
     .mutation(async ({ ctx, input }) => {
       return await formService.clone(input.id, ctx.user.userId);
     }),

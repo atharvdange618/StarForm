@@ -14,6 +14,7 @@ export const analyticsRouter = router({
       },
     })
     .input(z.object({ id: z.string().uuid() }))
+    .output(z.any())
     .query(async ({ input }) => {
       return await analyticsService.getFormStats(input.id);
     }),

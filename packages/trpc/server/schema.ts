@@ -221,4 +221,59 @@ export const planEnum = z.enum(['free', 'pro', 'enterprise']);
 
 export const zodUndefinedModel = z.undefined().describe('undefined');
 
+export const userOutputSchema = z.object({
+  id: z.string().uuid(),
+  clerkId: z.string(),
+  email: z.string().nullable(),
+  name: z.string().nullable(),
+  roles: z.array(z.string()),
+  plan: planEnum,
+  createdAt: z.date(),
+  updatedAt: z.date(),
+  deletedAt: z.date().nullable(),
+});
+
+export const formOutputSchema = z.object({
+  id: z.string().uuid(),
+  creatorId: z.string().uuid(),
+  title: z.string(),
+  description: z.string().nullable(),
+  slug: z.string(),
+  visibility: formVisibilityEnum,
+  status: formStatusEnum,
+  fields: z.any(),
+  themeId: z.string().uuid().nullable(),
+  config: z.any(),
+  publishedVersion: z.number().int().nullable(),
+  createdAt: z.date(),
+  updatedAt: z.date(),
+  deletedAt: z.date().nullable(),
+  submissionCount: z.number().int().optional(),
+  theme: z.any().optional(),
+  versions: z.any().optional(),
+});
+
+export const submissionOutputSchema = z.object({
+  id: z.string().uuid(),
+  formId: z.string().uuid(),
+  formVersionId: z.string().uuid(),
+  respondentHash: z.string().nullable(),
+  data: z.any(),
+  metadata: z.any(),
+  createdAt: z.date(),
+  deletedAt: z.date().nullable(),
+  form: z.any().optional(),
+});
+
+export const themeOutputSchema = z.object({
+  id: z.string().uuid(),
+  name: z.string(),
+  config: z.any(),
+  isGlobal: z.boolean(),
+  creatorId: z.string().uuid().nullable(),
+  createdAt: z.date(),
+  updatedAt: z.date(),
+  deletedAt: z.date().nullable(),
+});
+
 export { z };
