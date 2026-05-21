@@ -1,18 +1,1 @@
-import { z } from 'zod';
-
-const envSchema = z.object({
-  PORT: z.string().optional(),
-  NODE_ENV: z.enum(['development', 'production']).default('development'),
-  BASE_URL: z.string().default('http://localhost:8000'),
-  DATABASE_URL: z.string().url(),
-  CLERK_SECRET_KEY: z.string().min(1),
-  CLERK_PUBLISHABLE_KEY: z.string().min(1),
-});
-
-function createEnv(env: NodeJS.ProcessEnv) {
-  const safeParseResult = envSchema.safeParse(env);
-  if (!safeParseResult.success) throw new Error(safeParseResult.error.message);
-  return safeParseResult.data;
-}
-
-export const env = createEnv(process.env);
+export { env } from '@starform/env';
