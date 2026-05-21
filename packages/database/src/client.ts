@@ -1,10 +1,10 @@
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 import { env } from './env.js';
-import * as schema from './schema.js';
+import * as schema from './schema';
 
 const globalForDb = globalThis as unknown as {
-  db: ReturnType<typeof drizzle> | undefined;
+  db: ReturnType<typeof drizzle<typeof schema>> | undefined;
 };
 
 const queryClient = postgres(env.DATABASE_URL);
