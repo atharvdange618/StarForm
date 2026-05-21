@@ -10,8 +10,9 @@ describe('health router', () => {
     caller = serverRouter.createCaller(ctx);
   });
 
-  it('should return healthy status', async () => {
+  it('should return healthy status with DB connected', async () => {
     const result = await caller.health.getHealth();
     expect(result.status).toBe('healthy');
+    expect(result.dbConnected).toBe(true);
   });
 });
