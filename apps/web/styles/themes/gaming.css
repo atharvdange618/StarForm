@@ -1,0 +1,70 @@
+@keyframes glow-pulse {
+  0%,
+  100% {
+    box-shadow:
+      0 0 5px oklch(0.7 0.15 145),
+      0 0 10px oklch(0.7 0.15 145 / 0.5);
+  }
+  50% {
+    box-shadow:
+      0 0 10px oklch(0.7 0.15 145),
+      0 0 20px oklch(0.7 0.15 145 / 0.7);
+  }
+}
+
+.theme-gaming {
+  --theme-primary: oklch(0.7 0.15 145);
+  --theme-secondary: oklch(0.3 0.3 150);
+  --theme-accent: oklch(0.9 0.15 80);
+  --theme-background: oklch(0.1 0.05 150);
+  --theme-text: oklch(0.85 0.05 145);
+  --theme-card-bg: oklch(0.15 0.08 150);
+  --theme-border: oklch(0.7 0.15 145 / 0.3);
+  --theme-radius: 0.5rem;
+  --theme-font-heading: var(--font-mono);
+  --theme-font-body: var(--font-mono);
+
+  --theme-btn-bg: var(--theme-primary);
+  --theme-btn-text: black;
+  --theme-btn-radius: 0.25rem;
+  --theme-btn-shadow: 0 0 10px oklch(0.7 0.15 145 / 0.5);
+}
+
+.theme-gaming {
+  background: var(--theme-background);
+  color: var(--theme-text);
+  font-family: var(--theme-font-mono);
+  image-rendering: pixelated;
+}
+
+.theme-gaming .card {
+  border: 2px solid var(--theme-border);
+  box-shadow:
+    0 0 10px oklch(0.7 0.15 145 / 0.2),
+    inset 0 0 10px oklch(0.7 0.15 145 / 0.05);
+}
+
+.theme-gaming input,
+.theme-gaming textarea,
+.theme-gaming select {
+  background: black;
+  border: 2px solid var(--theme-border);
+  color: var(--theme-primary);
+  font-family: var(--theme-font-mono);
+  padding: 0.625rem;
+}
+
+.theme-gaming input:focus,
+.theme-gaming textarea:focus {
+  animation: glow-pulse 1.5s infinite;
+  border-color: var(--theme-primary);
+  outline: none;
+}
+
+.theme-gaming .btn-primary {
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 0.75rem;
+  border: 2px solid var(--theme-primary);
+  animation: glow-pulse 2s infinite;
+}

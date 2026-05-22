@@ -1,0 +1,42 @@
+.theme-startup {
+  --theme-primary: oklch(0.47 0.155 248);
+  --theme-secondary: oklch(0.88 0.062 148);
+  --theme-accent: oklch(0.78 0.088 308);
+  --theme-background: oklch(0.97 0.012 88);
+  --theme-text: oklch(0.24 0.055 262);
+  --theme-card-bg: oklch(0.95 0.016 92);
+  --theme-border: oklch(0.88 0.022 92);
+  --theme-radius: 1.25rem;
+  --theme-font-heading: var(--font-heading);
+  --theme-font-body: var(--font-body);
+
+  --theme-btn-bg: var(--theme-primary);
+  --theme-btn-text: oklch(0.97 0.015 90);
+  --theme-btn-radius: var(--theme-radius);
+  --theme-btn-shadow: 0 4px 20px oklch(0.47 0.155 248 / 0.35);
+}
+
+.theme-startup {
+  background: var(--theme-background);
+  color: var(--theme-text);
+  font-family: var(--theme-font-body);
+}
+
+.theme-startup input,
+.theme-startup textarea,
+.theme-startup select {
+  background: var(--theme-card-bg);
+  border: 1px solid var(--theme-border);
+  border-radius: var(--theme-radius);
+  padding: 0.625rem 1rem;
+  font-family: var(--theme-font-body);
+  transition:
+    box-shadow 0.2s,
+    border-color 0.2s;
+}
+
+.theme-startup input:focus,
+.theme-startup textarea:focus {
+  border-color: var(--theme-primary);
+  box-shadow: 0 0 0 3px oklch(0.47 0.155 248 / 0.22);
+}
