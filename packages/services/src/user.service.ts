@@ -14,6 +14,7 @@ export async function upsertUser(
       clerkId,
       email,
       name,
+      roles: ['creator', 'respondent'],
     })
     .onConflictDoUpdate({
       target: users.clerkId,
