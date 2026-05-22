@@ -28,6 +28,19 @@
   --theme-btn-text: black;
   --theme-btn-radius: 0.25rem;
   --theme-btn-shadow: 0 0 10px oklch(0.7 0.15 145 / 0.5);
+
+  --theme-muted-foreground: oklch(0.65 0.05 145);
+
+  /* Standard design system overrides */
+  --background: var(--theme-background);
+  --card: var(--theme-card-bg);
+  --foreground: var(--theme-text);
+  --muted-foreground: var(--theme-muted-foreground);
+  --border: var(--theme-border);
+  --radius: var(--theme-radius);
+  --primary: var(--theme-primary);
+  --font-heading: var(--theme-font-heading);
+  --font-body: var(--theme-font-body);
 }
 
 .theme-gaming {
@@ -61,7 +74,17 @@
   outline: none;
 }
 
+.theme-gaming input::placeholder,
+.theme-gaming textarea::placeholder {
+  color: var(--muted-foreground);
+  opacity: 0.8;
+}
+
 .theme-gaming .btn-primary {
+  background: var(--theme-btn-bg);
+  color: var(--theme-btn-text);
+  border-radius: var(--theme-btn-radius);
+  box-shadow: var(--theme-btn-shadow);
   text-transform: uppercase;
   letter-spacing: 0.1em;
   font-size: 0.75rem;

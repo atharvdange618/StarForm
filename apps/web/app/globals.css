@@ -2,6 +2,12 @@
 @import 'tw-animate-css';
 @import 'shadcn/tailwind.css';
 
+@import '../styles/themes/startup.css';
+@import '../styles/themes/anime.css';
+@import '../styles/themes/gaming.css';
+@import '../styles/themes/space.css';
+@import '../styles/themes/retro.css';
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {

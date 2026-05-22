@@ -8,6 +8,7 @@ import { usePublishForm } from '@/modules/forms/hooks/useForms';
 import { FieldRenderer } from './field-renderer';
 import { toast } from 'sonner';
 import { env } from '@/lib/env';
+import { trpc } from '@/lib/trpc';
 
 interface FormPreviewStepProps {
   formId?: string;
@@ -32,6 +33,37 @@ export function FormPreviewStep({ formId, onPublished }: FormPreviewStepProps) {
   const [copied, setCopied] = useState(false);
   const [qrCodeUrl, setQrCodeUrl] = useState<string | null>(null);
   const sortedFields = useMemo(() => [...fields].toSorted((a, b) => a.order - b.order), [fields]);
+
+  const { data: themes } = trpc.theme.list.useQuery();
+  const themeClass = useMemo(() => {
+    if (!themeId || !themes) return 'theme-startup';
+    const theme = themes.find((t) => t.id === themeId);
+    return theme ? `theme-${theme.name.toLowerCase()}` : 'theme-startup';
+  }, [themeId, themes]);
+
+  const renderThemeEffects = useCallback(() => {
+    if (themeClass === 'theme-space') {
+      return <div className="stars" />;
+    }
+    if (themeClass === 'theme-anime') {
+      return (
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div
+              key={i}
+              className="sakura-petal"
+              style={{
+                left: `${15 + i * 16}%`,
+                animationDelay: `${i * 1.5}s`,
+                animationDuration: `${8 + i * 2}s`,
+              }}
+            />
+          ))}
+        </div>
+      );
+    }
+    return null;
+  }, [themeClass]);
 
   const handlePublish = async () => {
     if (!formId) return;
@@ -156,24 +188,37 @@ export function FormPreviewStep({ formId, onPublished }: FormPreviewStepProps) {
   return (
     <div className="mx-auto grid max-w-4xl gap-8 lg:grid-cols-5">
       <div className="lg:col-span-3">
-        <div className="rounded-[calc(var(--radius)*1.2)] border border-border bg-card p-6 shadow-(--shadow-card)">
-          <div className="mb-6">
-            <h2 className="font-display text-2xl font-light text-foreground">
-              {title || 'Untitled Form'}
-            </h2>
-            {description ? (
-              <p className="mt-2 font-body text-sm text-muted-foreground">{description}</p>
-            ) : null}
-          </div>
+        <div
+          className={`${themeClass} relative overflow-hidden rounded-[calc(var(--radius)*1.2)] border border-border p-8 shadow-(--shadow-card) transition-all duration-300`}
+        >
+          {renderThemeEffects()}
+          <div className="card relative z-10 rounded-[calc(var(--radius)*1.2)] border border-border bg-card p-6 shadow-(--shadow-card)">
+            <div className="mb-6">
+              <h2 className="font-display text-2xl font-light text-foreground">
+                {title || 'Untitled Form'}
+              </h2>
+              {description ? (
+                <p className="mt-2 font-body text-sm text-muted-foreground">{description}</p>
+              ) : null}
+            </div>
 
-          <div className="space-y-5">
-            {sortedFields.length === 0 ? (
-              <p className="py-8 text-center font-body text-sm text-muted-foreground">
-                Add fields to your form to see a preview
-              </p>
-            ) : (
-              sortedFields.map((field) => <FieldRenderer key={field.id} field={field} />)
-            )}
+            <div className="space-y-5">
+              {sortedFields.length === 0 ? (
+                <p className="py-8 text-center font-body text-sm text-muted-foreground">
+                  Add fields to your form to see a preview
+                </p>
+              ) : (
+                sortedFields.map((field) => <FieldRenderer key={field.id} field={field} />)
+              )}
+            </div>
+
+            {sortedFields.length > 0 ? (
+              <div className="mt-6 flex justify-end">
+                <button type="button" className="btn-primary w-full justify-center">
+                  Submit
+                </button>
+              </div>
+            ) : null}
           </div>
         </div>
       </div>

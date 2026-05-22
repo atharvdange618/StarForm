@@ -14,6 +14,26 @@
   --theme-btn-text: oklch(0.97 0.015 90);
   --theme-btn-radius: var(--theme-radius);
   --theme-btn-shadow: 0 4px 20px oklch(0.47 0.155 248 / 0.35);
+
+  --theme-muted-foreground: oklch(0.52 0.038 288);
+
+  /* Standard design system overrides */
+  --background: var(--theme-background);
+  --card: var(--theme-card-bg);
+  --foreground: var(--theme-text);
+  --muted-foreground: var(--theme-muted-foreground);
+  --border: var(--theme-border);
+  --radius: var(--theme-radius);
+  --primary: var(--theme-primary);
+  --font-heading: var(--theme-font-heading);
+  --font-body: var(--theme-font-body);
+}
+
+.theme-startup .btn-primary {
+  background: var(--theme-btn-bg);
+  color: var(--theme-btn-text);
+  border-radius: var(--theme-btn-radius);
+  box-shadow: var(--theme-btn-shadow);
 }
 
 .theme-startup {
@@ -39,4 +59,10 @@
 .theme-startup textarea:focus {
   border-color: var(--theme-primary);
   box-shadow: 0 0 0 3px oklch(0.47 0.155 248 / 0.22);
+}
+
+.theme-startup input::placeholder,
+.theme-startup textarea::placeholder {
+  color: var(--muted-foreground);
+  opacity: 0.7;
 }

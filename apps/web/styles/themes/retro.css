@@ -23,6 +23,19 @@
   --theme-btn-text: var(--theme-background);
   --theme-btn-radius: 0;
   --theme-btn-shadow: 0 0 10px oklch(0.8 0.1 85 / 0.3);
+
+  --theme-muted-foreground: oklch(0.62 0.06 85);
+
+  /* Standard design system overrides */
+  --background: var(--theme-background);
+  --card: var(--theme-card-bg);
+  --foreground: var(--theme-text);
+  --muted-foreground: var(--theme-muted-foreground);
+  --border: var(--theme-border);
+  --radius: var(--theme-radius);
+  --primary: var(--theme-primary);
+  --font-heading: var(--theme-font-heading);
+  --font-body: var(--theme-font-body);
 }
 
 .theme-retro {
@@ -63,7 +76,17 @@
   outline: none;
 }
 
+.theme-retro input::placeholder,
+.theme-retro textarea::placeholder {
+  color: var(--muted-foreground);
+  opacity: 0.8;
+}
+
 .theme-retro .btn-primary {
+  background: var(--theme-btn-bg);
+  color: var(--theme-btn-text);
+  border-radius: var(--theme-btn-radius);
+  box-shadow: var(--theme-btn-shadow);
   text-transform: uppercase;
   letter-spacing: 0.15em;
   font-size: 0.75rem;

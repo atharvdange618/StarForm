@@ -31,6 +31,26 @@
   --theme-btn-text: white;
   --theme-btn-radius: 999px;
   --theme-btn-shadow: 0 4px 20px oklch(0.72 0.125 352 / 0.35);
+
+  --theme-muted-foreground: oklch(0.55 0.04 352);
+
+  /* Standard design system overrides */
+  --background: var(--theme-background);
+  --card: var(--theme-card-bg);
+  --foreground: var(--theme-text);
+  --muted-foreground: var(--theme-muted-foreground);
+  --border: var(--theme-border);
+  --radius: var(--theme-radius);
+  --primary: var(--theme-primary);
+  --font-heading: var(--theme-font-heading);
+  --font-body: var(--theme-font-body);
+}
+
+.theme-anime .btn-primary {
+  background: var(--theme-btn-bg);
+  color: var(--theme-btn-text);
+  border-radius: var(--theme-btn-radius);
+  box-shadow: var(--theme-btn-shadow);
 }
 
 .theme-anime {
@@ -66,4 +86,22 @@
 .theme-anime textarea:focus {
   border-color: var(--theme-primary);
   box-shadow: 0 0 0 3px oklch(0.72 0.125 352 / 0.2);
+}
+
+.theme-anime input::placeholder,
+.theme-anime textarea::placeholder {
+  color: var(--muted-foreground);
+  opacity: 0.7;
+}
+
+.theme-anime .sakura-petal {
+  position: absolute;
+  top: -20px;
+  background: oklch(0.85 0.1 352);
+  border-radius: 12px 1px 12px 12px;
+  width: 12px;
+  height: 8px;
+  pointer-events: none;
+  animation: sakura-fall 10s linear infinite;
+  transform-origin: center;
 }
