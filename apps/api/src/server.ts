@@ -76,7 +76,14 @@ logger.debug(`docs: ${env.BASE_URL}/docs`);
 app.use('/docs', apiReference({ url: '/openapi.json' }));
 
 app.use('/api/v1/forms/', qrcodeRouter);
-app.use('/api/v1/forms/slug', submissionLimiter);
+
+app.use('/api/trpc', (req, _res, next) => {
+  const body = req.body as { method?: string } | undefined;
+  if (body?.method === 'submission.submit') {
+    return submissionLimiter(req, _res, next);
+  }
+  next();
+});
 
 app.use(
   '/api/v1',
