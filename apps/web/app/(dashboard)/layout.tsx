@@ -1,0 +1,49 @@
+import Link from 'next/link';
+import { LayoutDashboard, FileEdit, BarChart3, Zap } from 'lucide-react';
+import { UserButton } from '@clerk/nextjs';
+import { ThemeToggle } from '@/components/theme-toggle';
+import { cn } from '@/lib/utils';
+
+const navItems = [
+  { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+  { label: 'New Form', href: '/forms/new', icon: FileEdit },
+  { label: 'Analytics', href: '/analytics', icon: BarChart3 },
+];
+
+export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="flex min-h-screen flex-col bg-background">
+      <header className="sticky top-0 z-50 border-b border-border/40 bg-background/80 backdrop-blur-xl">
+        <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4">
+          <div className="flex items-center gap-6">
+            <Link
+              href="/dashboard"
+              className="flex items-center gap-2 text-foreground transition-all hover:opacity-80"
+            >
+              <Zap className="h-5 w-5 text-primary" />
+              <span className="font-heading text-lg font-medium tracking-tight">StarForm</span>
+            </Link>
+            <nav className="hidden items-center gap-1 md:flex">
+              {navItems.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className="flex items-center gap-2 rounded-full px-3 py-1.5 font-body text-sm text-muted-foreground transition-colors hover:bg-primary/10 hover:text-foreground"
+                >
+                  <item.icon className="h-4 w-4" />
+                  {item.label}
+                </Link>
+              ))}
+            </nav>
+          </div>
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
+            <div className="mx-1 h-5 w-px bg-border/50" />
+            <UserButton />
+          </div>
+        </div>
+      </header>
+      <main className="flex-1">{children}</main>
+    </div>
+  );
+}
