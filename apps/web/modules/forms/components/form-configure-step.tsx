@@ -1,8 +1,9 @@
 'use client';
 
 import { useEffect, useCallback } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { DateTimePicker } from '@/components/datetime-picker';
 import { z } from 'zod';
 import { useFormBuilderStore } from '@/store/form-builder.store';
 import { ThemePicker } from './theme-picker';
@@ -38,12 +39,13 @@ export function FormConfigureStep() {
     register,
     watch,
     setValue,
+    control,
     formState: { errors },
   } = useForm<ConfigureData>({
     resolver: zodResolver(configureSchema),
     defaultValues: {
       visibility,
-      expiryDate: expiryDate ? expiryDate.slice(0, 16) : '',
+      expiryDate: expiryDate ?? '',
       responseLimit: responseLimit?.toString() ?? '',
       password: password ?? '',
       thankYouMessage: thankYouMessage ?? '',
@@ -168,11 +170,18 @@ export function FormConfigureStep() {
             <Label htmlFor="expiry-date" className="font-body text-sm text-muted-foreground">
               Expiry Date
             </Label>
-            <Input
-              id="expiry-date"
-              type="datetime-local"
-              {...register('expiryDate')}
-              className="font-body"
+            <Controller
+              control={control}
+              name="expiryDate"
+              render={({ field }) => (
+                <DateTimePicker
+                  date={field.value ? new Date(field.value) : undefined}
+                  onDateChange={(date) => {
+                    field.onChange(date ? date.toISOString() : '');
+                  }}
+                  placeholder="Select expiry date"
+                />
+              )}
             />
           </div>
 
