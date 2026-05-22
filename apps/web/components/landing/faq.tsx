@@ -39,7 +39,7 @@ export function FAQ() {
         <div className="mb-12 flex flex-col items-center gap-4 text-center">
           <span className="eyebrow">FAQ</span>
           <h2
-            className="text-[clamp(2.25rem,_5vw,_3.5rem)] font-[400] tracking-[-0.01em] text-foreground"
+            className="text-[clamp(2.25rem,5vw,3.5rem)] font-normal tracking-[-0.01em] text-foreground"
             style={{ fontFamily: 'var(--font-display)', textWrap: 'balance' }}
           >
             Frequently asked questions
@@ -47,8 +47,8 @@ export function FAQ() {
         </div>
 
         <Accordion type="single" collapsible className="w-full">
-          {faqs.map((faq, i) => (
-            <AccordionItem key={i} value={`item-${i}`} className="border-border/60 py-1">
+          {faqs.map((faq) => (
+            <AccordionItem key={faq.q} value={`item-${faq.q}`} className="border-border/60 py-1">
               <AccordionTrigger className="font-body py-4 text-left text-lg font-medium text-foreground hover:no-underline [&>svg]:text-muted-foreground">
                 {faq.q}
               </AccordionTrigger>

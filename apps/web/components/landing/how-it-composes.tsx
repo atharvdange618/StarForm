@@ -34,11 +34,11 @@ const steps = [
 export default function HowItComposes() {
   return (
     <section id="how" className="relative">
-      <div className="max-w-[1280px] mx-auto px-8 lg:px-14 py-28 lg:py-36">
+      <div className="max-w-7xl mx-auto px-8 lg:px-14 py-28 lg:py-36">
         <div className="grid lg:grid-cols-[0.85fr_1.15fr] gap-14 lg:gap-24">
           <div className="lg:sticky lg:top-28 lg:self-start">
             <span className="eyebrow">How it composes</span>
-            <h2 className="font-display mt-4 text-balance text-foreground leading-[1.08] tracking-[-0.01em] font-normal text-[clamp(1.75rem,_4vw,_2.5rem)]">
+            <h2 className="font-display mt-4 text-balance text-foreground leading-[1.08] tracking-[-0.01em] font-normal text-[clamp(1.75rem,4vw,2.5rem)]">
               Four steps, from blank cream to first reply.
             </h2>
             <p className="mt-6 font-body text-pretty text-muted-foreground max-w-[62ch] leading-[1.75] text-base">
@@ -58,7 +58,7 @@ export default function HowItComposes() {
 
           <div className="relative">
             <div
-              className="absolute left-[26px] top-2 bottom-2 w-px"
+              className="absolute left-6.5 top-2 bottom-2 w-px"
               style={{
                 background:
                   'linear-gradient(to bottom, transparent, color-mix(in oklch, var(--primary) 35%, transparent) 15%, color-mix(in oklch, var(--accent) 40%, transparent) 50%, color-mix(in oklch, var(--chart-4) 35%, transparent) 85%, transparent)',
@@ -67,11 +67,11 @@ export default function HowItComposes() {
             />
 
             <ol className="space-y-10">
-              {steps.map((step, idx) => {
+              {steps.map((step, index) => {
                 const Icon = step.icon;
                 return (
                   <li key={step.n} className="relative pl-20">
-                    <div className="absolute left-0 top-0 w-[54px] h-[54px] rounded-full flex items-center justify-center bg-card border border-border shadow-[var(--shadow-card)]">
+                    <div className="absolute left-0 top-0 w-13.5 h-13.5 rounded-full flex items-center justify-center bg-card border border-border shadow-(--shadow-card)">
                       <Icon size={18} strokeWidth={1.5} color="var(--foreground)" />
                     </div>
 
@@ -93,7 +93,7 @@ export default function HowItComposes() {
                           color: step.badge.fg,
                         }}
                       >
-                        0{idx + 1}
+                        0{index + 1}
                       </span>
                     </div>
                     <h3 className="font-display text-foreground text-xl font-medium tracking-[-0.005em]">
@@ -110,7 +110,7 @@ export default function HowItComposes() {
         </div>
       </div>
 
-      <div className="max-w-[1280px] mx-auto px-8 lg:px-14">
+      <div className="max-w-7xl mx-auto px-8 lg:px-14">
         <div className="brushstroke" />
       </div>
     </section>

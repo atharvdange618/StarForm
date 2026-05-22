@@ -33,7 +33,7 @@ function buildSvg(
   const row4 = [100, 260, 420, 580, 740, 900, 1060, 1220, 1360]
     .map((x, i) => {
       const c = [rose, gold, lavender, cerulean, sage, rose, gold, lavender, cerulean];
-      return `<circle cx="${x}" cy="760" r="${i % 3 === 0 ? 2.0 : 1.4}" fill="${c[i]}" />`;
+      return `<circle cx="${x}" cy="760" r="${i % 3 === 0 ? 2 : 1.4}" fill="${c[i]}" />`;
     })
     .join('\n          ');
 
@@ -275,7 +275,9 @@ export function HeroArt() {
       attributeFilter: ['class'],
     });
 
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+    };
   }, []);
 
   return (

@@ -77,12 +77,14 @@ export function Pricing() {
 
           <div className="mt-4 flex items-center gap-3">
             <span
-              className={`font-body text-sm ${!yearly ? 'text-foreground' : 'text-muted-foreground'}`}
+              className={`font-body text-sm ${yearly ? 'text-muted-foreground' : 'text-foreground'}`}
             >
               Monthly
             </span>
             <button
-              onClick={() => setYearly(!yearly)}
+              onClick={() => {
+                setYearly(!yearly);
+              }}
               className={`relative h-6 w-11 rounded-full transition-colors ${yearly ? 'bg-primary' : 'bg-border'}`}
               role="switch"
               aria-checked={yearly}
@@ -113,11 +115,11 @@ export function Pricing() {
                   : 'border-border bg-card shadow-[var(--shadow-card)]'
               }`}
             >
-              {plan.highlighted && (
+              {plan.highlighted ? (
                 <span className="font-body absolute -top-2.5 left-1/2 -translate-x-1/2 rounded-full bg-primary px-4 py-0.5 text-[0.75rem] font-medium uppercase tracking-[0.1em] text-primary-foreground">
                   Most Popular
                 </span>
-              )}
+              ) : null}
 
               <h3 className="font-display mb-1 text-[1.25rem] font-[500] text-foreground">
                 {plan.name}
@@ -126,7 +128,7 @@ export function Pricing() {
               <p className="font-body mb-5 text-sm text-muted-foreground">{plan.description}</p>
 
               <div className="mb-6">
-                {plan.price.monthly === null ? (
+                {plan.price.monthly == null ? (
                   <span className="font-display text-[2rem] font-[400] tracking-[-0.01em] text-foreground">
                     Custom
                   </span>
