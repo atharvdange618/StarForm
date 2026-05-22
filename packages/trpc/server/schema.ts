@@ -138,7 +138,19 @@ export const formCreateSchema = formBaseSchema.extend({
   fields: z.array(fieldDefinitionSchema).min(1),
 });
 
-export const formUpdateSchema = formCreateSchema.partial();
+export const formUpdateSchema = formCreateSchema.partial().extend({
+  themeId: z.string().uuid().nullable().optional(),
+  visibility: z.enum(['public', 'unlisted']).optional(),
+  config: z
+    .object({
+      expiryDate: z.string().datetime().nullable().optional(),
+      responseLimit: z.number().int().positive().nullable().optional(),
+      password: z.string().min(4).nullable().optional(),
+      thankYouMessage: z.string().max(1000).nullable().optional(),
+      webhookUrl: z.string().nullable().optional(),
+    })
+    .optional(),
+});
 
 export const publishConfigSchema = z.object({
   themeId: z.string().uuid().optional(),

@@ -60,14 +60,13 @@ export async function createContext(opts: CreateExpressContextOptions): Promise<
       };
     }
 
-    const email = typeof auth.sessionClaims?.email === 'string' ? auth.sessionClaims.email : null;
-
     const inserted = await db
       .insert(users)
       .values({
         clerkId: clerkUserId,
-        email,
+        email: null,
         name: null,
+        roles: ['creator', 'respondent'],
       })
       .returning();
 
@@ -89,7 +88,8 @@ export async function createContext(opts: CreateExpressContextOptions): Promise<
       req,
       log,
     };
-  } catch {
+  } catch (error) {
+    log.error({ err: error }, 'Error in createContext');
     return { user: null, req, log };
   }
 }
