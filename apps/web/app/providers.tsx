@@ -6,15 +6,27 @@ import { httpBatchLink } from '@trpc/client';
 import { ThemeProvider } from 'next-themes';
 import { ClerkProvider, useAuth } from '@clerk/nextjs';
 import { trpc } from '@/lib/trpc';
+import { env } from '@/lib/env';
 
 function TRPCProvider({ children }: { children: React.ReactNode }) {
   const { getToken } = useAuth();
-  const [queryClient] = useState(() => new QueryClient());
-  const [trpcClient] = useState(() =>
+  const [queryClient] = useState<QueryClient>(
+    () =>
+      new QueryClient({
+        defaultOptions: {
+          queries: {
+            refetchOnWindowFocus: false,
+            retry: 1,
+            staleTime: 30_000,
+          },
+        },
+      }),
+  );
+  const [trpcClient] = useState<ReturnType<typeof trpc.createClient>>(() =>
     trpc.createClient({
       links: [
         httpBatchLink({
-          url: `${process.env.NEXT_PUBLIC_API_URL}/api/trpc`,
+          url: `${env.NEXT_PUBLIC_API_URL}/api/trpc`,
           async headers() {
             const token = await getToken();
             return token ? { Authorization: `Bearer ${token}` } : {};
