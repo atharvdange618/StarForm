@@ -21,7 +21,7 @@ router.get('/:slug/qrcode', async (req, res) => {
     });
 
     res.setHeader('Content-Type', 'image/png');
-    res.setHeader('Content-Disposition', `attachment; filename="starform-${slug}.png"`);
+    res.setHeader('Content-Disposition', `inline; filename="starform-${slug}.png"`);
     res.send(qrBuffer);
   } catch (err: unknown) {
     logger.error(`Error generating QR code: ${err instanceof Error ? err.message : String(err)}`);

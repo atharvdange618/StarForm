@@ -25,6 +25,7 @@ const openApiDocument = generateOpenApiDocument(serverRouter, {
 
 app.use(
   helmet({
+    crossOriginResourcePolicy: { policy: 'cross-origin' },
     contentSecurityPolicy: {
       useDefaults: true,
       directives: {
