@@ -4,4 +4,5 @@ export * as formService from './form.service';
 export * as themeService from './theme.service';
 export * as submissionService from './submission.service';
 export * as analyticsService from './analytics.service';
+export * as webhookService from './webhook.service';
 export type { Plan } from '@starform/database';

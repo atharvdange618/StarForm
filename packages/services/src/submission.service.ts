@@ -69,6 +69,9 @@ export async function submit(
         message: 'Failed to create submission',
       });
     }
+
+    void import('./webhook.service').then((m) => m.notify(formId, submission));
+
     return submission;
   });
 }
