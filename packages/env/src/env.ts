@@ -17,6 +17,7 @@ export const envSchema = z.object({
   CLERK_PUBLISHABLE_KEY: z.string().min(1),
   CLERK_WEBHOOK_SECRET: z.string().min(1),
   LOG_LEVEL: z.string().default('debug'),
+  RESEND_API_KEY: z.string().min(1).optional(),
 });
 
 const safeParseResult = envSchema.safeParse(process.env);
