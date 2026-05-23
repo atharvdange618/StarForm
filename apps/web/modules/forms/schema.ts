@@ -82,5 +82,7 @@ export function buildSubmissionSchema(fields: SchematicField[]) {
     }
   }
 
+  shape['_sendEmailCopy'] = z.boolean().optional();
+
   return z.object(shape);
 }

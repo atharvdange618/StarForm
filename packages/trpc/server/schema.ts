@@ -224,6 +224,8 @@ export function buildSubmissionSchema(fields: FieldDefinition[]) {
     }
   }
 
+  shape['_sendEmailCopy'] = z.boolean().optional();
+
   return z.object(shape);
 }
 
