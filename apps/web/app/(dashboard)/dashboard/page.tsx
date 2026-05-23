@@ -226,7 +226,12 @@ export default function DashboardPage() {
                     <CardDescription className="mt-0.5 flex items-center gap-2">
                       <span className="font-mono text-xs">/{form.slug}</span>
                       <span className="text-muted-foreground">&middot;</span>
-                      <span className="text-xs">{form.submissionCount ?? 0} responses</span>
+                      <Link
+                        href={`/dashboard/forms/${form.id}/responses`}
+                        className="text-xs hover:text-primary transition-colors underline decoration-dotted"
+                      >
+                        {form.submissionCount ?? 0} responses
+                      </Link>
                     </CardDescription>
                   </div>
                   <div className="flex shrink-0 items-center gap-2">
@@ -275,6 +280,14 @@ export default function DashboardPage() {
                         >
                           <BarChart3 className="h-4 w-4" />
                           Analytics
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => {
+                            router.push(`/dashboard/forms/${form.id}/responses`);
+                          }}
+                        >
+                          <FileText className="h-4 w-4" />
+                          Responses
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           onClick={() => {

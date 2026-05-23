@@ -60,3 +60,11 @@ export function useCloneForm() {
     },
   });
 }
+
+export function useFormAnalytics(formId: string) {
+  return trpc.analytics.getFormStats.useQuery({ id: formId }, { enabled: !!formId });
+}
+
+export function useSubmissionsList(formId: string, page: number) {
+  return trpc.submission.list.useQuery({ formId, page }, { enabled: !!formId });
+}
