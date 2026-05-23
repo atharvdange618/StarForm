@@ -21,8 +21,23 @@ const lora = Lora({
 });
 
 export const metadata: Metadata = {
-  title: 'StarForm',
-  description: 'Build beautiful forms, collect responses, and analyze results',
+  title: { default: 'StarForm', template: '%s | StarForm' },
+  description:
+    'Build beautiful forms, collect responses, and analyze results with style. Monetmorphic design meets powerful analytics.',
+  openGraph: {
+    title: 'StarForm',
+    description: 'Build beautiful forms, collect responses, and analyze results with style.',
+    url: 'https://starform.atharvdangedev.in',
+    siteName: 'StarForm',
+    locale: 'en_US',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'StarForm',
+    description: 'Build beautiful forms, collect responses, and analyze results with style.',
+  },
+  robots: { index: true, follow: true },
 };
 
 export default function RootLayout({
