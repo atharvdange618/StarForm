@@ -1,13 +1,11 @@
 import Link from 'next/link';
-import { LayoutDashboard, FileEdit, BarChart3, Zap } from 'lucide-react';
+import { LayoutDashboard, FileEdit, Zap } from 'lucide-react';
 import { UserButton } from '@clerk/nextjs';
 import { ThemeToggle } from '@/components/theme-toggle';
-import { cn } from '@/lib/utils';
 
 const navItems = [
   { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
   { label: 'New Form', href: '/forms/new', icon: FileEdit },
-  { label: 'Analytics', href: '/analytics', icon: BarChart3 },
 ];
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {

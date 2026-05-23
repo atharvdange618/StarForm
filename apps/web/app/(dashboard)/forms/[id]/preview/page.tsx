@@ -29,7 +29,7 @@ export default function PreviewFormPage() {
     });
   }, [form, loadFromForm]);
 
-  const { title, description, fields, themeId } = useFormBuilderStore();
+  const { title, description, fields } = useFormBuilderStore();
   const sortedFields = useMemo(() => [...fields].toSorted((a, b) => a.order - b.order), [fields]);
 
   if (isPending) {
