@@ -24,7 +24,6 @@ export default function FormFillerPage({ params }: { params: Promise<{ slug: str
 
   const config = (form?.config as Record<string, unknown>) ?? {};
   const formPassword = config.password as string | undefined;
-  const thankYouMessage = (config.thankYouMessage as string) || 'Thank you for your response!';
   const requiresPassword = Boolean(formPassword) && !passwordVerified;
   const hasEmailField = form?.fields?.some((f: { type: string }) => f.type === 'email') ?? false;
 
@@ -89,6 +88,7 @@ export default function FormFillerPage({ params }: { params: Promise<{ slug: str
   const submitMutation = useSubmitForm(slug);
 
   // Auto-save: capture form values on each change
+  // eslint-disable-next-line react-hooks/incompatible-library
   const watchedValues = watch();
   useAutoSave(slug, () => watchedValues);
 
@@ -119,6 +119,7 @@ export default function FormFillerPage({ params }: { params: Promise<{ slug: str
       {
         onSuccess: () => {
           reset();
+          clearDraft();
         },
       },
     );
