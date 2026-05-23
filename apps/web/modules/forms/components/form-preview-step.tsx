@@ -145,6 +145,7 @@ export function FormPreviewStep({ formId, onPublished }: FormPreviewStepProps) {
 
         {qrCodeUrl ? (
           <div className="mx-auto mt-6 w-fit rounded-[calc(var(--radius)*1.2)] border border-border bg-card p-4">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={qrCodeUrl}
               alt="QR Code"
