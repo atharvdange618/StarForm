@@ -115,6 +115,7 @@ export function FieldConfigDialog({ open, onOpenChange, field, onSave }: FieldCo
     }
   }, [open, field, reset]);
 
+  // eslint-disable-next-line react-hooks/incompatible-library
   const currentType = watch('type');
   const showOptions = ['singleSelect', 'multiSelect', 'dropdown'].includes(currentType);
   const showMaxLength = currentType === 'shortText' || currentType === 'longText';

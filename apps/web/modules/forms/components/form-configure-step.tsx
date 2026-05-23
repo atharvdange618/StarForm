@@ -54,12 +54,14 @@ export function FormConfigureStep() {
     mode: 'onBlur',
   });
 
+  /* eslint-disable react-hooks/incompatible-library */
   const watchedVisibility = watch('visibility');
   const watchedExpiryDate = watch('expiryDate');
   const watchedResponseLimit = watch('responseLimit');
   const watchedPassword = watch('password');
   const watchedThankYouMessage = watch('thankYouMessage');
   const watchedWebhookUrl = watch('webhookUrl');
+  /* eslint-enable react-hooks/incompatible-library */
 
   useEffect(() => {
     useFormBuilderStore.setState({
