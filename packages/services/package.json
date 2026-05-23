@@ -10,9 +10,11 @@
   "type": "module",
   "dependencies": {
     "@starform/database": "workspace:*",
+    "@starform/env": "workspace:*",
     "@starform/logger": "workspace:*",
     "@trpc/server": "^11.17.0",
     "drizzle-orm": "^0.41.0",
+    "resend": "^6.12.3",
     "zod": "^4.4.3"
   },
   "devDependencies": {
