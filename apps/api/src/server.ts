@@ -15,6 +15,7 @@ import { requestId } from './middleware/requestId';
 import { submissionLimiter } from './middleware/rateLimit';
 import { webhooksRouter } from './routes/webhooks';
 import { qrcodeRouter } from './routes/qrcode';
+import { csvRouter } from './routes/csv';
 
 export const app = express();
 const openApiDocument = generateOpenApiDocument(serverRouter, {
@@ -76,6 +77,7 @@ logger.debug(`docs: ${env.BASE_URL}/docs`);
 app.use('/docs', apiReference({ url: '/openapi.json' }));
 
 app.use('/api/v1/forms/', qrcodeRouter);
+app.use('/api/v1/forms/', csvRouter);
 
 app.use('/api/trpc', (req, _res, next) => {
   const body = req.body as { method?: string } | undefined;
