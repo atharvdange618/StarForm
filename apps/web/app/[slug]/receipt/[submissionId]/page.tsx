@@ -53,23 +53,25 @@ export default function ReceiptPage({
     return null;
   }, [themeClass]);
 
+  const formFields = form?.fields;
   const fieldLabelMap = useMemo(() => {
-    if (!form?.fields) return new Map<string, string>();
-    const fields = form.fields as { id: string; label: string }[];
+    if (!formFields) return new Map<string, string>();
+    const fields = formFields as { id: string; label: string }[];
     return new Map(fields.map((f) => [f.id, f.label]));
-  }, [form?.fields]);
+  }, [formFields]);
 
+  const submissionData = submission?.data;
   const dataEntries = useMemo(() => {
-    if (!submission?.data) return [];
+    if (!submissionData) return [];
     try {
-      const data = submission.data as Record<string, unknown>;
+      const data = submissionData as Record<string, unknown>;
       return Object.entries(data)
         .filter(([key]) => !key.startsWith('_'))
         .map(([key, value]) => [fieldLabelMap.get(key) ?? key, value] as [string, unknown]);
     } catch {
       return [];
     }
-  }, [submission?.data, fieldLabelMap]);
+  }, [submissionData, fieldLabelMap]);
 
   if (isLoading) {
     return (
