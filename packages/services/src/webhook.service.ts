@@ -1,4 +1,5 @@
 import { eq, count } from 'drizzle-orm';
+import { env } from '@starform/env';
 import { db } from '@starform/database/client';
 import { forms, submissions } from '@starform/database';
 import { logger } from '@starform/logger';
@@ -33,7 +34,7 @@ export async function notify(formId: string, submission: SubmissionData) {
       formTitle: form.title,
       submissionId: submission.id,
       responseCount: countResult?.count ?? 0,
-      formUrl: `${process.env.BASE_URL ?? ''}/${form.slug}`,
+      formUrl: `${env.BASE_URL ?? ''}/${form.slug}`,
     };
 
     fetch(webhookUrl, {

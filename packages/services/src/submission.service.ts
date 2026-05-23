@@ -36,12 +36,14 @@ export async function submit(
 
     const config = (form.config || {}) as { responseLimit?: number; expiryDate?: string };
 
+    let currentCount = 0;
     if (config.responseLimit) {
       const [result] = await tx
         .select({ value: count() })
         .from(submissions)
         .where(eq(submissions.formId, formId));
-      if (result && result.value >= config.responseLimit) {
+      currentCount = result?.value ?? 0;
+      if (currentCount >= config.responseLimit) {
         throw new TRPCError({
           code: 'FORBIDDEN',
           message: 'Form has reached its response limit',
@@ -71,6 +73,34 @@ export async function submit(
     }
 
     void import('./webhook.service').then((m) => m.notify(formId, submission));
+
+    const configRecord = (form.config || {}) as Record<string, unknown>;
+    const notificationEmail = configRecord.notificationEmail as string | undefined;
+    const formFields = (form.fields as { id: string; label: string; type: string }[]) ?? [];
+    const emailField = formFields.find((f) => f.type === 'email');
+
+    if (emailField && data._sendEmailCopy) {
+      const respondentEmail = data[emailField.id] as string | undefined;
+      const responses = formFields
+        .filter((f) => f.id !== emailField.id && !f.id.startsWith('_'))
+        .map((f) => ({
+          label: f.label,
+          value: Array.isArray(data[f.id])
+            ? (data[f.id] as unknown[]).join(', ')
+            : String(data[f.id] ?? ''),
+        }));
+      if (respondentEmail) {
+        void import('./email.service').then((m) =>
+          m.sendRespondentConfirmation(respondentEmail, form.title, submission.id, responses),
+        );
+      }
+    }
+
+    if (notificationEmail) {
+      void import('./email.service').then((m) =>
+        m.sendCreatorNotification(notificationEmail, form.title, currentCount + 1, form.slug),
+      );
+    }
 
     return submission;
   });
