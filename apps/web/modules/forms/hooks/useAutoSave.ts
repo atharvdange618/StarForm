@@ -1,12 +1,14 @@
 'use client';
 
-import { useEffect, useState, useCallback, useRef } from 'react';
+import { useEffect, useCallback, useRef } from 'react';
 
 export function useAutoSave(formSlug: string, getValues: () => Record<string, unknown>) {
   const STORAGE_KEY = `starform-draft-${formSlug}`;
 
   const getValuesRef = useRef(getValues);
-  getValuesRef.current = getValues;
+  useEffect(() => {
+    getValuesRef.current = getValues;
+  }, [getValues]);
 
   const restoreDraft = useCallback((): Record<string, unknown> | null => {
     try {
