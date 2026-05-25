@@ -79,21 +79,38 @@ export async function submit(
     const formFields = (form.fields as { id: string; label: string; type: string }[]) ?? [];
     const emailField = formFields.find((f) => f.type === 'email');
 
-    if (emailField && data._sendEmailCopy) {
-      const respondentEmail = data[emailField.id] as string | undefined;
+    const respondentEmail = emailField
+      ? (data[emailField.id] as string | undefined)
+      : (data._respondentEmail as string | undefined);
+
+    if (respondentEmail && data._sendEmailCopy) {
       const responses = formFields
-        .filter((f) => f.id !== emailField.id && !f.id.startsWith('_'))
-        .map((f) => ({
-          label: f.label,
-          value: Array.isArray(data[f.id])
-            ? (data[f.id] as unknown[]).join(', ')
-            : String(data[f.id] ?? ''),
-        }));
-      if (respondentEmail) {
-        void import('./email.service').then((m) =>
-          m.sendRespondentConfirmation(respondentEmail, form.title, submission.id, responses),
-        );
-      }
+        .filter((f) => f.id !== (emailField?.id ?? '') && !f.id.startsWith('_'))
+        .map((f) => {
+          let value = '';
+          const rawData = data[f.id];
+
+          if (Array.isArray(rawData)) {
+            value = rawData.join(', ');
+          } else {
+            value = String(rawData ?? '');
+            if (f.type === 'date' && value) {
+              const d = new Date(value);
+              if (!isNaN(d.getTime())) {
+                value = d.toLocaleDateString('en-US', {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric',
+                });
+              }
+            }
+          }
+
+          return { label: f.label, value };
+        });
+      void import('./email.service').then((m) =>
+        m.sendRespondentConfirmation(respondentEmail, form.title, submission.id, responses),
+      );
     }
 
     if (notificationEmail) {
