@@ -1,26 +1,38 @@
 'use client';
 
-import { use, useMemo, useState, useCallback } from 'react';
+import { use, useMemo, useState, useCallback, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
+import { useRouter } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useFormBySlug } from '@/modules/forms/hooks/useForms';
 import { useSubmitForm } from '@/modules/forms/hooks/useSubmitForm';
 import { useAutoSave } from '@/modules/forms/hooks/useAutoSave';
 import { InteractiveFieldRenderer } from '@/modules/forms/components/interactive-field-renderer';
-import { buildSubmissionSchema, type SchematicField } from '@/modules/forms/schema';
+import { buildSubmissionSchema, isFieldVisible, type SchematicField } from '@/modules/forms/schema';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Send, Lock, AlertCircle } from 'lucide-react';
 
-export default function FormFillerPage({ params }: { params: Promise<{ slug: string }> }) {
-  const { slug } = use(params);
-  const { data: form, isLoading, error: fetchError } = useFormBySlug(slug);
+export default function FormFillerPage({
+  params,
+}: {
+  params: Promise<{ id: string; slug: string }>;
+}) {
+  const { id, slug } = use(params);
+  const router = useRouter();
+  const { data: form, isLoading, error: fetchError } = useFormBySlug(id);
 
   const [password, setPassword] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [passwordVerified, setPasswordVerified] = useState(false);
+
+  useEffect(() => {
+    if (form && form.slug !== slug) {
+      router.replace(`/${form.id}/${form.slug}`);
+    }
+  }, [form, slug, router]);
 
   const config = (form?.config as Record<string, unknown>) ?? {};
   const formPassword = config.password as string | undefined;
@@ -68,11 +80,8 @@ export default function FormFillerPage({ params }: { params: Promise<{ slug: str
   );
 
   const { restoreDraft, clearDraft } = useAutoSave(
-    slug,
-    () =>
-      ({
-        // Values are read directly via form state
-      }) as Record<string, unknown>,
+    form?.slug || slug,
+    () => ({}) as Record<string, unknown>,
   );
 
   const draft = useMemo(() => restoreDraft(), [restoreDraft]);
@@ -85,41 +94,39 @@ export default function FormFillerPage({ params }: { params: Promise<{ slug: str
   const { register, handleSubmit, control, formState, watch, reset } = formMethods;
   const { errors, isSubmitting } = formState;
 
-  const submitMutation = useSubmitForm(slug);
+  const submitMutation = useSubmitForm(id);
 
-  // Auto-save: capture form values on each change
   // eslint-disable-next-line react-hooks/incompatible-library
   const watchedValues = watch();
-  useAutoSave(slug, () => watchedValues);
+  useAutoSave(form?.slug || slug, () => watchedValues);
 
   function handlePasswordSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (password === formPassword) {
       setPasswordVerified(true);
-      localStorage.setItem(`starform-access-${slug}`, 'true');
+      localStorage.setItem(`starform-access-${form?.slug || slug}`, 'true');
     } else {
       setPasswordError('Incorrect password');
     }
   }
 
   const onSubmit = (data: Record<string, unknown>) => {
-    // Force number fields to be numbers
     for (const field of fields) {
       if (field.type === 'number' && data[field.id] !== undefined && data[field.id] !== '') {
         data[field.id] = Number(data[field.id]);
       }
-      // MultiSelect: ensure array
       if (field.type === 'multiSelect' && !Array.isArray(data[field.id])) {
         data[field.id] = data[field.id] ? [data[field.id]] : [];
       }
     }
 
     submitMutation.mutate(
-      { slug, data },
+      { slug: id, data },
       {
-        onSuccess: () => {
+        onSuccess: (submission) => {
           reset();
           clearDraft();
+          router.push(`/${id}/${form?.slug || slug}/receipt/${submission.id}`);
         },
       },
     );
@@ -209,6 +216,8 @@ export default function FormFillerPage({ params }: { params: Promise<{ slug: str
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             {fields
               .sort((a, b) => a.order - b.order)
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              .filter((field) => isFieldVisible(field as any, watchedValues || {}, fields as any))
               .map((field) => (
                 <InteractiveFieldRenderer
                   key={field.id}
@@ -233,8 +242,8 @@ export default function FormFillerPage({ params }: { params: Promise<{ slug: str
                 />
               ))}
 
-            {hasEmailField && (
-              <label className="flex items-center gap-3 rounded-lg border border-border px-4 py-3">
+            <div className="space-y-4">
+              <label className="flex items-center gap-3 rounded-lg border border-border px-4 py-3 cursor-pointer transition-colors hover:border-primary/50">
                 <input
                   type="checkbox"
                   className="h-4 w-4 rounded accent-primary"
@@ -244,7 +253,30 @@ export default function FormFillerPage({ params }: { params: Promise<{ slug: str
                   Email me a copy of my responses
                 </span>
               </label>
-            )}
+
+              {Boolean(watch('_sendEmailCopy')) && !hasEmailField && (
+                <div className="grid gap-2 pl-2">
+                  <Label
+                    htmlFor="respondent-email"
+                    className="font-body text-sm text-muted-foreground"
+                  >
+                    Email Address <span className="text-destructive">*</span>
+                  </Label>
+                  <Input
+                    id="respondent-email"
+                    type="email"
+                    {...register('_respondentEmail')}
+                    placeholder="Enter your email address..."
+                    className="font-body"
+                  />
+                  {errors._respondentEmail && (
+                    <p className="font-body text-xs text-destructive">
+                      {errors._respondentEmail.message as string}
+                    </p>
+                  )}
+                </div>
+              )}
+            </div>
 
             <Button
               type="submit"

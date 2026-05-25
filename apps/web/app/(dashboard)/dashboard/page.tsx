@@ -95,8 +95,8 @@ export default function DashboardPage() {
     try {
       await archiveMutation.mutateAsync({ id });
       toast.success('Form archived');
-    } catch {
-      toast.error('Failed to archive form');
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to archive form');
     } finally {
       setActionLoading(null);
     }
@@ -107,8 +107,8 @@ export default function DashboardPage() {
     try {
       await cloneMutation.mutateAsync({ id });
       toast.success('Form cloned');
-    } catch {
-      toast.error('Failed to clone form');
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to clone form');
     } finally {
       setActionLoading(null);
     }
@@ -224,7 +224,9 @@ export default function DashboardPage() {
                       {form.title}
                     </CardTitle>
                     <CardDescription className="mt-0.5 flex items-center gap-2">
-                      <span className="font-mono text-xs">/{form.slug}</span>
+                      <span className="font-mono text-xs">
+                        /{form.id}/{form.slug}
+                      </span>
                       <span className="text-muted-foreground">&middot;</span>
                       <Link
                         href={`/dashboard/forms/${form.id}/responses`}
@@ -257,7 +259,7 @@ export default function DashboardPage() {
                         {form.status === 'published' ? (
                           <DropdownMenuItem
                             onClick={() => {
-                              window.open(`/${form.slug}`, '_blank');
+                              window.open(`/${form.id}/${form.slug}`, '_blank');
                             }}
                           >
                             <ExternalLink className="h-4 w-4" />

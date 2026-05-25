@@ -1,11 +1,14 @@
 'use client';
 
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import { CheckCircle, Download, Link2 } from 'lucide-react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/components/ui/button';
 import { useFormBuilderStore } from '@/store/form-builder.store';
 import { usePublishForm } from '@/modules/forms/hooks/useForms';
-import { FieldRenderer } from './field-renderer';
+import { InteractiveFieldRenderer } from './interactive-field-renderer';
+import { isFieldVisible, buildSubmissionSchema } from '@/modules/forms/schema';
 import { toast } from 'sonner';
 import { env } from '@/lib/env';
 import { trpc } from '@/lib/trpc';
@@ -33,6 +36,27 @@ export function FormPreviewStep({ formId, onPublished }: FormPreviewStepProps) {
   const [copied, setCopied] = useState(false);
   const [qrCodeUrl, setQrCodeUrl] = useState<string | null>(null);
   const sortedFields = useMemo(() => [...fields].toSorted((a, b) => a.order - b.order), [fields]);
+
+  const dynamicSchema = useMemo(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    () => (sortedFields.length > 0 ? buildSubmissionSchema(sortedFields as any) : null),
+    [sortedFields],
+  );
+
+  const formMethods = useForm<Record<string, unknown>>({
+    resolver: dynamicSchema ? zodResolver(dynamicSchema) : undefined,
+    defaultValues: {},
+  });
+
+  const { register, handleSubmit, control, formState, watch, reset } = formMethods;
+  const { errors } = formState;
+
+  // eslint-disable-next-line react-hooks/incompatible-library
+  const watchedValues = watch();
+
+  useEffect(() => {
+    reset({});
+  }, [sortedFields, reset]);
 
   const { data: themes } = trpc.theme.list.useQuery();
   const themeClass = useMemo(() => {
@@ -84,17 +108,17 @@ export function FormPreviewStep({ formId, onPublished }: FormPreviewStepProps) {
       const slug = result.slug;
       setPublished({ id: result.id, slug });
 
-      setQrCodeUrl(`${env.NEXT_PUBLIC_API_URL}/api/v1/forms/${slug}/qrcode`);
+      setQrCodeUrl(`${env.NEXT_PUBLIC_API_URL}/api/v1/forms/${result.id}/${slug}/qrcode`);
 
       toast.success('Form published!');
-    } catch {
-      toast.error('Failed to publish form');
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to publish form');
     }
   };
 
   const copyLink = useCallback(() => {
     if (!published) return;
-    const url = `${globalThis.location.origin}/${published.slug}`;
+    const url = `${globalThis.location.origin}/${published.id}/${published.slug}`;
     navigator.clipboard
       .writeText(url)
       .then(() => {
@@ -125,7 +149,7 @@ export function FormPreviewStep({ formId, onPublished }: FormPreviewStepProps) {
   }, [qrCodeUrl]);
 
   if (published) {
-    const formUrl = `${globalThis.location.origin}/${published.slug}`;
+    const formUrl = `${globalThis.location.origin}/${published.id}/${published.slug}`;
     return (
       <div className="mx-auto max-w-md text-center">
         <div className="mb-6 flex justify-center">
@@ -203,23 +227,45 @@ export function FormPreviewStep({ formId, onPublished }: FormPreviewStepProps) {
               ) : null}
             </div>
 
-            <div className="space-y-5">
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                void handleSubmit(() => {
+                  toast.success('Validation passed! Simulation successful.');
+                })();
+              }}
+              className="space-y-5"
+            >
               {sortedFields.length === 0 ? (
                 <p className="py-8 text-center font-body text-sm text-muted-foreground">
                   Add fields to your form to see a preview
                 </p>
               ) : (
-                sortedFields.map((field) => <FieldRenderer key={field.id} field={field} />)
+                sortedFields
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  .filter((field) =>
+                    isFieldVisible(field as any, watchedValues || {}, sortedFields as any),
+                  )
+                  .map((field) => (
+                    <InteractiveFieldRenderer
+                      key={field.id}
+                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                      field={field as any}
+                      register={register}
+                      control={control}
+                      errors={errors}
+                    />
+                  ))
               )}
-            </div>
 
-            {sortedFields.length > 0 ? (
-              <div className="mt-6 flex justify-end">
-                <button type="button" className="btn-primary w-full justify-center">
-                  Submit
-                </button>
-              </div>
-            ) : null}
+              {sortedFields.length > 0 ? (
+                <div className="mt-6 flex justify-end">
+                  <button type="submit" className="btn-primary w-full justify-center">
+                    Submit (Simulation)
+                  </button>
+                </div>
+              ) : null}
+            </form>
           </div>
         </div>
       </div>

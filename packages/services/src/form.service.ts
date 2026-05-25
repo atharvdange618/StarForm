@@ -10,6 +10,18 @@ export async function create(
     slug?: string;
   },
 ) {
+  if (data.slug) {
+    const existing = await db.query.forms.findFirst({
+      where: and(eq(forms.slug, data.slug), sql`${forms.deletedAt} IS NULL`),
+    });
+    if (existing) {
+      throw new TRPCError({
+        code: 'CONFLICT',
+        message: 'This URL slug is already in use. Please choose another one.',
+      });
+    }
+  }
+
   const slug =
     data.slug ||
     `${data.title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${Math.random().toString(36).substring(2, 8)}`;
@@ -53,10 +65,11 @@ export async function getById(formId: string, creatorId: string) {
   return { ...form, submissionCount };
 }
 
-export async function getBySlug(slug: string) {
+export async function getBySlug(slugOrId: string) {
+  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(slugOrId);
   const form = await db.query.forms.findFirst({
     where: and(
-      eq(forms.slug, slug),
+      isUuid ? eq(forms.id, slugOrId) : eq(forms.slug, slugOrId),
       eq(forms.status, 'published'),
       sql`${forms.deletedAt} IS NULL`,
     ),
@@ -110,6 +123,18 @@ export async function update(
 
   if (!form) {
     throw new TRPCError({ code: 'NOT_FOUND', message: 'Form not found' });
+  }
+
+  if (data.slug && data.slug !== form.slug) {
+    const existing = await db.query.forms.findFirst({
+      where: and(eq(forms.slug, data.slug), sql`${forms.deletedAt} IS NULL`),
+    });
+    if (existing) {
+      throw new TRPCError({
+        code: 'CONFLICT',
+        message: 'This URL slug is already in use. Please choose another one.',
+      });
+    }
   }
 
   if (data.fields) {

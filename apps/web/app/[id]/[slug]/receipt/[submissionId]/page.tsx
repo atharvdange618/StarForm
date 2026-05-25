@@ -1,6 +1,6 @@
 'use client';
 
-import { use, useMemo, useCallback } from 'react';
+import { use, useMemo, useCallback, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useFormBySlug } from '@/modules/forms/hooks/useForms';
 import { trpc } from '@/lib/trpc';
@@ -12,16 +12,22 @@ import { CheckCircle2, RefreshCw } from 'lucide-react';
 export default function ReceiptPage({
   params,
 }: {
-  params: Promise<{ slug: string; submissionId: string }>;
+  params: Promise<{ id: string; slug: string; submissionId: string }>;
 }) {
-  const { slug, submissionId } = use(params);
+  const { id, slug, submissionId } = use(params);
   const router = useRouter();
-  const { data: form } = useFormBySlug(slug);
+  const { data: form } = useFormBySlug(id);
   const {
     data: submission,
     isLoading,
     error,
   } = trpc.submission.getById.useQuery({ id: submissionId }, { enabled: !!submissionId });
+
+  useEffect(() => {
+    if (form && form.slug !== slug) {
+      router.replace(`/${form.id}/${form.slug}/receipt/${submissionId}`);
+    }
+  }, [form, slug, submissionId, router]);
 
   const themeClass = useMemo(() => {
     const theme = form?.theme as { name: string } | undefined;
@@ -93,7 +99,11 @@ export default function ReceiptPage({
           <p className="mt-2 font-body text-muted-foreground">
             We couldn&apos;t find this submission receipt.
           </p>
-          <Button variant="outline" className="mt-6" onClick={() => router.push(`/${slug}`)}>
+          <Button
+            variant="outline"
+            className="mt-6"
+            onClick={() => router.push(`/${id}/${form?.slug || slug}`)}
+          >
             Back to form
           </Button>
         </div>
@@ -159,7 +169,11 @@ export default function ReceiptPage({
           </Card>
 
           <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
-            <Button variant="outline" onClick={() => router.push(`/${slug}`)} className="btn-ghost">
+            <Button
+              variant="outline"
+              onClick={() => router.push(`/${id}/${form?.slug || slug}`)}
+              className="btn-ghost"
+            >
               <RefreshCw className="mr-2 h-4 w-4" />
               Submit Another
             </Button>

@@ -5,10 +5,10 @@ import { logger } from '@starform/logger';
 
 const router = Router();
 
-router.get('/:slug/qrcode', async (req, res) => {
+router.get('/:id/:slug/qrcode', async (req, res) => {
   try {
-    const { slug } = req.params;
-    const formUrl = `${env.BASE_URL}/${slug}`;
+    const { id, slug } = req.params;
+    const formUrl = `${env.BASE_URL}/${id}/${slug}`;
 
     const qrBuffer = await QRCode.toBuffer(formUrl, {
       type: 'png',
