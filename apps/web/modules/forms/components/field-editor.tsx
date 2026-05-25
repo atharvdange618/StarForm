@@ -99,15 +99,35 @@ export function FormFieldEditor({
               </div>
 
               <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   <span className="truncate font-body text-sm font-medium text-foreground">
                     {field.label}
                   </span>
                   {field.required ? <span className="text-destructive">*</span> : null}
+                  {field.config?.conditionalVisibility ? (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/10 px-2 py-0.5 font-body text-[10px] font-medium text-amber-600 dark:text-amber-400">
+                      Conditional
+                    </span>
+                  ) : null}
                 </div>
-                <span className="font-body text-xs text-muted-foreground">
-                  {fieldLabels[field.type] ?? field.type}
-                </span>
+                <div className="flex flex-col gap-0.5">
+                  <span className="font-body text-xs text-muted-foreground">
+                    {fieldLabels[field.type] ?? field.type}
+                  </span>
+                  {field.config?.conditionalVisibility
+                    ? (() => {
+                        const cond = field.config?.conditionalVisibility as
+                          | { fieldId: string; value: string }
+                          | undefined;
+                        const trigger = fields.find((f) => f.id === cond?.fieldId);
+                        return trigger ? (
+                          <span className="font-body text-[11px] text-amber-600/80 dark:text-amber-400/80">
+                            Shows if &quot;{trigger.label}&quot; is &quot;{cond?.value}&quot;
+                          </span>
+                        ) : null;
+                      })()
+                    : null}
+                </div>
               </div>
 
               <div className="flex items-center gap-1">
@@ -175,6 +195,7 @@ export function FormFieldEditor({
         onOpenChange={setDialogOpen}
         field={editingField}
         onSave={handleSave}
+        allFields={fields}
       />
     </div>
   );

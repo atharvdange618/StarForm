@@ -207,6 +207,7 @@ export function InteractiveFieldRenderer({
             rules={{ required: field.required }}
             render={({ field: controllerField }) => (
               <DateTimePicker
+                allowPastDates
                 date={controllerField.value ? new Date(controllerField.value as string) : undefined}
                 onDateChange={(d) => controllerField.onChange(d ? d.toISOString() : undefined)}
                 placeholder={`Select ${field.label.toLowerCase()}...`}

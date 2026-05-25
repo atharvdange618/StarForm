@@ -30,6 +30,7 @@ interface FieldConfigDialogProps {
   onOpenChange: (open: boolean) => void;
   field: FieldData | null;
   onSave: (field: FieldData) => void;
+  allFields?: FieldData[];
 }
 
 const fieldTypes = [
@@ -67,6 +68,9 @@ const fieldFormSchema = z.object({
   step: z.string().optional(),
   ratingMax: z.enum(['5', '10']),
   options: z.string().optional(),
+  enableConditional: z.boolean().default(false),
+  conditionalFieldId: z.string().optional(),
+  conditionalValue: z.string().optional(),
 });
 
 type FieldFormData = z.infer<typeof fieldFormSchema>;
@@ -76,6 +80,9 @@ function generateId(): string {
 }
 
 function getDefaultValues(field: FieldData | null): FieldFormData {
+  const cond = field?.config?.conditionalVisibility as
+    | { fieldId: string; value: string }
+    | undefined;
   return {
     type: (field?.type ?? 'shortText') as FieldFormData['type'],
     label: field?.label ?? '',
@@ -90,11 +97,29 @@ function getDefaultValues(field: FieldData | null): FieldFormData {
         ? (String(field.config.max) as '5' | '10')
         : '5',
     options: field?.config.options?.join('\n') ?? '',
+    enableConditional: !!cond,
+    conditionalFieldId: cond?.fieldId ?? '',
+    conditionalValue: cond?.value ?? '',
   };
 }
-
-export function FieldConfigDialog({ open, onOpenChange, field, onSave }: FieldConfigDialogProps) {
+export function FieldConfigDialog({
+  open,
+  onOpenChange,
+  field,
+  onSave,
+  allFields,
+}: FieldConfigDialogProps) {
   const isEditing = !!field;
+  const fieldsArray = allFields || [];
+
+  const precedingFields = fieldsArray.filter((f) => {
+    if (field) {
+      const fieldIndex = fieldsArray.findIndex((x) => x.id === field.id);
+      const fIndex = fieldsArray.findIndex((x) => x.id === f.id);
+      if (fieldIndex !== -1 && fIndex !== -1 && fIndex >= fieldIndex) return false;
+    }
+    return true;
+  });
 
   const {
     register,
@@ -105,7 +130,8 @@ export function FieldConfigDialog({ open, onOpenChange, field, onSave }: FieldCo
     reset,
     formState: { errors },
   } = useForm<FieldFormData>({
-    resolver: zodResolver(fieldFormSchema),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    resolver: zodResolver(fieldFormSchema) as any,
     defaultValues: getDefaultValues(field),
   });
 
@@ -115,7 +141,6 @@ export function FieldConfigDialog({ open, onOpenChange, field, onSave }: FieldCo
     }
   }, [open, field, reset]);
 
-  // eslint-disable-next-line react-hooks/incompatible-library
   const currentType = watch('type');
   const showOptions = ['singleSelect', 'multiSelect', 'dropdown'].includes(currentType);
   const showMaxLength = currentType === 'shortText' || currentType === 'longText';
@@ -173,6 +198,13 @@ export function FieldConfigDialog({ open, onOpenChange, field, onSave }: FieldCo
         config.max = Number.parseInt(data.ratingMax, 10);
         break;
       }
+    }
+
+    if (data.enableConditional && data.conditionalFieldId && data.conditionalValue) {
+      config.conditionalVisibility = {
+        fieldId: data.conditionalFieldId,
+        value: data.conditionalValue,
+      };
     }
 
     onSave({
@@ -367,6 +399,104 @@ export function FieldConfigDialog({ open, onOpenChange, field, onSave }: FieldCo
                     </SelectItem>
                   </SelectContent>
                 </Select>
+              </div>
+            ) : null}
+            {precedingFields.length > 0 ? (
+              <div className="rounded-lg border border-border p-4 space-y-4 bg-muted/20">
+                <div className="flex items-center gap-3">
+                  <Switch
+                    id="enable-conditional"
+                    checked={watch('enableConditional')}
+                    onCheckedChange={(checked) => {
+                      setValue('enableConditional', checked, { shouldDirty: true });
+                    }}
+                  />
+                  <Label
+                    htmlFor="enable-conditional"
+                    className="font-body text-sm font-medium text-foreground"
+                  >
+                    Conditional Visibility
+                  </Label>
+                </div>
+
+                {watch('enableConditional') ? (
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <div className="grid gap-2">
+                      <Label
+                        htmlFor="cond-field"
+                        className="font-body text-xs text-muted-foreground"
+                      >
+                        Show if this field...
+                      </Label>
+                      <Select
+                        value={watch('conditionalFieldId')}
+                        onValueChange={(val) => {
+                          setValue('conditionalFieldId', val, { shouldDirty: true });
+                          setValue('conditionalValue', '', { shouldDirty: true });
+                        }}
+                      >
+                        <SelectTrigger id="cond-field" className="font-body text-sm">
+                          <SelectValue placeholder="Select trigger field..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {precedingFields.map((pf) => (
+                            <SelectItem key={pf.id} value={pf.id} className="font-body">
+                              {pf.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {watch('conditionalFieldId') ? (
+                      <div className="grid gap-2">
+                        <Label
+                          htmlFor="cond-val"
+                          className="font-body text-xs text-muted-foreground"
+                        >
+                          ...equals this value:
+                        </Label>
+                        {(() => {
+                          // eslint-disable-next-line react-hooks/incompatible-library
+                          const selectedTrigger = precedingFields.find(
+                            (f) => f.id === watch('conditionalFieldId'),
+                          );
+                          const opts = selectedTrigger?.config?.options || [];
+                          if (opts.length > 0) {
+                            return (
+                              <Select
+                                value={watch('conditionalValue')}
+                                onValueChange={(val) => {
+                                  setValue('conditionalValue', val, { shouldDirty: true });
+                                }}
+                              >
+                                <SelectTrigger id="cond-val" className="font-body text-sm">
+                                  <SelectValue placeholder="Select trigger value..." />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {opts.map((opt) => (
+                                    <SelectItem key={opt} value={opt} className="font-body">
+                                      {opt}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            );
+                          }
+
+                          return (
+                            <Input
+                              id="cond-val"
+                              {...register('conditionalValue')}
+                              placeholder="Enter value to match..."
+                              className="font-body text-sm"
+                            />
+                          );
+                        })()}
+                      </div>
+                    ) : null}
+                  </div>
+                ) : null}
               </div>
             ) : null}
           </div>

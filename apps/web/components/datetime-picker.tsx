@@ -15,6 +15,7 @@ interface DateTimePickerProps {
   disabled?: boolean;
   onDateChange: (date: Date | undefined) => void;
   placeholder?: string;
+  allowPastDates?: boolean;
 }
 
 export function DateTimePicker({
@@ -22,6 +23,7 @@ export function DateTimePicker({
   disabled = false,
   onDateChange,
   placeholder = 'Pick a date and time',
+  allowPastDates = true,
 }: DateTimePickerProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(date);
@@ -62,7 +64,7 @@ export function DateTimePicker({
     dateWithTime.setMilliseconds(0);
 
     const now = new Date();
-    if (dateWithTime <= now) {
+    if (!allowPastDates && dateWithTime <= now) {
       dateWithTime.setHours(now.getHours());
       dateWithTime.setMinutes(now.getMinutes() + 1);
       const hh = dateWithTime.getHours().toString().padStart(2, '0');
@@ -99,7 +101,7 @@ export function DateTimePicker({
       newDate.getMonth() === now.getMonth() &&
       newDate.getDate() === now.getDate();
 
-    if (isToday && newDate <= now) {
+    if (!allowPastDates && isToday && newDate <= now) {
       return;
     }
 
@@ -108,6 +110,7 @@ export function DateTimePicker({
   };
 
   const minTime = useMemo(() => {
+    if (allowPastDates) return undefined;
     if (!selectedDate) return undefined;
     const now = new Date();
     const isToday =
@@ -116,7 +119,7 @@ export function DateTimePicker({
       selectedDate.getDate() === now.getDate();
     if (!isToday) return undefined;
     return `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
-  }, [selectedDate]);
+  }, [selectedDate, allowPastDates]);
 
   return (
     <Popover onOpenChange={setIsOpen} open={isOpen}>
@@ -136,7 +139,11 @@ export function DateTimePicker({
       <PopoverContent align="start" className="w-auto p-0">
         <div className="flex flex-col">
           <Calendar
-            disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
+            disabled={
+              allowPastDates
+                ? undefined
+                : (date) => date < new Date(new Date().setHours(0, 0, 0, 0))
+            }
             mode="single"
             onSelect={handleDateSelect}
             selected={selectedDate}

@@ -17,72 +17,128 @@ export interface SchematicField {
   order: number;
 }
 
+export function isFieldVisible(
+  field: { id: string; config: { conditionalVisibility?: { fieldId: string; value: string } } },
+  data: Record<string, unknown>,
+  fields: Array<{
+    id: string;
+    config: { conditionalVisibility?: { fieldId: string; value: string } };
+  }>,
+): boolean {
+  const cond = field.config?.conditionalVisibility;
+  if (!cond || !cond.fieldId || !cond.value) return true;
+
+  const triggerField = fields.find((f) => f.id === cond.fieldId);
+  if (triggerField && !isFieldVisible(triggerField, data, fields)) {
+    return false;
+  }
+
+  const triggerValue = data[cond.fieldId];
+  if (Array.isArray(triggerValue)) {
+    return triggerValue.includes(cond.value);
+  }
+  return String(triggerValue ?? '') === cond.value;
+}
+
+function getFieldValidator(field: SchematicField): z.ZodTypeAny {
+  switch (field.type) {
+    case 'shortText': {
+      let schema = z.string();
+      if (field.config.maxLength !== undefined) {
+        schema = schema.max(field.config.maxLength);
+      }
+      if (field.config.pattern !== undefined) {
+        schema = schema.regex(new RegExp(field.config.pattern));
+      }
+      return schema;
+    }
+    case 'longText': {
+      let schema = z.string();
+      if (field.config.maxLength !== undefined) {
+        schema = schema.max(field.config.maxLength);
+      }
+      return schema;
+    }
+    case 'email':
+      return z.string().email();
+    case 'number': {
+      let schema = z.number();
+      if (field.config.min !== undefined) {
+        schema = schema.min(field.config.min);
+      }
+      if (field.config.max !== undefined) {
+        schema = schema.max(field.config.max);
+      }
+      return schema;
+    }
+    case 'singleSelect':
+      return z.enum(field.config.options as [string, ...string[]]);
+    case 'multiSelect':
+      return z.array(z.enum(field.config.options as [string, ...string[]])).min(1);
+    case 'dropdown':
+      return z.enum(field.config.options as [string, ...string[]]);
+    case 'rating':
+      return z
+        .number()
+        .int()
+        .min(1)
+        .max(field.config.max || 5);
+    case 'date':
+      return z.string();
+    default:
+      return z.unknown();
+  }
+}
+
 export function buildSubmissionSchema(fields: SchematicField[]) {
   const shape: Record<string, z.ZodTypeAny> = {};
 
   for (const field of fields) {
-    let fieldSchema: z.ZodTypeAny;
-
-    switch (field.type) {
-      case 'shortText':
-        fieldSchema = z.string();
-        if (field.config.maxLength !== undefined) {
-          fieldSchema = (fieldSchema as z.ZodString).max(field.config.maxLength);
-        }
-        if (field.config.pattern !== undefined) {
-          fieldSchema = (fieldSchema as z.ZodString).regex(new RegExp(field.config.pattern));
-        }
-        break;
-      case 'longText':
-        fieldSchema = z.string();
-        if (field.config.maxLength !== undefined) {
-          fieldSchema = (fieldSchema as z.ZodString).max(field.config.maxLength);
-        }
-        break;
-      case 'email':
-        fieldSchema = z.string().email();
-        break;
-      case 'number':
-        fieldSchema = z.number();
-        if (field.config.min !== undefined) {
-          fieldSchema = (fieldSchema as z.ZodNumber).min(field.config.min);
-        }
-        if (field.config.max !== undefined) {
-          fieldSchema = (fieldSchema as z.ZodNumber).max(field.config.max);
-        }
-        break;
-      case 'singleSelect':
-        fieldSchema = z.enum(field.config.options as [string, ...string[]]);
-        break;
-      case 'multiSelect':
-        fieldSchema = z.array(z.enum(field.config.options as [string, ...string[]])).min(1);
-        break;
-      case 'dropdown':
-        fieldSchema = z.enum(field.config.options as [string, ...string[]]);
-        break;
-      case 'rating':
-        fieldSchema = z
-          .number()
-          .int()
-          .min(1)
-          .max(field.config.max || 5);
-        break;
-      case 'date':
-        fieldSchema = z.string();
-        break;
-      default:
-        fieldSchema = z.unknown();
-        break;
-    }
-
-    if (field.required) {
-      shape[field.id] = fieldSchema;
-    } else {
-      shape[field.id] = fieldSchema.optional();
-    }
+    shape[field.id] = z.any().optional().nullable();
   }
 
   shape['_sendEmailCopy'] = z.boolean().optional();
+  shape['_respondentEmail'] = z.string().optional().nullable();
 
-  return z.object(shape);
+  return z.object(shape).superRefine((data, ctx) => {
+    const dataRecord = data as Record<string, unknown>;
+    for (const field of fields) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const visible = isFieldVisible(field as any, dataRecord, fields as any);
+      if (visible) {
+        const val = dataRecord[field.id];
+        const isEmpty = val === undefined || val === null || val === '';
+
+        if (field.required && isEmpty) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: 'This field is required',
+            path: [field.id],
+          });
+        } else if (!isEmpty) {
+          const validator = getFieldValidator(field);
+          const parsed = validator.safeParse(val);
+          if (!parsed.success) {
+            for (const issue of parsed.error.issues) {
+              ctx.addIssue({
+                ...issue,
+                path: [field.id, ...issue.path],
+              });
+            }
+          }
+        }
+      }
+    }
+
+    if (dataRecord._sendEmailCopy && !fields.some((f) => f.type === 'email')) {
+      const email = dataRecord._respondentEmail;
+      if (!email || typeof email !== 'string' || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Please enter a valid email address to receive a copy of your responses',
+          path: ['_respondentEmail'],
+        });
+      }
+    }
+  });
 }

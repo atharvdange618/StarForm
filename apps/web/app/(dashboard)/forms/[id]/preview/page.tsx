@@ -1,23 +1,26 @@
 'use client';
 
-import { useEffect, useRef, useMemo } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useParams } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
+import { useForm as useHookForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useFormBuilderStore } from '@/store/form-builder.store';
 import { useForm } from '@/modules/forms/hooks/useForms';
-import { FieldRenderer } from '@/modules/forms/components/field-renderer';
+import { InteractiveFieldRenderer } from '@/modules/forms/components/interactive-field-renderer';
+import { isFieldVisible, buildSubmissionSchema } from '@/modules/forms/schema';
+import { toast } from 'sonner';
 
 export default function PreviewFormPage() {
   const params = useParams();
   const id = params.id as string;
   const loadFromForm = useFormBuilderStore((s) => s.loadFromForm);
-  const hydrated = useRef(false);
+  const [isHydrated, setIsHydrated] = useState(false);
 
   const { data: form, isPending, isError } = useForm(id);
 
   useEffect(() => {
-    if (!form || hydrated.current) return;
-    hydrated.current = true;
+    if (!form || isHydrated) return;
     loadFromForm({
       title: form.title,
       description: form.description,
@@ -27,12 +30,34 @@ export default function PreviewFormPage() {
       visibility: form.visibility,
       config: form.config,
     });
-  }, [form, loadFromForm]);
+    setIsHydrated(true);
+  }, [form, loadFromForm, isHydrated]);
 
   const { title, description, fields } = useFormBuilderStore();
   const sortedFields = useMemo(() => [...fields].toSorted((a, b) => a.order - b.order), [fields]);
 
-  if (isPending) {
+  const dynamicSchema = useMemo(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    () => (sortedFields.length > 0 ? buildSubmissionSchema(sortedFields as any) : null),
+    [sortedFields],
+  );
+
+  const formMethods = useHookForm<Record<string, unknown>>({
+    resolver: dynamicSchema ? zodResolver(dynamicSchema) : undefined,
+    defaultValues: {},
+  });
+
+  const { register, handleSubmit, control, formState, watch, reset } = formMethods;
+  const { errors } = formState;
+
+  // eslint-disable-next-line react-hooks/incompatible-library
+  const watchedValues = watch();
+
+  useEffect(() => {
+    reset({});
+  }, [sortedFields, reset]);
+
+  if (isPending || !isHydrated) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
         <div className="flex items-center gap-2 text-muted-foreground">
@@ -63,15 +88,45 @@ export default function PreviewFormPage() {
           ) : null}
         </div>
 
-        <div className="space-y-6">
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            void handleSubmit(() => {
+              toast.success('Validation passed! Simulation successful.');
+            })();
+          }}
+          className="space-y-6"
+        >
           {sortedFields.length === 0 ? (
             <p className="py-8 text-center font-body text-sm text-muted-foreground">
               No fields added yet
             </p>
           ) : (
-            sortedFields.map((field) => <FieldRenderer key={field.id} field={field} />)
+            sortedFields
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              .filter((field) =>
+                isFieldVisible(field as any, watchedValues || {}, sortedFields as any),
+              )
+              .map((field) => (
+                <InteractiveFieldRenderer
+                  key={field.id}
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  field={field as any}
+                  register={register}
+                  control={control}
+                  errors={errors}
+                />
+              ))
           )}
-        </div>
+
+          {sortedFields.length > 0 ? (
+            <div className="mt-6 flex justify-end">
+              <button type="submit" className="btn-primary w-full justify-center">
+                Submit (Simulation)
+              </button>
+            </div>
+          ) : null}
+        </form>
       </div>
     </div>
   );
