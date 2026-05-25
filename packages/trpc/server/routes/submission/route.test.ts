@@ -143,4 +143,59 @@ describe('submissionRouter', () => {
     const result = await unauthedCaller.submission.getById({ id: submitted.id });
     expect(result.id).toBe(submitted.id);
   });
+
+  it('should enforce conditional validation rules', async () => {
+    const user = await createUser();
+    const selectFieldId = crypto.randomUUID();
+    const condFieldId = crypto.randomUUID();
+    const form = await createForm(user.id, {
+      slug: 'conditional-test-form',
+      fields: [
+        {
+          id: selectFieldId,
+          type: 'singleSelect',
+          label: 'Would you like to give feedback?',
+          required: true,
+          config: { options: ['Yes', 'No'] },
+          order: 0,
+        },
+        {
+          id: condFieldId,
+          type: 'shortText',
+          label: 'Your feedback',
+          required: true,
+          config: {
+            conditionalVisibility: {
+              fieldId: selectFieldId,
+              value: 'Yes',
+            },
+          },
+          order: 1,
+        },
+      ],
+    });
+    await publishForm(form.id);
+
+    // 1. If choice is 'No', dependent required field is hidden and can be omitted -> Should succeed
+    const resNo = await unauthedCaller.submission.submit({
+      slug: 'conditional-test-form',
+      data: { [selectFieldId]: 'No' },
+    });
+    expect(resNo.formId).toBe(form.id);
+
+    // 2. If choice is 'Yes', dependent required field is visible and must not be empty -> Should fail
+    await expect(
+      unauthedCaller.submission.submit({
+        slug: 'conditional-test-form',
+        data: { [selectFieldId]: 'Yes' },
+      }),
+    ).rejects.toThrow();
+
+    // 3. If choice is 'Yes', and dependent required field is provided -> Should succeed
+    const resYes = await unauthedCaller.submission.submit({
+      slug: 'conditional-test-form',
+      data: { [selectFieldId]: 'Yes', [condFieldId]: 'Everything is awesome!' },
+    });
+    expect(resYes.formId).toBe(form.id);
+  });
 });

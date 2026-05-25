@@ -2,10 +2,28 @@ import { performance } from 'node:perf_hooks';
 
 import { initTRPC, TRPCError } from '@trpc/server';
 import { OpenApiMeta } from 'trpc-to-openapi';
+import { ZodError } from 'zod';
 
 import type { Context } from './context';
 
-export const tRPCContext = initTRPC.meta<OpenApiMeta>().context<Context>().create({});
+export const tRPCContext = initTRPC
+  .meta<OpenApiMeta>()
+  .context<Context>()
+  .create({
+    errorFormatter({ shape, error }) {
+      return {
+        ...shape,
+        message:
+          error.cause instanceof ZodError
+            ? error.cause.issues.map((e) => `${e.path.join('.')}: ${e.message}`).join(', ')
+            : error.message,
+        data: {
+          ...shape.data,
+          zodError: error.cause instanceof ZodError ? error.cause.flatten() : null,
+        },
+      };
+    },
+  });
 
 export const router = tRPCContext.router;
 

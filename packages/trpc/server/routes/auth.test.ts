@@ -23,7 +23,6 @@ describe('auth procedures', () => {
 
   it('creatorProcedure should throw FORBIDDEN when user lacks creator role', async () => {
     const ctx = createServerContext();
-    // Simulate a non-creator user
     const authedCtx = {
       ...ctx,
       user: {
