@@ -84,8 +84,8 @@ export async function getFormStats(formId: string): Promise<FormStats> {
     columns: { publishedVersion: true },
   });
 
-  let fieldDistributions: FieldDistribution[] = [];
-  let dropOffRates: { fieldId: string; fieldLabel: string; completionRate: number }[] = [];
+  const fieldDistributions: FieldDistribution[] = [];
+  const dropOffRates: { fieldId: string; fieldLabel: string; completionRate: number }[] = [];
 
   if (form?.publishedVersion) {
     const version = await db.query.formVersions.findFirst({
