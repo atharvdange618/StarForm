@@ -82,8 +82,8 @@ export function FormBuilder({ existingFormId, onPublished }: FormBuilderProps) {
         },
       });
       return true;
-    } catch {
-      toast.error('Failed to save changes');
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to save changes');
       return false;
     } finally {
       setIsSaving(false);
@@ -93,7 +93,6 @@ export function FormBuilder({ existingFormId, onPublished }: FormBuilderProps) {
   const handleNext = async () => {
     if (!canProceed()) return;
 
-    // New form: create on step 1 → 2
     if (step === 1 && !formId) {
       setIsSaving(true);
       try {
@@ -105,15 +104,14 @@ export function FormBuilder({ existingFormId, onPublished }: FormBuilderProps) {
         });
         setFormId(form.id);
         setStep(2);
-      } catch {
-        toast.error('Failed to save form');
+      } catch (err) {
+        toast.error(err instanceof Error ? err.message : 'Failed to save form');
       } finally {
         setIsSaving(false);
       }
       return;
     }
 
-    // Existing form: auto-save dirty changes before moving forward
     if (formId && isDirty) {
       const saved = await saveForm();
       if (!saved) return;

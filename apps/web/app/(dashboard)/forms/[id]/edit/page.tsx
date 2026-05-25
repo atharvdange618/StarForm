@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 import { FormBuilder } from '@/modules/forms/components/form-builder';
@@ -12,13 +12,12 @@ export default function EditFormPage() {
   const router = useRouter();
   const id = params.id as string;
   const loadFromForm = useFormBuilderStore((s) => s.loadFromForm);
-  const hydrated = useRef(false);
+  const [isHydrated, setIsHydrated] = useState(false);
 
   const { data: form, isPending, isError } = useForm(id);
 
   useEffect(() => {
-    if (!form || hydrated.current) return;
-    hydrated.current = true;
+    if (!form || isHydrated) return;
     loadFromForm({
       title: form.title,
       description: form.description,
@@ -28,9 +27,11 @@ export default function EditFormPage() {
       visibility: form.visibility,
       config: form.config,
     });
-  }, [form, loadFromForm]);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setIsHydrated(true);
+  }, [form, loadFromForm, isHydrated]);
 
-  if (isPending) {
+  if (isPending || !isHydrated) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
         <div className="flex items-center gap-2 text-muted-foreground">

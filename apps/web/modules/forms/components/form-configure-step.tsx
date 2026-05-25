@@ -182,6 +182,7 @@ export function FormConfigureStep() {
                     field.onChange(date ? date.toISOString() : '');
                   }}
                   placeholder="Select expiry date"
+                  allowPastDates={false}
                 />
               )}
             />

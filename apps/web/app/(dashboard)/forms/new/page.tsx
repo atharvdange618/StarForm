@@ -17,8 +17,8 @@ export default function NewFormPage() {
 
   return (
     <FormBuilder
-      onPublished={(form) => {
-        router.push(`/forms/${form.id}/edit`);
+      onPublished={() => {
+        router.push('/dashboard');
       }}
     />
   );

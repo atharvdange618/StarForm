@@ -69,7 +69,10 @@ export const useFormBuilderStore = create<FormBuilderState>((set) => ({
   },
 
   addField: (field) => {
-    set((state) => ({ fields: [...state.fields, field], isDirty: true }));
+    set((state) => {
+      const fields = [...state.fields, { ...field, order: state.fields.length }];
+      return { fields, isDirty: true };
+    });
   },
 
   updateField: (id, field) => {
@@ -80,10 +83,11 @@ export const useFormBuilderStore = create<FormBuilderState>((set) => ({
   },
 
   removeField: (id) => {
-    set((state) => ({
-      fields: state.fields.filter((f) => f.id !== id),
-      isDirty: true,
-    }));
+    set((state) => {
+      const remainingFields = state.fields.filter((f) => f.id !== id);
+      const normalizedFields = remainingFields.map((f, idx) => ({ ...f, order: idx }));
+      return { fields: normalizedFields, isDirty: true };
+    });
   },
 
   reorderFields: (fromIndex, toIndex) => {
@@ -92,7 +96,8 @@ export const useFormBuilderStore = create<FormBuilderState>((set) => ({
       const [moved] = fields.splice(fromIndex, 1);
       if (!moved) return { fields: state.fields, isDirty: state.isDirty };
       fields.splice(toIndex, 0, moved);
-      return { fields, isDirty: true };
+      const normalizedFields = fields.map((f, idx) => ({ ...f, order: idx }));
+      return { fields: normalizedFields, isDirty: true };
     });
   },
 
@@ -125,11 +130,16 @@ export const useFormBuilderStore = create<FormBuilderState>((set) => ({
   loadFromForm: (form) => {
     set(() => {
       const cfg = form.config as Record<string, unknown> | null | undefined;
+      const rawFields = Array.isArray(form.fields) ? (form.fields as FieldData[]) : [];
+      const normalizedFields = [...rawFields]
+        .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+        .map((f, idx) => ({ ...f, order: idx }));
+
       return {
         title: form.title,
         description: form.description ?? '',
         slug: form.slug,
-        fields: Array.isArray(form.fields) ? form.fields : [],
+        fields: normalizedFields,
         themeId: form.themeId,
         visibility: form.visibility,
         expiryDate: (cfg?.expiryDate as string | undefined) ?? null,
