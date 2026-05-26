@@ -2,7 +2,7 @@ import { Router } from 'express';
 import express from 'express';
 import { Webhook } from 'svix';
 import { logger } from '@starform/logger';
-import { env } from '../env';
+import { env } from '../env.js';
 import { userService } from '@starform/services';
 import type { WebhookEvent } from '@clerk/express';
 

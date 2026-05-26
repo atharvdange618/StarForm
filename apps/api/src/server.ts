@@ -10,12 +10,12 @@ import { apiReference } from '@scalar/express-api-reference';
 
 import { serverRouter, createContext } from '@starform/trpc/server';
 
-import { env } from './env';
-import { requestId } from './middleware/requestId';
-import { submissionLimiter } from './middleware/rateLimit';
-import { webhooksRouter } from './routes/webhooks';
-import { qrcodeRouter } from './routes/qrcode';
-import { csvRouter } from './routes/csv';
+import { env } from './env.js';
+import { requestId } from './middleware/requestId.js';
+import { submissionLimiter } from './middleware/rateLimit.js';
+import { webhooksRouter } from './routes/webhooks.js';
+import { qrcodeRouter } from './routes/qrcode.js';
+import { csvRouter } from './routes/csv.js';
 
 export const app = express();
 const openApiDocument = generateOpenApiDocument(serverRouter, {

@@ -1,7 +1,7 @@
 import http from 'node:http';
 import { logger } from '@starform/logger';
-import { app as expressApplication } from './server';
-import { env } from './env';
+import { app as expressApplication } from './server.js';
+import { env } from './env.js';
 
 async function init() {
   try {

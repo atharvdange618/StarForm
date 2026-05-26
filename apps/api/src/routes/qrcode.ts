@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import QRCode from 'qrcode';
-import { env } from '../env';
+import { env } from '../env.js';
 import { logger } from '@starform/logger';
 
 const router = Router();

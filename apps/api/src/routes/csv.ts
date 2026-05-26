@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { getAuth } from '@clerk/express';
 import { formService, submissionService, userService } from '@starform/services';
-import { csvExportLimiter } from '../middleware/rateLimit';
+import { csvExportLimiter } from '../middleware/rateLimit.js';
 
 export const csvRouter = Router();
 
