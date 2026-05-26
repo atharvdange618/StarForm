@@ -37,13 +37,26 @@ app.use(
   }),
 );
 
-if (env.NODE_ENV !== 'production') {
-  app.use(
-    cors({
-      origin: '*',
-    }),
-  );
-}
+const allowedOrigins = ['https://starform.atharvdangedev.in'];
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+
+      if (env.NODE_ENV === 'production') {
+        const isAllowed = allowedOrigins.includes(origin) || origin.endsWith('.atharvdangedev.in');
+        if (isAllowed) {
+          return callback(null, true);
+        }
+        return callback(new Error('Not allowed by CORS'));
+      }
+
+      return callback(null, true);
+    },
+    credentials: true,
+  }),
+);
 
 app.use(requestId);
 
