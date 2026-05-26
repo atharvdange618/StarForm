@@ -1,131 +1,190 @@
 # StarForm
 
-A form builder SaaS where authenticated users (Creators) build dynamic forms, share them via public/unlisted links, and collect submissions from Respondents who may or may not be authenticated.
+StarForm is an elite, enterprise-grade form builder SaaS engineered for maximum performance, type-safety, and visual excellence. Designed to bridge the gap between complex dynamic schemas and smooth user experiences, StarForm features a custom Monetmorphism design system built on the OKLCH color space, complete with 5 hardware-accelerated CSS themes (clean startup, cherry blossom anime, neon gaming, star parallax space, and CRT scanline retro) that render dynamically in real-time.
+
+---
 
 ## Tech Stack
 
-| Layer          | Technology                  |
-| -------------- | --------------------------- |
-| **Runtime**    | Node.js                     |
-| **Monorepo**   | Turborepo + pnpm            |
-| **Backend**    | Express v5 + tRPC           |
-| **Frontend**   | Next.js 16 (App Router)     |
-| **Database**   | PostgreSQL + Drizzle ORM    |
-| **Auth**       | Clerk                       |
-| **Validation** | Zod                         |
-| **Styling**    | Tailwind CSS v4 + shadcn/ui |
-| **API Docs**   | Scalar                      |
+| Layer          | Technology                      |
+| :------------- | :------------------------------ |
+| **Runtime**    | Node.js (v20+)                  |
+| **Monorepo**   | Turborepo + pnpm (v11+)         |
+| **Backend**    | Express v5 + tRPC v11           |
+| **Frontend**   | Next.js 16 (App Router) + React |
+| **Database**   | PostgreSQL + Drizzle ORM        |
+| **Auth**       | Clerk                           |
+| **Validation** | Zod v4                          |
+| **Styling**    | Tailwind CSS v4 + shadcn/ui     |
+| **Charts**     | Recharts                        |
+| **Emails**     | Nodemailer + EJS templates      |
+| **API Docs**   | Scalar                          |
+
+---
 
 ## Architecture
 
-```
+The codebase is structured as a Turborepo Monorepo separating the API, Web frontend, and shared packages to achieve high modularity and strict boundary controls.
+
+```text
 starform/
-  apps/
-    api/          # Express v5 server with tRPC, OpenAPI, Scalar docs
-    web/          # Next.js 16 frontend (server & client components)
-  packages/
-    database/     # Drizzle ORM schema, client, migrations
-    logger/       # Pino logger (structured, async)
-    trpc/         # tRPC router, context (Clerk auth), procedures
-    services/     # Business logic (user, form, submission, analytics)
-    eslint-config/    # Shared ESLint configs
-    typescript-config/ # Shared TS configs
+  ├── apps/
+  │    ├── api/          # Express v5 server (handles tRPC mounting, CSV export, rate-limiting)
+  │    └── web/          # Next.js 16 frontend app (monetmorphic UI, form builder & filler panels)
+  └── packages/
+       ├── database/     # Drizzle ORM schemas, migration history, seed orchestrators
+       ├── logger/       # Pino-based structured logging with request ID propagation
+       ├── trpc/         # Unified tRPC routers, RBAC procedure middleware, type-safe clients
+       ├── services/     # Monolith core services (Users, Forms, Submissions, Quotas, Analytics)
+       ├── eslint-config/# Shared ESLint rulesets
+       └── typescript-config/ # Shared compiler configurations
 ```
 
-### Key Decisions
+---
 
-- **Express v5 + tRPC all-in** - business logic lives in tRPC procedures. Express handles HTTP mount, health check, and CSV export.
-- **Next.js is always the client. Express is always the server.** No server actions.
-- **Drizzle ORM** with JSONB for flexible field definitions and responses (no EAV pattern).
-- **Immutable form versions** - publishing a form creates an immutable snapshot for historical traceability.
-- **No pre-aggregated analytics** - Recharts + compute-on-read from raw submissions.
-- **IP-hash respondent dedup** - SHA-256(ip + formId) instead of requiring userId for anonymous respondents.
+## Core Features
+
+- **4-Step Form Builder Wizard:** An intuitive building experience spanning Form Details, Dialog-based Fields Config, Theme & Webhook Settings, and Live Interactive Preview.
+- **Version Snapshotting:** Each publish creates an immutable snapshot of the form fields schema inside the `form_versions` table, guaranteeing that historical responses are always traced back to the exact schemas they were validated against.
+- **Dynamic Zod Resolvers:** Form validator schemas are not hardcoded or statically saved in database columns; they are dynamically compiled at runtime on both the client and server directly from the field definitions.
+- **OKLCH Theme System:** Supporting 5 pre-built hardware-accelerated themes:
+  - `startup`: Clean corporate blue-and-white grids with soft drop-shadows.
+  - `anime`: Floating Sakura particles (CSS-only) rendered on gentle pink canvases.
+  - `gaming`: Monospaced gaming aesthetic with glowing neon green pixel borders.
+  - `space`: Parallax starfields with deep violet gradient containers.
+  - `retro`: CRT scanline overlay reminiscent of CRT terminal monitors.
+- **Zero-N+1 Aggregation Engine:** Form analytics are calculated via single-roundtrip PostgreSQL queries utilizing Drizzle SQL templates, yielding daily timelines, peak hours, and field-by-field drop-off rates on-the-fly.
+- **Resilient Respondent UX:** Respondents enjoy an auto-saving input form (debounced local storage) that survives page refreshes and browser crashes, ending with beautiful submission receipt pages.
+- **Spam & Abuse Protections:** IP-salted SHA-256 respondent hashing preventing double-voting without requiring user authentication, combined with rate-limit guards.
+- **API Engine:** Autogenerated OpenAPI specs and beautiful documentation dashboards generated directly from tRPC endpoints using Scalar.
+
+---
+
+## Architectural Decisions and Tradeoffs
+
+All structural decisions are thoroughly documented within the project's Architectural Decision Records (ADR-0001).
+
+### 1. Express v5 Shell + tRPC procedures (vs. REST APIs)
+
+- **Decision:** Business logic lives entirely inside tRPC procedures. The Express server acts only as a shell to mount tRPC middleware, provide health checks, and serve file streams.
+- **Rationale:** tRPC allows end-to-end type safety between the backend and Next.js frontend with zero API boilerplate. Changes to validation rules (Zod) automatically ripple to the client at compile time.
+- **Tradeoff:** Streaming binary files (such as CSV exports) maps poorly to tRPC's structured JSON contract, which is why a separate native Express route (`GET /api/v1/forms/:id/responses.csv`) is used specifically for data exports.
+
+### 2. PostgreSQL JSONB Strategy (vs. Entity-Attribute-Value Model)
+
+- **Decision:** Field configurations (`form_versions.fields`) and submissions data (`submissions.data`) are stored as JSONB columns instead of using a traditional relational EAV (Entity-Attribute-Value) schema.
+- **Rationale:** EAV schemas require extensive table joins, locking overhead, and complex migrations for dynamic attributes. PostgreSQL JSONB allows single-query retrievals, simple indexes, and direct integration with Zod schemas.
+- **Tradeoff:** Schema migration rules inside JSONB must be handled programmatically. We mitigate this using immutable `form_versions` so old submissions are never subjected to new schemas.
+
+### 3. Immutable Snapshots on Publish (form_versions)
+
+- **Decision:** When a creator modifies a form, the changes are saved to a draft state. When they click Publish, we write a new version to the `form_versions` table. Submissions always link to the `formVersionId`, not the general `formId`.
+- **Rationale:** Modifying form questions after responses have been collected causes critical misalignment (e.g., changing a field's type from email to select makes older responses invalid). Snapshots ensure historical submissions remain consistent.
+
+### 4. Privacy-First Respondent Hashing
+
+- **Decision:** To prevent response spam on public forms, we compute `respondentHash = sha256(ip + formId + server_salt)` at the database level.
+- **Rationale:** Traditional IP tracking compromises GDPR user privacy. Storing cleartext IPs is bad practice. By hashing the IP with the form ID and a secret server salt, we can deduplicate users per-form without storing raw IPs.
+
+### 5. Compute-on-Read Analytics
+
+- **Decision:** Analytics metrics (timelines, answer distributions, completion rates) are computed dynamically from raw submissions when requested, rather than pre-aggregating metrics inside dedicated tables on write.
+- **Rationale:** Pre-aggregating data introduces write contention, database locks, and potential synchronization lag. Because our database schema is heavily indexed on `formId` and `createdAt`, a single-query SQL aggregation achieves sub-millisecond execution times without the complexity of write-side states.
+
+---
 
 ## Getting Started
 
 ### Prerequisites
 
-- Node.js >= 20
-- pnpm >= 11
-- PostgreSQL 16+
+- **Node.js** >= 20.x
+- **pnpm** >= 11.x
+- **PostgreSQL** >= 16.x
 
-### Setup
+### Environment Configuration
+
+1. Create a `.env` file in the project root:
+
+   ```env
+   NODE_ENV=development
+   PORT=8000
+   BASE_URL=http://localhost:8000
+
+   # Database connection URL
+   DATABASE_URL=postgresql://user:password@localhost:5432/starform_dev
+
+   # Clerk Credentials (from dashboard)
+   CLERK_SECRET_KEY=sk_test_...
+   CLERK_PUBLISHABLE_KEY=pk_test_...
+   CLERK_WEBHOOK_SECRET=whsec_...
+
+   # Logging
+   LOG_LEVEL=debug
+
+   # Transactional Email (Resend)
+   RESEND_API_KEY=re_...
+   ```
+
+2. Symlink the root `.env` to the Next.js app so it picks up the shared variables:
+   - **Windows (CMD as Admin):**
+     ```cmd
+     mklink apps\web\.env.local ..\..\.env
+     ```
+   - **Linux/macOS:**
+     ```bash
+     ln -s ../../.env apps/web/.env
+     ```
+
+### Setup and Install
 
 ```bash
 # Install dependencies
 pnpm install
 
-# Copy environment files
-cp apps/api/.env apps/api/.env.local
-
-# Set up the database
+# Generate and apply database migrations
 pnpm --filter @starform/database db:generate
 pnpm --filter @starform/database db:migrate
 
-# Start development
+# Seed database with global themes and sample forms
+pnpm --filter @starform/database seed
+```
+
+### Dev Mode
+
+```bash
 pnpm dev
 ```
 
-This starts both the API (port 8000) and web app (port 3000) in dev mode with hot reload.
+This runs the backend Express server on `http://localhost:8000` and the Next.js frontend on `http://localhost:3000` with hot-reloading enabled.
 
-### Available Scripts
+---
 
-| Script           | Description                    |
-| ---------------- | ------------------------------ |
-| `pnpm dev`       | Start all apps in development  |
-| `pnpm build`     | Build all apps and packages    |
-| `pnpm lint`      | Lint all workspaces            |
-| `pnpm typecheck` | Run TypeScript type checking   |
-| `pnpm format`    | Format all files with Prettier |
+## Packages and Monorepo Control
 
-## Packages
+- **`pnpm dev`** - Run dev workspace.
+- **`pnpm build`** - Compile ESM production bundles (uses `tsup` for apps/api to resolve workspace boundaries).
+- **`pnpm typecheck`** - Run compiler check.
+- **`pnpm test`** - Run comprehensive Vitest check suites.
 
-### `@starform/database`
+---
 
-PostgreSQL schema with 5 tables: `users`, `themes`, `forms`, `form_versions`, `submissions`. Drizzle ORM with `postgres` driver.
+## API Documentation
 
-```bash
-pnpm --filter @starform/database db:studio  # Open Drizzle Studio
-pnpm --filter @starform/database db:generate # Generate migration
-pnpm --filter @starform/database db:migrate  # Apply migration
-```
+Our API endpoints are documented interactively via Scalar, autogenerated directly from tRPC schemas.
 
-### `@starform/trpc`
+- **Interactive Docs Console:** `http://localhost:8000/docs` (production: `https://api-starform.atharvdangedev.in/docs`)
+- **OpenAPI Specs JSON:** `http://localhost:8000/openapi.json`
+- **Service Health:** `GET http://localhost:8000/health`
 
-Shared tRPC setup - routers, procedures (public + protected), context with Clerk auth, and client type exports. Dual-entry: `@starform/trpc/server` and `@starform/trpc/client`.
+---
 
-### `@starform/logger`
+## Demo Access and Seed Data
 
-Pino-based structured logging with request ID propagation, async emission, and dev-friendly formatting via `pino-pretty`.
+The seed script (`pnpm --filter @starform/database seed`) sets up global themes and creates a PRO tier creator user:
 
-## API
-
-The API is documented automatically via Scalar:
-
-- **Docs UI:** `http://localhost:8000/docs`
-- **OpenAPI JSON:** `http://localhost:8000/openapi.json`
-- **Health Check:** `GET http://localhost:8000/health`
-- **tRPC:** `POST http://localhost:8000/trpc`
-
-## Domain Model
-
-| Term           | Definition                                                                                       |
-| -------------- | ------------------------------------------------------------------------------------------------ |
-| **User**       | Clerk-authenticated account                                                                      |
-| **Creator**    | Role with permission to build and manage forms                                                   |
-| **Respondent** | Person who fills and submits a form (may be anonymous)                                           |
-| **Form**       | Dynamic collection of fields with schema, visibility, and config                                 |
-| **Field**      | Single input element (text, textarea, number, email, phone, select, multiselect, checkbox, file) |
-| **Submission** | A completed form with response data                                                              |
-| **Response**   | Value for a specific field within a submission                                                   |
-
-## Planned Features
-
-- 4-step form builder wizard (Details → Fields → Configure → Preview & Publish)
-- Single-page form filler
-- Submission analytics with Recharts
-- CSV export
-- Rate limiting with express-rate-limit
-- Transactional emails (Nodemailer + EJS)
-- Theme system with JSONB config
-- Soft deletes on forms and submissions
+- **Email:** `atharvdange.dev@gmail.com`
+- **Password:** `ChaiAurCode@1234`
+- **Pre-seeded Forms:**
+  1.  `Tech w/ StarForm`: A developer survey in the `startup` theme with 12 mock submissions.
+  2.  `Anime Watch Party`: RSVP + episode poll in the `anime` theme with 10 submissions.
+  3.  `Game Night`: Game poll & food RSVP in the `gaming` theme with 15 submissions.
