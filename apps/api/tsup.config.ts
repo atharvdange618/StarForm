@@ -5,6 +5,8 @@ export default defineConfig({
   format: ['esm'],
   clean: true,
   sourcemap: true,
+  platform: 'node',
+  external: [/^(?!@starform\/)[^./]/],
   noExternal: [
     '@starform/env',
     '@starform/logger',
