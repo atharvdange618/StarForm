@@ -59,34 +59,56 @@ async function seed() {
 
   // 2. Seed Creator User
   console.log('Seeding creator user...');
-  const creatorEmail = 'demo@starform.dev';
+  const creatorEmail = 'atharvdange.dev@gmail.com';
   const clerkId = process.env.CLERK_DEMO_USER_ID || 'user_demo123456789';
 
-  let [creator] = await db.select().from(users).where(eq(users.email, creatorEmail)).limit(1);
+  // First, check if a user with this clerkId already exists (e.g. created by Clerk webhook)
+  let [creator] = await db.select().from(users).where(eq(users.clerkId, clerkId)).limit(1);
 
-  if (!creator) {
-    [creator] = await db
-      .insert(users)
-      .values({
-        clerkId,
-        email: creatorEmail,
-        name: 'Demo Creator',
-        roles: ['creator', 'respondent'],
-        plan: 'pro',
-      })
-      .returning();
-    console.log(`Creator created: ${creator!.id}`);
-  } else {
-    // Sync clerk ID and upgrade to PRO if not already
+  if (creator) {
+    // If they exist, upgrade them to PRO and make sure they have the creator role
     await db
       .update(users)
       .set({
-        clerkId,
         plan: 'pro',
         roles: ['creator', 'respondent'],
       })
       .where(eq(users.id, creator.id));
-    console.log(`Creator synchronized: ${creator.id}`);
+    console.log(`Existing creator synchronized by clerkId: ${creator.id}`);
+  } else {
+    // If not, see if the user exists by email (fallback)
+    let [creatorByEmail] = await db
+      .select()
+      .from(users)
+      .where(eq(users.email, creatorEmail))
+      .limit(1);
+
+    if (creatorByEmail) {
+      // Sync clerk ID to this email user
+      [creator] = await db
+        .update(users)
+        .set({
+          clerkId,
+          plan: 'pro',
+          roles: ['creator', 'respondent'],
+        })
+        .where(eq(users.id, creatorByEmail.id))
+        .returning();
+      console.log(`Creator synchronized by email: ${creator!.id}`);
+    } else {
+      // Create a brand new user
+      [creator] = await db
+        .insert(users)
+        .values({
+          clerkId,
+          email: creatorEmail,
+          name: 'Demo Creator',
+          roles: ['creator', 'respondent'],
+          plan: 'pro',
+        })
+        .returning();
+      console.log(`New creator created: ${creator!.id}`);
+    }
   }
 
   // 3. Define Form Schemas

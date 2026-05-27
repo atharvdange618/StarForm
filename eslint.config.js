@@ -11,6 +11,7 @@ export default [
       '**/coverage/**',
       '**/.next/**',
       '**/out/**',
+      '**/ecosystem.config.cjs',
     ],
   },
 ];

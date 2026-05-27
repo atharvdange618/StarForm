@@ -457,8 +457,8 @@ export function FieldConfigDialog({
                           ...equals this value:
                         </Label>
                         {(() => {
-                          // eslint-disable-next-line react-hooks/incompatible-library
                           const selectedTrigger = precedingFields.find(
+                            // eslint-disable-next-line react-hooks/incompatible-library
                             (f) => f.id === watch('conditionalFieldId'),
                           );
                           const opts = selectedTrigger?.config?.options || [];

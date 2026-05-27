@@ -28,6 +28,6 @@ export const config = [
     },
   },
   {
-    ignores: ['dist/**'],
+    ignores: ['dist/**', '**/ecosystem.config.cjs'],
   },
 ];

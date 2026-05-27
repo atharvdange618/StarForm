@@ -242,8 +242,8 @@ export function FormPreviewStep({ formId, onPublished }: FormPreviewStepProps) {
                 </p>
               ) : (
                 sortedFields
-                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
                   .filter((field) =>
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     isFieldVisible(field as any, watchedValues || {}, sortedFields as any),
                   )
                   .map((field) => (

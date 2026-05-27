@@ -1,0 +1,68 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: PASSWORD
+          POSTGRES_DB: starform_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DATABASE_URL: postgresql://postgres:PASSWORD@localhost:5432/starform_test
+      TEST_DATABASE_URL: postgresql://postgres:PASSWORD@localhost:5432/starform_test
+      CLERK_SECRET_KEY: sk_test_dummy
+      CLERK_PUBLISHABLE_KEY: pk_test_dummy
+      CLERK_WEBHOOK_SECRET: whsec_dummy
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.2.2
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Format check
+        run: pnpm format:check
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Push Database Schema for Testing
+        run: pnpm --filter @starform/database db:push:test
+
+      - name: Run Tests
+        run: pnpm test
+
+      - name: Build
+        run: pnpm build
