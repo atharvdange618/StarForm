@@ -17,7 +17,7 @@ interface StepIndicatorProps {
 
 export function StepIndicator({ currentStep, onStepClick }: StepIndicatorProps) {
   return (
-    <div className="flex items-center justify-center gap-0">
+    <div className="flex items-center justify-center gap-0 animate-fade-up">
       {steps.map((step, i) => {
         const isCompleted = i < currentStep;
         const isCurrent = i === currentStep;

@@ -13,8 +13,5 @@ export function useSubmitForm(slug: string) {
       toast.success('Form submitted successfully!');
       router.push(`/${slug}/receipt/${data.id}`);
     },
-    onError: (error) => {
-      toast.error(error.message || 'Failed to submit form');
-    },
   });
 }

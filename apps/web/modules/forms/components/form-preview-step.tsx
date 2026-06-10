@@ -12,6 +12,7 @@ import { isFieldVisible, buildSubmissionSchema } from '@/modules/forms/schema';
 import { toast } from 'sonner';
 import { env } from '@/lib/env';
 import { trpc } from '@/lib/trpc';
+import { WarpDriveEffect, MatrixRainEffect } from './theme-effects';
 
 interface FormPreviewStepProps {
   formId?: string;
@@ -61,13 +62,13 @@ export function FormPreviewStep({ formId, onPublished }: FormPreviewStepProps) {
   const { data: themes } = trpc.theme.list.useQuery();
   const themeClass = useMemo(() => {
     if (!themeId || !themes) return 'theme-startup';
-    const theme = themes.find((t) => t.id === themeId);
+    const theme = (themes as { id: string; name: string }[]).find((t) => t.id === themeId);
     return theme ? `theme-${theme.name.toLowerCase()}` : 'theme-startup';
   }, [themeId, themes]);
 
   const renderThemeEffects = useCallback(() => {
     if (themeClass === 'theme-space') {
-      return <div className="stars" />;
+      return <WarpDriveEffect />;
     }
     if (themeClass === 'theme-anime') {
       return (
@@ -85,6 +86,9 @@ export function FormPreviewStep({ formId, onPublished }: FormPreviewStepProps) {
           ))}
         </div>
       );
+    }
+    if (themeClass === 'theme-gaming') {
+      return <MatrixRainEffect />;
     }
     return null;
   }, [themeClass]);
@@ -111,8 +115,8 @@ export function FormPreviewStep({ formId, onPublished }: FormPreviewStepProps) {
       setQrCodeUrl(`${env.NEXT_PUBLIC_API_URL}/api/v1/forms/${result.id}/${slug}/qrcode`);
 
       toast.success('Form published!');
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Failed to publish form');
+    } catch {
+      // Handled globally
     }
   };
 
@@ -168,7 +172,7 @@ export function FormPreviewStep({ formId, onPublished }: FormPreviewStepProps) {
         </div>
 
         {qrCodeUrl ? (
-          <div className="mx-auto mt-6 w-fit rounded-[calc(var(--radius)*1.2)] border border-border bg-card p-4">
+          <div className="mx-auto mt-6 w-fit rounded-xl border border-border bg-card p-4">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={qrCodeUrl}
@@ -211,13 +215,13 @@ export function FormPreviewStep({ formId, onPublished }: FormPreviewStepProps) {
   }
 
   return (
-    <div className="mx-auto grid max-w-4xl gap-8 lg:grid-cols-5">
+    <div className="mx-auto grid max-w-4xl gap-8 lg:grid-cols-5 animate-fade-up">
       <div className="lg:col-span-3">
         <div
-          className={`${themeClass} relative overflow-hidden rounded-[calc(var(--radius)*1.2)] border border-border p-8 shadow-(--shadow-card) transition-all duration-300`}
+          className={`${themeClass} relative overflow-hidden rounded-xl border border-border p-8 shadow-(--shadow-card) transition-all duration-300`}
         >
           {renderThemeEffects()}
-          <div className="card relative z-10 rounded-[calc(var(--radius)*1.2)] border border-border bg-card p-6 shadow-(--shadow-card)">
+          <div className="card relative z-10 rounded-xl border border-border bg-card p-6 shadow-(--shadow-card)">
             <div className="mb-6">
               <h2 className="font-display text-2xl font-light text-foreground">
                 {title || 'Untitled Form'}
@@ -271,7 +275,7 @@ export function FormPreviewStep({ formId, onPublished }: FormPreviewStepProps) {
       </div>
 
       <div className="lg:col-span-2">
-        <div className="sticky top-20 space-y-4 rounded-[calc(var(--radius)*1.2)] border border-border bg-card p-6 shadow-(--shadow-card)">
+        <div className="sticky top-20 space-y-4 rounded-xl border border-border bg-card p-6 shadow-(--shadow-card)">
           <h3 className="font-heading text-base font-medium text-foreground">Publish Settings</h3>
 
           <div className="space-y-2 font-body text-sm">

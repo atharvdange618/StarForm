@@ -11,7 +11,6 @@ import { FormPreviewStep } from './form-preview-step';
 import { useFormBuilderStore } from '@/store/form-builder.store';
 import { useCreateForm, useUpdateForm } from '@/modules/forms/hooks/useForms';
 import type { FieldDefinition } from '@starform/trpc/server';
-import { toast } from 'sonner';
 
 interface FormBuilderProps {
   existingFormId?: string;
@@ -82,8 +81,7 @@ export function FormBuilder({ existingFormId, onPublished }: FormBuilderProps) {
         },
       });
       return true;
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Failed to save changes');
+    } catch {
       return false;
     } finally {
       setIsSaving(false);
@@ -104,8 +102,8 @@ export function FormBuilder({ existingFormId, onPublished }: FormBuilderProps) {
         });
         setFormId(form.id);
         setStep(2);
-      } catch (err) {
-        toast.error(err instanceof Error ? err.message : 'Failed to save form');
+      } catch {
+        // Handled globally
       } finally {
         setIsSaving(false);
       }
@@ -129,8 +127,8 @@ export function FormBuilder({ existingFormId, onPublished }: FormBuilderProps) {
   };
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-8">
-      <div className="mb-8">
+    <div className="mx-auto max-w-5xl px-4 py-8 animate-fade-up">
+      <div className="mb-8 animate-fade-up stagger-1">
         <StepIndicator
           currentStep={step}
           onStepClick={(s) => {
@@ -139,7 +137,7 @@ export function FormBuilder({ existingFormId, onPublished }: FormBuilderProps) {
         />
       </div>
 
-      <div className="mb-8">
+      <div className="mb-8 animate-fade-up stagger-2">
         <div className="mb-1 text-center font-body text-xs uppercase tracking-widest text-muted-foreground">
           Step {step + 1} of 4
         </div>
@@ -148,7 +146,7 @@ export function FormBuilder({ existingFormId, onPublished }: FormBuilderProps) {
         </h2>
       </div>
 
-      <div className="min-h-75">
+      <div className="min-h-75 animate-fade-up stagger-3">
         {step === 0 ? <FormDetailsStep /> : null}
         {step === 1 ? <FormFieldsStep /> : null}
         {step === 2 ? <FormConfigureStep /> : null}

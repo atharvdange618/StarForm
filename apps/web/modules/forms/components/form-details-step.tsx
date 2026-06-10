@@ -62,7 +62,7 @@ export function FormDetailsStep() {
   );
 
   return (
-    <div className="mx-auto max-w-xl space-y-6">
+    <div className="mx-auto max-w-xl space-y-6 animate-fade-up">
       <div className="grid gap-2">
         <Label htmlFor="form-title" className="font-body text-sm text-muted-foreground">
           Form Title <span className="text-destructive">*</span>

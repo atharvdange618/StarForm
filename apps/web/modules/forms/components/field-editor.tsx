@@ -72,9 +72,9 @@ export function FormFieldEditor({
   };
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-3 animate-fade-up">
       {fields.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-[calc(var(--radius)*0.8)] border-2 border-dashed border-border py-10">
+        <div className="flex flex-col items-center justify-center rounded-md border-2 border-dashed border-border py-10">
           <p className="font-body text-sm text-muted-foreground">
             No fields yet. Add your first field.
           </p>
@@ -88,7 +88,7 @@ export function FormFieldEditor({
           {fields.map((field, index) => (
             <div
               key={field.id}
-              className="flex items-center gap-3 rounded-[calc(var(--radius)*0.8)] border border-border bg-card px-4 py-3 transition-colors hover:border-primary/30"
+              className="flex items-center gap-3 rounded-md border border-border bg-card px-4 py-3 transition-colors hover:border-primary/30"
             >
               <div className="touch-none text-muted-foreground/50">
                 <GripVertical className="h-4 w-4" />

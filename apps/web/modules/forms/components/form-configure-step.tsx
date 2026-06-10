@@ -97,7 +97,7 @@ export function FormConfigureStep() {
   );
 
   return (
-    <div className="mx-auto max-w-xl space-y-8">
+    <div className="mx-auto max-w-xl space-y-8 animate-fade-up">
       <section className="space-y-4">
         <div>
           <h3 className="font-heading text-lg font-medium text-foreground">Theme</h3>
@@ -125,7 +125,7 @@ export function FormConfigureStep() {
             onClick={() => {
               handleVisibilityChange('public');
             }}
-            className={`flex-1 rounded-[calc(var(--radius)*0.8)] border-2 p-4 text-left transition-all ${
+            className={`flex-1 rounded-md border-2 p-4 text-left transition-all ${
               watchedVisibility === 'public'
                 ? 'border-primary bg-primary/5'
                 : 'border-border hover:border-primary/50'
@@ -143,7 +143,7 @@ export function FormConfigureStep() {
             onClick={() => {
               handleVisibilityChange('unlisted');
             }}
-            className={`flex-1 rounded-[calc(var(--radius)*0.8)] border-2 p-4 text-left transition-all ${
+            className={`flex-1 rounded-md border-2 p-4 text-left transition-all ${
               watchedVisibility === 'unlisted'
                 ? 'border-primary bg-primary/5'
                 : 'border-border hover:border-primary/50'

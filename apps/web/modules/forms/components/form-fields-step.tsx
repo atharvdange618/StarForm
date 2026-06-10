@@ -7,7 +7,7 @@ export function FormFieldsStep() {
   const { fields, addField, updateField, removeField, reorderFields } = useFormBuilderStore();
 
   return (
-    <div className="mx-auto max-w-xl">
+    <div className="mx-auto max-w-xl animate-fade-up">
       <FormFieldEditor
         fields={fields}
         onAdd={addField}
