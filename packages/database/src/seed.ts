@@ -49,24 +49,26 @@ const globalThemes = [
 async function seed() {
   console.log('Starting seed process...');
 
-  // 1. Seed Global Themes
   console.log('Seeding global themes...');
-  await db.insert(themes).values(globalThemes).onConflictDoNothing();
+  const existingGlobalThemes = await db.select().from(themes).where(eq(themes.isGlobal, true));
+  const existingNames = new Set(existingGlobalThemes.map((t) => t.name));
+  const themesToInsert = globalThemes.filter((t) => !existingNames.has(t.name));
+
+  if (themesToInsert.length > 0) {
+    await db.insert(themes).values(themesToInsert);
+  }
 
   const allThemes = await db.select().from(themes).where(eq(themes.isGlobal, true));
   const themeMap = new Map(allThemes.map((t) => [t.name, t.id]));
   console.log(`Themes loaded: ${allThemes.length}`);
 
-  // 2. Seed Creator User
   console.log('Seeding creator user...');
   const creatorEmail = 'atharvdange.dev@gmail.com';
   const clerkId = process.env.CLERK_DEMO_USER_ID || 'user_demo123456789';
 
-  // First, check if a user with this clerkId already exists (e.g. created by Clerk webhook)
   let [creator] = await db.select().from(users).where(eq(users.clerkId, clerkId)).limit(1);
 
   if (creator) {
-    // If they exist, upgrade them to PRO and make sure they have the creator role
     await db
       .update(users)
       .set({
@@ -76,7 +78,6 @@ async function seed() {
       .where(eq(users.id, creator.id));
     console.log(`Existing creator synchronized by clerkId: ${creator.id}`);
   } else {
-    // If not, see if the user exists by email (fallback)
     let [creatorByEmail] = await db
       .select()
       .from(users)
@@ -84,7 +85,6 @@ async function seed() {
       .limit(1);
 
     if (creatorByEmail) {
-      // Sync clerk ID to this email user
       [creator] = await db
         .update(users)
         .set({
@@ -96,7 +96,6 @@ async function seed() {
         .returning();
       console.log(`Creator synchronized by email: ${creator!.id}`);
     } else {
-      // Create a brand new user
       [creator] = await db
         .insert(users)
         .values({
@@ -111,7 +110,6 @@ async function seed() {
     }
   }
 
-  // 3. Define Form Schemas
   const formsToSeed = [
     {
       title: 'Tech w/ StarForm',
@@ -461,10 +459,8 @@ async function seed() {
   for (const formDef of formsToSeed) {
     console.log(`Seeding form: ${formDef.title}...`);
 
-    // Clean existing forms of the same slug
     const existingForms = await db.select().from(forms).where(eq(forms.slug, formDef.slug));
     for (const f of existingForms) {
-      // Cascade delete manually since forms table has relations
       await db.delete(submissions).where(eq(submissions.formId, f.id));
       await db.delete(formVersions).where(eq(formVersions.formId, f.id));
       await db.delete(forms).where(eq(forms.id, f.id));
@@ -472,7 +468,6 @@ async function seed() {
 
     const themeId = themeMap.get(formDef.themeName) || null;
 
-    // Insert Form
     const [insertedForm] = await db
       .insert(forms)
       .values({
@@ -495,7 +490,6 @@ async function seed() {
       throw new Error(`Failed to insert form ${formDef.title}`);
     }
 
-    // Insert Form Version (snapshot version 1)
     const [insertedVersion] = await db
       .insert(formVersions)
       .values({
@@ -510,21 +504,17 @@ async function seed() {
       throw new Error(`Failed to insert form version for ${formDef.title}`);
     }
 
-    // Generate and Insert Submissions
     console.log(`Generating ${formDef.submissions.length} submissions for ${formDef.title}...`);
 
-    // Spread dates over the last 10 days
     const now = new Date();
 
     const submissionInserts = formDef.submissions.map((sub, idx) => {
-      // Distribute dates in the past
-      const dayOffset = Math.floor(idx / 2); // Spread submissions across days
-      const hourOffset = (idx * 3) % 24; // Spread submissions across hours
+      const dayOffset = Math.floor(idx / 2);
+      const hourOffset = (idx * 3) % 24;
       const date = new Date(
         now.getTime() - dayOffset * 24 * 60 * 60 * 1000 - hourOffset * 60 * 60 * 1000,
       );
 
-      // Structure response data depending on form type
       let data: Record<string, unknown> = {};
 
       if (formDef.slug === 'tech-survey') {
