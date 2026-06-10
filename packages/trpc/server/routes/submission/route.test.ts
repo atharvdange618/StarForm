@@ -176,14 +176,12 @@ describe('submissionRouter', () => {
     });
     await publishForm(form.id);
 
-    // 1. If choice is 'No', dependent required field is hidden and can be omitted -> Should succeed
     const resNo = await unauthedCaller.submission.submit({
       slug: 'conditional-test-form',
       data: { [selectFieldId]: 'No' },
     });
     expect(resNo.formId).toBe(form.id);
 
-    // 2. If choice is 'Yes', dependent required field is visible and must not be empty -> Should fail
     await expect(
       unauthedCaller.submission.submit({
         slug: 'conditional-test-form',
@@ -191,7 +189,6 @@ describe('submissionRouter', () => {
       }),
     ).rejects.toThrow();
 
-    // 3. If choice is 'Yes', and dependent required field is provided -> Should succeed
     const resYes = await unauthedCaller.submission.submit({
       slug: 'conditional-test-form',
       data: { [selectFieldId]: 'Yes', [condFieldId]: 'Everything is awesome!' },
