@@ -71,7 +71,7 @@ export default function FormResponsesPage({ params }: { params: Promise<{ id: st
         <Skeleton className="mb-6 h-8 w-48" />
         <div className="space-y-3">
           {Array.from({ length: 5 }).map((_, i) => (
-            <Skeleton key={i} className="h-16 rounded-[calc(var(--radius)*1.2)]" />
+            <Skeleton key={i} className="h-16 rounded-xl" />
           ))}
         </div>
       </div>
@@ -96,8 +96,8 @@ export default function FormResponsesPage({ params }: { params: Promise<{ id: st
   }
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-8">
-      <div className="mb-6 flex items-center justify-between">
+    <div className="mx-auto max-w-5xl px-4 py-8 animate-page-enter">
+      <div className="mb-6 flex items-center justify-between animate-fade-up">
         <div className="flex items-center gap-4">
           <Link href="/dashboard">
             <Button variant="ghost" size="icon-xs">
@@ -128,7 +128,7 @@ export default function FormResponsesPage({ params }: { params: Promise<{ id: st
       </div>
 
       {!submissions || submissions.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-16 text-center">
+        <div className="flex flex-col items-center justify-center py-16 text-center animate-fade-up stagger-2">
           <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-primary/10">
             <FileIcon className="h-7 w-7 text-primary" />
           </div>
@@ -140,7 +140,7 @@ export default function FormResponsesPage({ params }: { params: Promise<{ id: st
       ) : (
         <>
           <div className="mb-4 space-y-2">
-            {submissions.map((submission) => {
+            {submissions.map((submission, index) => {
               const data = submission.data as Record<string, unknown> | null;
               const isExpanded = expandedId === submission.id;
               const entries = data
@@ -156,50 +156,55 @@ export default function FormResponsesPage({ params }: { params: Promise<{ id: st
                 .join(' \u00B7 ');
 
               return (
-                <Card key={submission.id} size="sm">
-                  <button
-                    type="button"
-                    onClick={() => setExpandedId(isExpanded ? null : submission.id)}
-                    className="w-full text-left"
-                  >
-                    <CardHeader className="flex flex-row items-center justify-between">
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-2">
-                          <span className="font-mono text-xs text-foreground">
-                            {submission.id.slice(0, 8).toUpperCase()}
-                          </span>
-                          <span className="font-body text-xs text-muted-foreground">
-                            {new Date(submission.createdAt).toLocaleString()}
-                          </span>
-                        </div>
-                        {!isExpanded && preview && (
-                          <p className="mt-1 truncate font-body text-sm text-muted-foreground">
-                            {preview}
-                          </p>
-                        )}
-                      </div>
-                      {isExpanded ? (
-                        <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground" />
-                      ) : (
-                        <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />
-                      )}
-                    </CardHeader>
-                  </button>
-                  {isExpanded && (
-                    <CardContent className="border-t border-border">
-                      <div className="space-y-3">
-                        {entries.map(([key, value]) => (
-                          <div key={key} className="flex justify-between gap-4 font-body text-sm">
-                            <span className="shrink-0 text-muted-foreground">{key}</span>
-                            <span className="text-right text-foreground">
-                              {Array.isArray(value) ? value.join(', ') : String(value)}
+                <div
+                  key={submission.id}
+                  className={`animate-fade-up stagger-${Math.min(index + 1, 5)}`}
+                >
+                  <Card size="sm">
+                    <button
+                      type="button"
+                      onClick={() => setExpandedId(isExpanded ? null : submission.id)}
+                      className="w-full text-left"
+                    >
+                      <CardHeader className="flex flex-row items-center justify-between">
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-2">
+                            <span className="font-mono text-xs text-foreground">
+                              {submission.id.slice(0, 8).toUpperCase()}
+                            </span>
+                            <span className="font-body text-xs text-muted-foreground">
+                              {new Date(submission.createdAt).toLocaleString()}
                             </span>
                           </div>
-                        ))}
-                      </div>
-                    </CardContent>
-                  )}
-                </Card>
+                          {!isExpanded && preview && (
+                            <p className="mt-1 truncate font-body text-sm text-muted-foreground">
+                              {preview}
+                            </p>
+                          )}
+                        </div>
+                        {isExpanded ? (
+                          <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground" />
+                        ) : (
+                          <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />
+                        )}
+                      </CardHeader>
+                    </button>
+                    {isExpanded && (
+                      <CardContent className="border-t border-border">
+                        <div className="space-y-3">
+                          {entries.map(([key, value]) => (
+                            <div key={key} className="flex justify-between gap-4 font-body text-sm">
+                              <span className="shrink-0 text-muted-foreground">{key}</span>
+                              <span className="text-right text-foreground">
+                                {Array.isArray(value) ? value.join(', ') : String(value)}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      </CardContent>
+                    )}
+                  </Card>
+                </div>
               );
             })}
           </div>

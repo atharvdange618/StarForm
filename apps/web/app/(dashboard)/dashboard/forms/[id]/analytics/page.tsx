@@ -19,6 +19,22 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 
+const CHART_COLORS = {
+  1: 'oklch(0.67 0.13 245)',
+  2: 'oklch(0.72 0.095 308)',
+  3: 'oklch(0.62 0.11 148)',
+  4: 'oklch(0.76 0.108 82)',
+  5: 'oklch(0.68 0.12 352)',
+} as const;
+
+const TOOLTIP_STYLE = {
+  background: 'oklch(0.23 0.048 270)',
+  border: '1px solid oklch(1 0 0 / 11%)',
+  borderRadius: '1rem',
+  fontSize: '0.875rem',
+  color: 'oklch(0.93 0.016 88)',
+};
+
 export default function FormAnalyticsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const { data: form, isLoading: formLoading, isError: formError } = useForm(id);
@@ -32,6 +48,7 @@ export default function FormAnalyticsPage({ params }: { params: Promise<{ id: st
     if (!timeline) return [];
     return (timeline as { day: string; count: number }[]).map((d) => ({
       date: d.day,
+      label: new Date(d.day).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
       submissions: d.count,
     }));
   }, [timeline]);
@@ -58,13 +75,13 @@ export default function FormAnalyticsPage({ params }: { params: Promise<{ id: st
         <Skeleton className="mb-6 h-8 w-48" />
         <div className="mb-6 grid grid-cols-4 gap-4">
           {Array.from({ length: 4 }).map((_, i) => (
-            <Skeleton key={i} className="h-24 rounded-[calc(var(--radius)*1.2)]" />
+            <Skeleton key={i} className="h-24 rounded-xl" />
           ))}
         </div>
-        <Skeleton className="mb-6 h-72 w-full rounded-[calc(var(--radius)*1.2)]" />
+        <Skeleton className="mb-6 h-72 w-full rounded-xl" />
         <div className="grid grid-cols-2 gap-4">
           {Array.from({ length: 2 }).map((_, i) => (
-            <Skeleton key={i} className="h-48 rounded-[calc(var(--radius)*1.2)]" />
+            <Skeleton key={i} className="h-48 rounded-xl" />
           ))}
         </div>
       </div>
@@ -116,7 +133,7 @@ export default function FormAnalyticsPage({ params }: { params: Promise<{ id: st
   const peakHour =
     hourlyData.length > 0 && hourlyData[0]
       ? hourlyData.reduce((max, h) => (h.submissions > max.submissions ? h : max), hourlyData[0])
-      : { hour: '—', submissions: 0 };
+      : { hour: '-', submissions: 0 };
   const today = new Date().toISOString().split('T')[0];
   const todayCount = timelineData.find((d) => d.date === today)?.submissions ?? 0;
   const avgDropOff =
@@ -130,8 +147,8 @@ export default function FormAnalyticsPage({ params }: { params: Promise<{ id: st
       : 100;
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-8">
-      <div className="mb-8 flex items-center gap-4">
+    <div className="mx-auto max-w-5xl px-4 py-8 animate-page-enter">
+      <div className="mb-8 flex items-center gap-4 animate-fade-up">
         <Link href="/dashboard">
           <Button variant="ghost" size="icon-xs">
             <ArrowLeft className="h-4 w-4" />
@@ -144,192 +161,222 @@ export default function FormAnalyticsPage({ params }: { params: Promise<{ id: st
       </div>
 
       <div className="mb-6 grid grid-cols-2 gap-4 md:grid-cols-4">
-        <StatCard icon={FileText} label="Total" value={stats.totalSubmissions} />
-        <StatCard icon={Users} label="Unique" value={stats.uniqueRespondents} />
-        <StatCard icon={TrendingUp} label="Today" value={todayCount} />
-        <StatCard icon={CheckCircleIcon} label="Comp. Rate" value={`${avgDropOff}%`} />
+        <div className="animate-fade-up stagger-1">
+          <StatCard icon={FileText} label="Total" value={stats.totalSubmissions} />
+        </div>
+        <div className="animate-fade-up stagger-2">
+          <StatCard icon={Users} label="Unique" value={stats.uniqueRespondents} />
+        </div>
+        <div className="animate-fade-up stagger-3">
+          <StatCard icon={TrendingUp} label="Today" value={todayCount} />
+        </div>
+        <div className="animate-fade-up stagger-4">
+          <StatCard icon={CheckCircleIcon} label="Comp. Rate" value={`${avgDropOff}%`} />
+        </div>
       </div>
 
-      <Card size="sm" className="mb-6">
-        <CardHeader>
-          <CardTitle className="font-heading text-sm">Submissions Over Time</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {timelineData.length === 0 ? (
-            <div className="flex h-48 items-center justify-center text-sm text-muted-foreground">
-              No timeline data available
-            </div>
-          ) : (
-            <ResponsiveContainer width="100%" height={256}>
-              <AreaChart data={timelineData} margin={{ top: 4, right: 8, left: -20, bottom: 0 }}>
-                <defs>
-                  <linearGradient id="colorCount" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="hsl(var(--chart-1))" stopOpacity={0.3} />
-                    <stop offset="95%" stopColor="hsl(var(--chart-1))" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                <XAxis
-                  dataKey="date"
-                  fontSize={12}
-                  tick={{ fill: 'hsl(var(--muted-foreground))' }}
-                />
-                <YAxis
-                  allowDecimals={false}
-                  fontSize={12}
-                  tick={{ fill: 'hsl(var(--muted-foreground))' }}
-                />
-                <Tooltip
-                  contentStyle={{
-                    background: 'hsl(var(--card))',
-                    border: '1px solid hsl(var(--border))',
-                    borderRadius: 'calc(var(--radius) * 0.8)',
-                    fontSize: '0.875rem',
-                  }}
-                />
-                <Area
-                  type="monotone"
-                  dataKey="submissions"
-                  stroke="hsl(var(--chart-1))"
-                  fill="url(#colorCount)"
-                  strokeWidth={2}
-                />
-              </AreaChart>
-            </ResponsiveContainer>
-          )}
-        </CardContent>
-      </Card>
-
-      <div className="mb-6 grid grid-cols-1 gap-6 md:grid-cols-2">
-        <Card size="sm">
+      <div className="animate-fade-up stagger-2">
+        <Card size="sm" className="mb-6">
           <CardHeader>
-            <CardTitle className="font-heading text-sm">Peak Hours</CardTitle>
+            <CardTitle className="font-heading text-sm">Submissions Over Time</CardTitle>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={200}>
-              <BarChart data={hourlyData} margin={{ top: 4, right: 8, left: -20, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                <XAxis
-                  dataKey="hour"
-                  fontSize={11}
-                  tick={{ fill: 'hsl(var(--muted-foreground))' }}
-                  interval={3}
-                />
-                <YAxis
-                  allowDecimals={false}
-                  fontSize={11}
-                  tick={{ fill: 'hsl(var(--muted-foreground))' }}
-                />
-                <Tooltip
-                  contentStyle={{
-                    background: 'hsl(var(--card))',
-                    border: '1px solid hsl(var(--border))',
-                    borderRadius: 'calc(var(--radius) * 0.8)',
-                    fontSize: '0.875rem',
-                  }}
-                />
-                <Bar dataKey="submissions" fill="hsl(var(--chart-2))" radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-            <p className="mt-3 text-center font-body text-sm text-muted-foreground">
-              Peak: {peakHour?.hour} ({peakHour?.submissions} submissions)
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card size="sm">
-          <CardHeader>
-            <CardTitle className="font-heading text-sm">Field Completion</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {stats.dropOffRates.length === 0 ? (
-              <p className="flex h-32 items-center justify-center font-body text-sm text-muted-foreground">
-                No field data available
-              </p>
-            ) : (
-              <div className="space-y-3">
-                {stats.dropOffRates.map(
-                  (field: { fieldId: string; fieldLabel: string; completionRate: number }) => (
-                    <div key={field.fieldId} className="space-y-1">
-                      <div className="flex items-center justify-between font-body text-sm">
-                        <span className="truncate text-foreground">{field.fieldLabel}</span>
-                        <span className="ml-2 shrink-0 tabular-nums text-muted-foreground">
-                          {field.completionRate}%
-                        </span>
-                      </div>
-                      <div className="h-2 overflow-hidden rounded-full bg-muted">
-                        <div
-                          className="h-full rounded-full bg-chart-2 transition-all"
-                          style={{ width: `${field.completionRate}%` }}
-                        />
-                      </div>
-                    </div>
-                  ),
-                )}
+            {timelineData.length === 0 ? (
+              <div className="flex h-48 items-center justify-center text-sm text-muted-foreground">
+                No timeline data available
               </div>
+            ) : (
+              <ResponsiveContainer width="100%" height={256}>
+                <AreaChart data={timelineData} margin={{ top: 4, right: 8, left: -20, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="colorCount" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor={CHART_COLORS[1]} stopOpacity={0.35} />
+                      <stop offset="95%" stopColor={CHART_COLORS[1]} stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="oklch(1 0 0 / 8%)" />
+                  <XAxis
+                    dataKey="label"
+                    fontSize={12}
+                    tick={{ fill: 'oklch(0.67 0.032 288)' }}
+                    tickLine={false}
+                    axisLine={false}
+                  />
+                  <YAxis
+                    allowDecimals={false}
+                    fontSize={12}
+                    tick={{ fill: 'oklch(0.67 0.032 288)' }}
+                    tickLine={false}
+                    axisLine={false}
+                  />
+                  <Tooltip
+                    contentStyle={TOOLTIP_STYLE}
+                    cursor={{ stroke: CHART_COLORS[1], strokeWidth: 1, strokeOpacity: 0.4 }}
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="submissions"
+                    stroke={CHART_COLORS[1]}
+                    fill="url(#colorCount)"
+                    strokeWidth={2.5}
+                    dot={false}
+                    activeDot={{ r: 5, fill: CHART_COLORS[1] }}
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
             )}
           </CardContent>
         </Card>
+      </div>
+
+      <div className="mb-6 grid grid-cols-1 gap-6 md:grid-cols-2">
+        <div className="animate-fade-up stagger-3">
+          <Card size="sm">
+            <CardHeader>
+              <CardTitle className="font-heading text-sm">Peak Hours</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={200}>
+                <BarChart data={hourlyData} margin={{ top: 4, right: 8, left: -20, bottom: 0 }}>
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    stroke="oklch(1 0 0 / 8%)"
+                    vertical={false}
+                  />
+                  <XAxis
+                    dataKey="hour"
+                    fontSize={11}
+                    tick={{ fill: 'oklch(0.67 0.032 288)' }}
+                    tickLine={false}
+                    axisLine={false}
+                    interval={3}
+                  />
+                  <YAxis
+                    allowDecimals={false}
+                    fontSize={11}
+                    tick={{ fill: 'oklch(0.67 0.032 288)' }}
+                    tickLine={false}
+                    axisLine={false}
+                  />
+                  <Tooltip contentStyle={TOOLTIP_STYLE} cursor={{ fill: 'oklch(1 0 0 / 5%)' }} />
+                  <Bar dataKey="submissions" fill={CHART_COLORS[2]} radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+              <p className="mt-3 text-center font-body text-sm text-muted-foreground">
+                Peak: {peakHour?.hour} ({peakHour?.submissions} submissions)
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="animate-fade-up stagger-4">
+          <Card size="sm">
+            <CardHeader>
+              <CardTitle className="font-heading text-sm">Field Completion</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {stats.dropOffRates.length === 0 ? (
+                <p className="flex h-32 items-center justify-center font-body text-sm text-muted-foreground">
+                  No field data available
+                </p>
+              ) : (
+                <div className="space-y-3">
+                  {stats.dropOffRates.map(
+                    (field: { fieldId: string; fieldLabel: string; completionRate: number }) => (
+                      <div key={field.fieldId} className="space-y-1.5">
+                        <div className="flex items-center justify-between font-body text-sm">
+                          <span className="truncate text-foreground">{field.fieldLabel}</span>
+                          <span
+                            className="ml-2 shrink-0 tabular-nums font-medium"
+                            style={{ color: CHART_COLORS[2] }}
+                          >
+                            {field.completionRate}%
+                          </span>
+                        </div>
+                        <div className="h-2 overflow-hidden rounded-full bg-muted/50">
+                          <div
+                            className="h-full rounded-full transition-all duration-700"
+                            style={{
+                              width: `${field.completionRate}%`,
+                              background: `linear-gradient(to right, ${CHART_COLORS[1]}, ${CHART_COLORS[2]})`,
+                            }}
+                          />
+                        </div>
+                      </div>
+                    ),
+                  )}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
       </div>
 
       {stats.fieldDistributions.length > 0 && (
-        <Card size="sm" className="mb-6">
-          <CardHeader>
-            <CardTitle className="font-heading text-sm">Answer Distribution</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {stats.fieldDistributions.map(
-              (dist: {
-                fieldId: string;
-                fieldLabel: string;
-                fieldType: string;
-                values: { label: string; count: number }[];
-              }) => (
-                <div key={dist.fieldId} className="space-y-2">
-                  <p className="font-body text-sm font-medium text-foreground">{dist.fieldLabel}</p>
-                  <ResponsiveContainer width="100%" height={Math.max(dist.values.length * 36, 80)}>
-                    <BarChart
-                      data={dist.values}
-                      layout="vertical"
-                      margin={{ top: 0, right: 8, left: 0, bottom: 0 }}
+        <div className="animate-fade-up stagger-4">
+          <Card size="sm" className="mb-6">
+            <CardHeader>
+              <CardTitle className="font-heading text-sm">Answer Distribution</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {stats.fieldDistributions.map(
+                (dist: {
+                  fieldId: string;
+                  fieldLabel: string;
+                  fieldType: string;
+                  values: { label: string; count: number }[];
+                }) => (
+                  <div key={dist.fieldId} className="space-y-2">
+                    <p className="font-body text-sm font-medium text-foreground">
+                      {dist.fieldLabel}
+                    </p>
+                    <ResponsiveContainer
+                      width="100%"
+                      height={Math.max(dist.values.length * 36, 80)}
                     >
-                      <CartesianGrid
-                        strokeDasharray="3 3"
-                        stroke="hsl(var(--border))"
-                        horizontal={false}
-                      />
-                      <XAxis
-                        type="number"
-                        allowDecimals={false}
-                        fontSize={11}
-                        tick={{ fill: 'hsl(var(--muted-foreground))' }}
-                      />
-                      <YAxis
-                        type="category"
-                        dataKey="label"
-                        fontSize={12}
-                        tick={{ fill: 'hsl(var(--foreground))' }}
-                        width={100}
-                      />
-                      <Tooltip
-                        contentStyle={{
-                          background: 'hsl(var(--card))',
-                          border: '1px solid hsl(var(--border))',
-                          borderRadius: 'calc(var(--radius) * 0.8)',
-                          fontSize: '0.875rem',
-                        }}
-                      />
-                      <Bar dataKey="count" fill="hsl(var(--chart-3))" radius={[0, 4, 4, 0]} />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-              ),
-            )}
-          </CardContent>
-        </Card>
+                      <BarChart
+                        data={dist.values}
+                        layout="vertical"
+                        margin={{ top: 0, right: 8, left: 0, bottom: 0 }}
+                      >
+                        <CartesianGrid
+                          strokeDasharray="3 3"
+                          stroke="oklch(1 0 0 / 8%)"
+                          horizontal={false}
+                        />
+                        <XAxis
+                          type="number"
+                          allowDecimals={false}
+                          fontSize={11}
+                          tick={{ fill: 'oklch(0.67 0.032 288)' }}
+                          tickLine={false}
+                          axisLine={false}
+                        />
+                        <YAxis
+                          type="category"
+                          dataKey="label"
+                          fontSize={12}
+                          tick={{ fill: 'oklch(0.93 0.016 88)' }}
+                          tickLine={false}
+                          axisLine={false}
+                          width={110}
+                        />
+                        <Tooltip
+                          contentStyle={TOOLTIP_STYLE}
+                          cursor={{ fill: 'oklch(1 0 0 / 5%)' }}
+                        />
+                        <Bar dataKey="count" fill={CHART_COLORS[3]} radius={[0, 4, 4, 0]} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                ),
+              )}
+            </CardContent>
+          </Card>
+        </div>
       )}
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 animate-fade-up stagger-5">
         <Card size="sm">
           <CardHeader>
             <CardTitle className="font-heading text-sm">Timeline</CardTitle>
@@ -338,13 +385,13 @@ export default function FormAnalyticsPage({ params }: { params: Promise<{ id: st
             <div className="flex justify-between">
               <span className="text-muted-foreground">First submission</span>
               <span className="text-foreground">
-                {stats.firstSubmissionAt ? new Date(stats.firstSubmissionAt).toLocaleString() : '—'}
+                {stats.firstSubmissionAt ? new Date(stats.firstSubmissionAt).toLocaleString() : '-'}
               </span>
             </div>
             <div className="flex justify-between">
               <span className="text-muted-foreground">Last submission</span>
               <span className="text-foreground">
-                {stats.lastSubmissionAt ? new Date(stats.lastSubmissionAt).toLocaleString() : '—'}
+                {stats.lastSubmissionAt ? new Date(stats.lastSubmissionAt).toLocaleString() : '-'}
               </span>
             </div>
             <div className="flex justify-between">
@@ -353,7 +400,7 @@ export default function FormAnalyticsPage({ params }: { params: Promise<{ id: st
                 {timelineData.length > 0
                   ? timelineData.reduce((max, d) => (d.submissions > max.submissions ? d : max))
                       .date
-                  : '—'}
+                  : '-'}
               </span>
             </div>
           </CardContent>
