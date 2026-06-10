@@ -25,7 +25,7 @@ export function ThemePicker({ selectedId, onSelect }: ThemePickerProps) {
     return (
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
         {[1, 2, 3, 4, 5].map((i) => (
-          <Skeleton key={i} className="h-28 rounded-[calc(var(--radius)*0.8)]" />
+          <Skeleton key={i} className="h-28 rounded-md" />
         ))}
       </div>
     );
@@ -33,7 +33,7 @@ export function ThemePicker({ selectedId, onSelect }: ThemePickerProps) {
 
   return (
     <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-      {themes?.map((theme) => {
+      {(themes as { id: string; name: string }[] | undefined)?.map((theme) => {
         const name = theme.name.toLowerCase();
         const preview = themePreviewStyles[name] ?? {
           bg: 'from-gray-100 to-gray-200',
@@ -50,9 +50,9 @@ export function ThemePicker({ selectedId, onSelect }: ThemePickerProps) {
               onSelect(isSelected ? null : theme.id);
             }}
             className={cn(
-              'group relative flex flex-col items-center justify-center gap-2 rounded-[calc(var(--radius)*0.8)] border-2 p-4 transition-all',
+              'group relative flex flex-col items-center justify-center gap-2 rounded-md border-2 p-4 transition-all',
               isSelected
-                ? 'border-primary bg-primary/5 shadow-(--shadow-primary-glow)'
+                ? 'border-primary bg-primary/5 shadow-(--shadow-primary)'
                 : 'border-border bg-card hover:border-primary/50',
             )}
           >
