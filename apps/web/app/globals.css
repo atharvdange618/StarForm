@@ -1,6 +1,7 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
 @import 'shadcn/tailwind.css';
+@import '../styles/tokens.css';
 
 @import '../styles/themes/startup.css';
 @import '../styles/themes/anime.css';
@@ -47,13 +48,13 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
-  --radius-sm: calc(var(--radius) * 0.6);
-  --radius-md: calc(var(--radius) * 0.8);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.4);
-  --radius-2xl: calc(var(--radius) * 1.8);
-  --radius-3xl: calc(var(--radius) * 2.2);
-  --radius-4xl: calc(var(--radius) * 2.6);
+  --radius-sm: 0.5rem;
+  --radius-md: 1rem;
+  --radius-lg: 1.25rem;
+  --radius-xl: 2rem;
+  --radius-2xl: 2.75rem;
+  --radius-3xl: 3.75rem;
+  --radius-4xl: 3.25rem;
 }
 
 :root {
@@ -217,35 +218,6 @@
   z-index: 1;
 }
 
-section {
-  animation: fadeUp 0.7s ease both;
-}
-
-section:nth-child(1) {
-  animation-delay: 0.05s;
-}
-section:nth-child(2) {
-  animation-delay: 0.12s;
-}
-section:nth-child(3) {
-  animation-delay: 0.19s;
-}
-section:nth-child(4) {
-  animation-delay: 0.26s;
-}
-section:nth-child(5) {
-  animation-delay: 0.33s;
-}
-section:nth-child(6) {
-  animation-delay: 0.4s;
-}
-section:nth-child(7) {
-  animation-delay: 0.47s;
-}
-section:nth-child(8) {
-  animation-delay: 0.54s;
-}
-
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -254,7 +226,7 @@ section:nth-child(8) {
     @apply bg-background text-foreground;
   }
   html {
-    @apply font-sans;
+    font-family: var(--font-body);
   }
 }
 
@@ -335,14 +307,15 @@ body::after {
 .starform-input {
   background: var(--input);
   border: 1px solid var(--border);
-  border-radius: var(--radius);
+  border-radius: var(--radius-sm);
   padding: 0.625rem 1rem;
   font-family: var(--font-body);
   font-size: 0.9375rem;
   color: var(--foreground);
+  height: 2.75rem;
   transition:
-    box-shadow 0.2s,
-    border-color 0.2s;
+    box-shadow var(--duration-normal),
+    border-color var(--duration-normal);
   width: 100%;
 }
 
@@ -360,16 +333,16 @@ body::after {
 .btn-primary {
   background: var(--primary);
   color: var(--primary-foreground);
-  border-radius: var(--radius);
+  border-radius: var(--radius-lg);
   padding: 0.75rem 2rem;
   font-family: var(--font-body);
   font-size: 0.9375rem;
   font-weight: 500;
   letter-spacing: 0.04em;
-  box-shadow: var(--shadow-primary-glow);
+  box-shadow: var(--shadow-primary);
   transition:
-    box-shadow 0.2s,
-    transform 0.15s;
+    box-shadow var(--duration-normal),
+    transform var(--duration-fast);
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
@@ -378,27 +351,28 @@ body::after {
 }
 
 .btn-primary:hover {
-  box-shadow: var(--shadow-primary-glow-hover);
+  box-shadow: var(--shadow-primary-hover);
 }
 
 .btn-primary:active {
-  transform: scale(0.96);
+  transform: scale(0.97);
+  box-shadow: var(--shadow-primary-active);
 }
 
 .btn-ghost {
   background: transparent;
   color: var(--foreground);
   border: 1px solid var(--border);
-  border-radius: var(--radius);
+  border-radius: var(--radius-lg);
   padding: 0.75rem 1.75rem;
   font-family: var(--font-body);
   font-size: 0.9375rem;
   font-weight: 500;
   letter-spacing: 0.04em;
   transition:
-    background 0.2s,
-    border-color 0.2s,
-    transform 0.15s;
+    background var(--duration-normal),
+    border-color var(--duration-normal),
+    transform var(--duration-fast);
   cursor: pointer;
   display: inline-flex;
   align-items: center;
@@ -411,22 +385,22 @@ body::after {
 }
 
 .btn-ghost:active {
-  transform: scale(0.96);
+  transform: scale(0.97);
 }
 
 .starform-card {
   background: var(--card);
   border: 1px solid var(--border);
-  border-radius: calc(var(--radius) * 1.2);
+  border-radius: var(--radius-xl);
   box-shadow: var(--shadow-card);
   transition:
-    box-shadow 0.25s,
-    transform 0.2s;
+    box-shadow var(--duration-normal),
+    transform var(--duration-normal);
 }
 
 .starform-card-hoverable:hover {
   box-shadow: var(--shadow-card-hover);
-  transform: translateY(-3px);
+  transform: translateY(-2px);
 }
 
 .badge {
