@@ -1,25 +1,60 @@
+/* =========================================================
+   STARTUP THEME — Google Forms-inspired: clean white cards,
+   blue accent header bar, cream page background, flat inputs
+   with underline focus, our signature blue & cream palette
+   ========================================================= */
+
+@keyframes silk-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes underline-grow {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
 .theme-startup {
-  --theme-primary: oklch(0.47 0.155 248);
-  --theme-secondary: oklch(0.88 0.062 148);
-  --theme-accent: oklch(0.78 0.088 308);
-  --theme-background: oklch(0.97 0.012 88);
-  --theme-text: oklch(0.24 0.055 262);
-  --theme-card-bg: oklch(0.95 0.016 92);
-  --theme-border: oklch(0.88 0.022 92);
-  --theme-radius: 1.25rem;
+  --gf-blue: oklch(0.47 0.155 248);
+  --gf-blue-light: oklch(0.7 0.1 248);
+  --gf-blue-pale: oklch(0.94 0.04 248);
+  --gf-cream: oklch(0.96 0.016 88);
+  --gf-cream-dark: oklch(0.92 0.022 88);
+  --gf-white: oklch(1 0 0);
+  --gf-text: oklch(0.22 0.04 262);
+  --gf-muted: oklch(0.5 0.03 262);
+  --gf-divider: oklch(0.88 0.015 88);
+
+  --theme-primary: var(--gf-blue);
+  --theme-secondary: var(--gf-blue-light);
+  --theme-accent: var(--gf-blue-pale);
+  --theme-background: var(--gf-cream);
+  --theme-text: var(--gf-text);
+  --theme-card-bg: var(--gf-white);
+  --theme-border: var(--gf-cream-dark);
+  --theme-radius: 0.5rem;
   --theme-font-heading: var(--font-heading);
   --theme-font-body: var(--font-body);
 
-  --theme-btn-bg: var(--theme-primary);
-  --theme-btn-text: oklch(0.97 0.015 90);
-  --theme-btn-radius: var(--theme-radius);
-  --theme-btn-shadow: 0 4px 20px oklch(0.47 0.155 248 / 0.35);
+  --theme-btn-bg: var(--gf-blue);
+  --theme-btn-text: var(--gf-white);
+  --theme-btn-radius: 0.25rem;
+  --theme-btn-shadow: none;
 
-  --theme-muted-foreground: oklch(0.52 0.038 288);
+  --theme-muted-foreground: var(--gf-muted);
 
-  /* Standard design system overrides */
   --background: var(--theme-background);
-  --card: var(--theme-card-bg);
+  --card: var(--gf-white);
   --foreground: var(--theme-text);
   --muted-foreground: var(--theme-muted-foreground);
   --border: var(--theme-border);
@@ -29,40 +64,163 @@
   --font-body: var(--theme-font-body);
 }
 
-.theme-startup .btn-primary {
-  background: var(--theme-btn-bg);
-  color: var(--theme-btn-text);
-  border-radius: var(--theme-btn-radius);
-  box-shadow: var(--theme-btn-shadow);
-}
-
 .theme-startup {
-  background: var(--theme-background);
-  color: var(--theme-text);
+  background: var(--gf-cream);
+  color: var(--gf-text);
   font-family: var(--theme-font-body);
+  min-height: 100vh;
+  position: relative;
 }
 
-.theme-startup input,
+.theme-startup [class*='card'],
+.theme-startup .card,
+.theme-startup .bg-card {
+  background: var(--gf-white);
+  border: 1px solid var(--gf-cream-dark);
+  border-radius: var(--theme-radius);
+  box-shadow:
+    0 1px 3px oklch(0 0 0 / 0.1),
+    0 1px 2px oklch(0 0 0 / 0.06);
+}
+
+.theme-startup .bg-card {
+  position: relative;
+  padding-top: 14px !important;
+}
+
+.theme-startup .bg-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 10px;
+  background: var(--gf-blue);
+  border-radius: var(--theme-radius) var(--theme-radius) 0 0;
+  z-index: 1;
+}
+
+.theme-startup .theme-form-container {
+  animation: silk-in 0.35s ease-out both;
+}
+
+.theme-startup h1 {
+  color: var(--gf-text);
+  background: none;
+  -webkit-text-fill-color: unset;
+  font-size: 2rem;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+
+.theme-startup label {
+  color: var(--gf-text);
+  font-weight: 400;
+  font-size: 0.875rem;
+}
+
+.theme-startup
+  input:not([type='checkbox']):not([type='radio']):not([type='submit']):not([type='button']),
 .theme-startup textarea,
 .theme-startup select {
-  background: var(--theme-card-bg);
-  border: 1px solid var(--theme-border);
-  border-radius: var(--theme-radius);
-  padding: 0.625rem 1rem;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--gf-divider);
+  border-radius: 0;
+  padding: 0.5rem 0;
   font-family: var(--theme-font-body);
-  transition:
-    box-shadow 0.2s,
-    border-color 0.2s;
+  color: var(--gf-text);
+  font-size: 0.9375rem;
+  transition: border-color 0.2s ease;
+  box-shadow: none;
+  outline: none;
+  width: 100%;
 }
 
-.theme-startup input:focus,
-.theme-startup textarea:focus {
-  border-color: var(--theme-primary);
-  box-shadow: 0 0 0 3px oklch(0.47 0.155 248 / 0.22);
+.theme-startup
+  input:not([type='checkbox']):not([type='radio']):not([type='submit']):not([type='button']):focus,
+.theme-startup textarea:focus,
+.theme-startup select:focus {
+  border-bottom: 2px solid var(--gf-blue);
+  outline: none;
+  box-shadow: none;
+  transform: none;
+  background: transparent;
 }
 
-.theme-startup input::placeholder,
+.theme-startup input:not([type='checkbox']):not([type='radio'])::placeholder,
 .theme-startup textarea::placeholder {
-  color: var(--muted-foreground);
-  opacity: 0.7;
+  color: var(--gf-muted);
+}
+
+.theme-startup textarea {
+  border: 1px solid var(--gf-divider);
+  border-radius: 4px;
+  padding: 0.625rem 0.75rem;
+  background: var(--gf-white);
+}
+
+.theme-startup textarea:focus {
+  border: 1px solid var(--gf-blue);
+  border-bottom: 2px solid var(--gf-blue);
+}
+
+.theme-startup select {
+  cursor: pointer;
+}
+
+.theme-startup label:has(input[type='checkbox']) {
+  background: oklch(0.98 0.01 88);
+  border-color: var(--gf-cream-dark);
+  border-radius: 4px;
+  transition:
+    background 0.15s,
+    border-color 0.15s;
+}
+.theme-startup label:has(input[type='checkbox']):hover {
+  background: var(--gf-blue-pale);
+  border-color: oklch(0.47 0.155 248 / 0.35);
+}
+
+.theme-startup .btn-primary {
+  background: var(--gf-blue);
+  color: var(--gf-white);
+  border: none;
+  border-radius: var(--theme-btn-radius);
+  padding: 0.625rem 1.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  box-shadow: none;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    box-shadow 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.theme-startup .btn-primary::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: oklch(0 0 0 / 0);
+  transition: background 0.15s;
+}
+
+.theme-startup .btn-primary:hover::after {
+  background: oklch(0 0 0 / 0.08);
+}
+
+.theme-startup .btn-primary:active::after {
+  background: oklch(0 0 0 / 0.14);
+}
+
+.theme-startup .btn-primary:hover {
+  box-shadow: 0 1px 4px oklch(0.47 0.155 248 / 0.35);
+  transform: none;
+}
+
+.theme-startup .btn-primary:active {
+  transform: none;
 }

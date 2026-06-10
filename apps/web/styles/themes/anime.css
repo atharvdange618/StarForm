@@ -1,28 +1,91 @@
+/* =========================================================
+   ANIME THEME — Dreamy sakura storm, soft pastel magic,
+   watercolour aurora, celestial glow
+   ========================================================= */
+
 @keyframes sakura-fall {
   0% {
-    transform: translateY(-10vh) rotate(0deg);
+    transform: translateY(-10vh) rotate(0deg) translateX(0);
     opacity: 0;
   }
-  10% {
+  5% {
     opacity: 1;
   }
-  90% {
-    opacity: 1;
+  85% {
+    opacity: 0.9;
   }
   100% {
-    transform: translateY(110vh) rotate(720deg);
+    transform: translateY(110vh) rotate(1260deg) translateX(60px);
     opacity: 0;
+  }
+}
+
+@keyframes sakura-sway {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(20px);
+  }
+  75% {
+    transform: translateX(-15px);
+  }
+}
+
+@keyframes magic-shimmer {
+  0%,
+  100% {
+    background-position: 0% 50%;
+    opacity: 0.6;
+  }
+  50% {
+    background-position: 100% 50%;
+    opacity: 0.9;
+  }
+}
+
+@keyframes bokeh-float {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 0.15;
+  }
+  50% {
+    transform: translateY(-30px) scale(1.1);
+    opacity: 0.35;
+  }
+}
+
+@keyframes pastel-wave {
+  0% {
+    transform: translateX(-100%) rotate(-3deg);
+  }
+  100% {
+    transform: translateX(200%) rotate(3deg);
+  }
+}
+
+@keyframes sparkle {
+  0%,
+  100% {
+    transform: scale(0) rotate(0deg);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1) rotate(180deg);
+    opacity: 1;
   }
 }
 
 .theme-anime {
   --theme-primary: oklch(0.72 0.125 352);
-  --theme-secondary: oklch(0.78 0.088 308);
-  --theme-accent: oklch(0.8 0.115 82);
+  --theme-secondary: oklch(0.82 0.08 308);
+  --theme-accent: oklch(0.85 0.09 82);
   --theme-background: oklch(0.97 0.016 20);
-  --theme-text: oklch(0.35 0.055 352);
-  --theme-card-bg: oklch(0.96 0.018 24);
-  --theme-border: oklch(0.9 0.025 352 / 0.5);
+  --theme-text: oklch(0.3 0.06 352);
+  --theme-card-bg: oklch(0.99 0.01 24 / 0.85);
+  --theme-border: oklch(0.88 0.05 352 / 0.5);
   --theme-radius: 2rem;
   --theme-font-heading: var(--font-display);
   --theme-font-body: var(--font-body);
@@ -30,13 +93,13 @@
   --theme-btn-bg: var(--theme-primary);
   --theme-btn-text: white;
   --theme-btn-radius: 999px;
-  --theme-btn-shadow: 0 4px 20px oklch(0.72 0.125 352 / 0.35);
+  --theme-btn-shadow:
+    0 4px 30px oklch(0.72 0.125 352 / 0.45), 0 0 60px oklch(0.72 0.125 352 / 0.15);
 
-  --theme-muted-foreground: oklch(0.55 0.04 352);
+  --theme-muted-foreground: oklch(0.55 0.05 352);
 
-  /* Standard design system overrides */
   --background: var(--theme-background);
-  --card: var(--theme-card-bg);
+  --card: oklch(0.99 0.01 24 / 0.9);
   --foreground: var(--theme-text);
   --muted-foreground: var(--theme-muted-foreground);
   --border: var(--theme-border);
@@ -46,17 +109,18 @@
   --font-body: var(--theme-font-body);
 }
 
-.theme-anime .btn-primary {
-  background: var(--theme-btn-bg);
-  color: var(--theme-btn-text);
-  border-radius: var(--theme-btn-radius);
-  box-shadow: var(--theme-btn-shadow);
-}
-
 .theme-anime {
-  background: linear-gradient(180deg, oklch(0.97 0.016 20) 0%, oklch(0.95 0.03 350) 100%);
+  background: linear-gradient(
+    160deg,
+    oklch(0.98 0.02 330) 0%,
+    oklch(0.97 0.025 10) 25%,
+    oklch(0.96 0.03 350) 50%,
+    oklch(0.97 0.02 320) 75%,
+    oklch(0.98 0.015 340) 100%
+  );
   color: var(--theme-text);
   font-family: var(--theme-font-body);
+  min-height: 100vh;
   position: relative;
   overflow: hidden;
 }
@@ -66,42 +130,183 @@
   position: fixed;
   inset: 0;
   pointer-events: none;
-  background-image:
-    radial-gradient(circle at 20% 30%, oklch(0.72 0.125 352 / 0.08) 0%, transparent 50%),
-    radial-gradient(circle at 80% 70%, oklch(0.78 0.088 308 / 0.06) 0%, transparent 50%);
+  background:
+    radial-gradient(ellipse 80% 60% at 10% 10%, oklch(0.72 0.125 352 / 0.12) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 50% at 90% 0%, oklch(0.78 0.088 308 / 0.1) 0%, transparent 55%),
+    radial-gradient(ellipse 50% 40% at 50% 100%, oklch(0.85 0.09 82 / 0.08) 0%, transparent 55%),
+    radial-gradient(ellipse 70% 60% at 0% 60%, oklch(0.8 0.07 340 / 0.08) 0%, transparent 55%),
+    radial-gradient(ellipse 55% 45% at 100% 50%, oklch(0.82 0.08 308 / 0.09) 0%, transparent 50%);
+  animation: bokeh-float 12s infinite ease-in-out;
+  z-index: 0;
+}
+
+.theme-anime::after {
+  content: '';
+  position: fixed;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  pointer-events: none;
+  background: linear-gradient(
+    45deg,
+    transparent 30%,
+    oklch(0.78 0.088 308 / 0.04) 40%,
+    oklch(0.72 0.125 352 / 0.06) 50%,
+    transparent 60%
+  );
+  background-size: 200% 200%;
+  animation: magic-shimmer 8s infinite ease-in-out;
+  z-index: 0;
+}
+
+.theme-anime .bokeh {
+  position: fixed;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+  filter: blur(40px);
+}
+
+.theme-anime .sakura-petal {
+  position: fixed;
+  top: -20px;
+  width: 14px;
+  height: 10px;
+  pointer-events: none;
+  z-index: 2;
+  animation: sakura-fall 5s linear infinite;
+  transform-origin: center;
+}
+
+.theme-anime .sakura-petal::before,
+.theme-anime .sakura-petal::after {
+  content: '';
+  position: absolute;
+  background: radial-gradient(ellipse at 40% 40%, oklch(0.9 0.12 352), oklch(0.82 0.09 352));
+  border-radius: 50% 0 50% 50%;
+  box-shadow: 0 0 4px oklch(0.72 0.125 352 / 0.3);
+}
+
+.theme-anime .sakura-petal::before {
+  width: 14px;
+  height: 10px;
+  top: 0;
+  left: 0;
+  transform: rotate(-45deg);
+}
+
+.theme-anime .sakura-petal::after {
+  width: 12px;
+  height: 8px;
+  top: 2px;
+  left: 2px;
+  transform: rotate(45deg);
+  background: radial-gradient(ellipse at 40% 40%, oklch(0.95 0.08 352), oklch(0.85 0.1 352));
+}
+
+.theme-anime h1 {
+  background: linear-gradient(
+    135deg,
+    oklch(0.55 0.15 352),
+    oklch(0.65 0.13 330),
+    oklch(0.6 0.14 352)
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 2px 12px oklch(0.72 0.125 352 / 0.25));
+}
+
+.theme-anime label {
+  color: oklch(0.45 0.07 352);
+  font-weight: 500;
 }
 
 .theme-anime input,
 .theme-anime textarea,
 .theme-anime select {
-  background: white;
-  border: 2px solid var(--theme-border);
+  background: oklch(1 0 0 / 0.8);
+  border: 2px solid oklch(0.88 0.05 352 / 0.5);
   border-radius: calc(var(--theme-radius) * 0.6);
   padding: 0.75rem 1rem;
   font-family: var(--theme-font-body);
-  transition: border-color 0.2s;
+  color: var(--theme-text);
+  backdrop-filter: blur(8px);
+  transition:
+    border-color 0.3s,
+    box-shadow 0.3s,
+    transform 0.2s;
+  box-shadow: 0 2px 8px oklch(0.72 0.125 352 / 0.08);
 }
 
 .theme-anime input:focus,
 .theme-anime textarea:focus {
-  border-color: var(--theme-primary);
-  box-shadow: 0 0 0 3px oklch(0.72 0.125 352 / 0.2);
+  border-color: oklch(0.72 0.125 352 / 0.7);
+  box-shadow:
+    0 0 0 4px oklch(0.72 0.125 352 / 0.12),
+    0 4px 20px oklch(0.72 0.125 352 / 0.15);
+  outline: none;
+  transform: translateY(-1px);
 }
 
 .theme-anime input::placeholder,
 .theme-anime textarea::placeholder {
-  color: var(--muted-foreground);
-  opacity: 0.7;
+  color: oklch(0.7 0.06 352);
 }
 
-.theme-anime .sakura-petal {
+.theme-anime label:has(input[type='checkbox']) {
+  background: oklch(1 0 0 / 0.7);
+  border: 2px solid oklch(0.88 0.05 352 / 0.4);
+  border-radius: 1.2rem;
+  backdrop-filter: blur(8px);
+  transition:
+    border-color 0.3s,
+    box-shadow 0.3s;
+}
+.theme-anime label:has(input[type='checkbox']):hover {
+  border-color: oklch(0.72 0.125 352 / 0.6);
+  box-shadow: 0 4px 16px oklch(0.72 0.125 352 / 0.12);
+}
+
+.theme-anime .btn-primary {
+  background: linear-gradient(135deg, oklch(0.72 0.125 352), oklch(0.65 0.14 340));
+  color: white;
+  border-radius: var(--theme-btn-radius);
+  box-shadow: var(--theme-btn-shadow);
+  border: none;
+  position: relative;
+  overflow: hidden;
+  letter-spacing: 0.04em;
+  transition:
+    transform 0.2s,
+    box-shadow 0.3s;
+}
+
+.theme-anime .btn-primary::before {
+  content: '';
   position: absolute;
-  top: -20px;
-  background: oklch(0.85 0.1 352);
-  border-radius: 12px 1px 12px 12px;
-  width: 12px;
-  height: 8px;
-  pointer-events: none;
-  animation: sakura-fall 10s linear infinite;
-  transform-origin: center;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, oklch(1 0 0 / 0.2), transparent);
+  transform: translateX(-100%);
+  transition: transform 0.5s;
+}
+
+.theme-anime .btn-primary:hover::before {
+  transform: translateX(100%);
+}
+
+.theme-anime .btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 8px 40px oklch(0.72 0.125 352 / 0.6),
+    0 0 80px oklch(0.72 0.125 352 / 0.2);
+}
+
+.theme-anime [class*='card'],
+.theme-anime .card {
+  background: oklch(1 0 0 / 0.75);
+  border: 2px solid oklch(0.88 0.05 352 / 0.35);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 4px 24px oklch(0.72 0.125 352 / 0.08);
 }

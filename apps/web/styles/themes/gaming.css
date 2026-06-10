@@ -1,39 +1,151 @@
+/* =========================================================
+   GAMING THEME — Neon grid, holo scanlines, glitch bursts,
+   CRT phosphor glow, matrix rain aura
+   ========================================================= */
+
 @keyframes glow-pulse {
   0%,
   100% {
     box-shadow:
       0 0 5px oklch(0.7 0.15 145),
-      0 0 10px oklch(0.7 0.15 145 / 0.5);
+      0 0 15px oklch(0.7 0.15 145 / 0.6),
+      0 0 30px oklch(0.7 0.15 145 / 0.3);
   }
   50% {
     box-shadow:
       0 0 10px oklch(0.7 0.15 145),
-      0 0 20px oklch(0.7 0.15 145 / 0.7);
+      0 0 30px oklch(0.7 0.15 145 / 0.8),
+      0 0 60px oklch(0.7 0.15 145 / 0.4),
+      0 0 100px oklch(0.7 0.15 145 / 0.15);
+  }
+}
+
+@keyframes grid-scroll {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(60px);
+  }
+}
+
+@keyframes scanline-sweep {
+  0% {
+    transform: translateY(-100%);
+  }
+  100% {
+    transform: translateY(100vh);
+  }
+}
+
+@keyframes glitch-h {
+  0%,
+  90%,
+  100% {
+    clip-path: none;
+    transform: none;
+  }
+  92% {
+    clip-path: polygon(0 15%, 100% 15%, 100% 35%, 0 35%);
+    transform: translateX(-4px);
+  }
+  94% {
+    clip-path: polygon(0 55%, 100% 55%, 100% 70%, 0 70%);
+    transform: translateX(3px);
+  }
+  96% {
+    clip-path: polygon(0 80%, 100% 80%, 100% 95%, 0 95%);
+    transform: translateX(-2px);
+  }
+  98% {
+    clip-path: none;
+    transform: translateX(1px);
+  }
+}
+
+@keyframes holo-spin {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes border-race {
+  0% {
+    background-position: 0% 0%;
+  }
+  100% {
+    background-position: 200% 0%;
+  }
+}
+
+@keyframes neon-flicker {
+  0%,
+  19%,
+  21%,
+  23%,
+  25%,
+  54%,
+  56%,
+  100% {
+    text-shadow:
+      0 0 7px oklch(0.7 0.15 145),
+      0 0 10px oklch(0.7 0.15 145),
+      0 0 21px oklch(0.7 0.15 145),
+      0 0 42px oklch(0.7 0.15 145 / 0.6);
+  }
+  20%,
+  24%,
+  55% {
+    text-shadow: none;
+  }
+}
+
+@keyframes corner-glow {
+  0%,
+  100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes matrix-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
   }
 }
 
 .theme-gaming {
   --theme-primary: oklch(0.7 0.15 145);
-  --theme-secondary: oklch(0.3 0.3 150);
-  --theme-accent: oklch(0.9 0.15 80);
-  --theme-background: oklch(0.1 0.05 150);
-  --theme-text: oklch(0.85 0.05 145);
-  --theme-card-bg: oklch(0.15 0.08 150);
-  --theme-border: oklch(0.7 0.15 145 / 0.3);
-  --theme-radius: 0.5rem;
+  --theme-secondary: oklch(0.55 0.2 155);
+  --theme-accent: oklch(0.85 0.18 80);
+  --theme-background: oklch(0.06 0.04 150);
+  --theme-text: oklch(0.88 0.07 145);
+  --theme-card-bg: oklch(0.1 0.06 150);
+  --theme-border: oklch(0.7 0.15 145 / 0.4);
+  --theme-radius: 0.375rem;
   --theme-font-heading: var(--font-mono);
   --theme-font-body: var(--font-mono);
 
   --theme-btn-bg: var(--theme-primary);
-  --theme-btn-text: black;
+  --theme-btn-text: oklch(0.05 0.04 150);
   --theme-btn-radius: 0.25rem;
-  --theme-btn-shadow: 0 0 10px oklch(0.7 0.15 145 / 0.5);
+  --theme-btn-shadow: 0 0 20px oklch(0.7 0.15 145 / 0.6), 0 0 40px oklch(0.7 0.15 145 / 0.3);
 
-  --theme-muted-foreground: oklch(0.65 0.05 145);
+  --theme-muted-foreground: oklch(0.55 0.06 145);
 
-  /* Standard design system overrides */
   --background: var(--theme-background);
-  --card: var(--theme-card-bg);
+  --card: oklch(0.1 0.06 150 / 0.9);
   --foreground: var(--theme-text);
   --muted-foreground: var(--theme-muted-foreground);
   --border: var(--theme-border);
@@ -44,50 +156,173 @@
 }
 
 .theme-gaming {
-  background: var(--theme-background);
+  background: oklch(0.06 0.04 150);
   color: var(--theme-text);
-  font-family: var(--theme-font-mono);
-  image-rendering: pixelated;
+  font-family: var(--theme-font-body);
+  min-height: 100vh;
+  position: relative;
+  overflow: hidden;
 }
 
-.theme-gaming .card {
-  border: 2px solid var(--theme-border);
-  box-shadow:
-    0 0 10px oklch(0.7 0.15 145 / 0.2),
-    inset 0 0 10px oklch(0.7 0.15 145 / 0.05);
+.theme-gaming::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(oklch(0.7 0.15 145 / 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, oklch(0.7 0.15 145 / 0.04) 1px, transparent 1px);
+  background-size: 60px 60px;
+  background-position: center center;
+  animation: grid-scroll 4s linear infinite;
+  mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 0%, transparent 90%);
+  -webkit-mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 0%, transparent 90%);
+  z-index: 0;
+}
+
+.theme-gaming::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    oklch(0 0 0 / 0.08) 2px,
+    oklch(0 0 0 / 0.08) 4px
+  );
+  z-index: 10;
+}
+
+.theme-gaming .matrix-rain {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  animation: matrix-fade-in 1s ease-out both;
+}
+
+.theme-gaming .theme-form-container::before,
+.theme-gaming .theme-form-container::after {
+  content: '';
+  position: fixed;
+  width: 60px;
+  height: 60px;
+  border-color: oklch(0.7 0.15 145 / 0.5);
+  border-style: solid;
+  pointer-events: none;
+  animation: corner-glow 3s infinite ease-in-out;
+}
+
+.theme-gaming .theme-form-container::before {
+  top: 20px;
+  left: 20px;
+  border-width: 2px 0 0 2px;
+}
+
+.theme-gaming .theme-form-container::after {
+  bottom: 20px;
+  right: 20px;
+  border-width: 0 2px 2px 0;
+}
+
+.theme-gaming h1 {
+  color: var(--theme-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  animation: neon-flicker 6s infinite;
+  font-size: 1.5rem;
+}
+
+.theme-gaming label {
+  color: oklch(0.65 0.1 145);
+  text-transform: uppercase;
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
 }
 
 .theme-gaming input,
 .theme-gaming textarea,
 .theme-gaming select {
-  background: black;
-  border: 2px solid var(--theme-border);
+  background: oklch(0.03 0.03 150);
+  border: 1px solid oklch(0.7 0.15 145 / 0.35);
+  border-radius: var(--theme-radius);
   color: var(--theme-primary);
-  font-family: var(--theme-font-mono);
-  padding: 0.625rem;
+  font-family: var(--theme-font-body);
+  padding: 0.75rem 1rem;
+  caret-color: oklch(0.7 0.15 145);
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+  position: relative;
 }
 
 .theme-gaming input:focus,
 .theme-gaming textarea:focus {
   animation: glow-pulse 1.5s infinite;
-  border-color: var(--theme-primary);
+  border-color: oklch(0.7 0.15 145 / 0.8);
   outline: none;
+  background: oklch(0.05 0.04 150);
 }
 
 .theme-gaming input::placeholder,
 .theme-gaming textarea::placeholder {
-  color: var(--muted-foreground);
-  opacity: 0.8;
+  color: oklch(0.4 0.06 145);
+}
+
+.theme-gaming label:has(input[type='checkbox']) {
+  background: oklch(0.06 0.04 150);
+  border: 1px solid oklch(0.7 0.15 145 / 0.3);
+  border-radius: 0.25rem;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+.theme-gaming label:has(input[type='checkbox']):hover {
+  border-color: oklch(0.7 0.15 145 / 0.7);
+  box-shadow: 0 0 15px oklch(0.7 0.15 145 / 0.15);
 }
 
 .theme-gaming .btn-primary {
-  background: var(--theme-btn-bg);
-  color: var(--theme-btn-text);
+  background: oklch(0.7 0.15 145);
+  color: oklch(0.05 0.04 150);
   border-radius: var(--theme-btn-radius);
   box-shadow: var(--theme-btn-shadow);
   text-transform: uppercase;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.15em;
   font-size: 0.75rem;
-  border: 2px solid var(--theme-primary);
+  font-weight: 700;
+  border: 1px solid oklch(0.7 0.15 145);
   animation: glow-pulse 2s infinite;
+  position: relative;
+  overflow: hidden;
+  transition:
+    background 0.2s,
+    transform 0.1s;
+}
+
+.theme-gaming .btn-primary::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, oklch(1 0 0 / 0.15), transparent);
+  animation: border-race 2s linear infinite;
+}
+
+.theme-gaming .btn-primary:hover {
+  background: oklch(0.78 0.16 145);
+  transform: scaleY(0.97);
+}
+
+.theme-gaming [class*='card'],
+.theme-gaming .card {
+  background: oklch(0.08 0.05 150 / 0.9);
+  border: 1px solid oklch(0.7 0.15 145 / 0.25);
+  box-shadow:
+    0 0 20px oklch(0.7 0.15 145 / 0.1),
+    inset 0 0 20px oklch(0.7 0.15 145 / 0.03);
 }
