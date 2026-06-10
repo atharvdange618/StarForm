@@ -1,0 +1,75 @@
+<svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="fav-star-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6366f1" />
+      <stop offset="100%" stop-color="#ec4899" />
+    </linearGradient>
+  </defs>
+
+  <rect 
+    x="4" 
+    y="10" 
+    width="16" 
+    height="18" 
+    rx="3" 
+    fill="#6366f1" 
+    fill-opacity="0.15" 
+    stroke="#6366f1" 
+    stroke-opacity="0.25" 
+    stroke-width="1" 
+    transform="rotate(-6 12 19)" 
+  />
+
+  <rect 
+    x="7" 
+    y="7" 
+    width="17" 
+    height="20" 
+    rx="3.5" 
+    fill="#0f172a" 
+    stroke="#6366f1" 
+    stroke-opacity="0.5" 
+    stroke-width="1.2" 
+  />
+
+  <line 
+    x1="11" 
+    y1="12" 
+    x2="20" 
+    y2="12" 
+    stroke="#ffffff" 
+    stroke-opacity="0.6" 
+    stroke-width="1.5" 
+    stroke-linecap="round" 
+  />
+  <line 
+    x1="11" 
+    y1="16" 
+    x2="18" 
+    y2="16" 
+    stroke="#ffffff" 
+    stroke-opacity="0.6" 
+    stroke-width="1.5" 
+    stroke-linecap="round" 
+  />
+  <line 
+    x1="11" 
+    y1="20" 
+    x2="15" 
+    y2="20" 
+    stroke="#ffffff" 
+    stroke-opacity="0.6" 
+    stroke-width="1.5" 
+    stroke-linecap="round" 
+  />
+
+  <path 
+    d="M24 1.5C24 5 25 6 28.5 6C25 6 24 7 24 10.5C24 7 23 6 19.5 6C23 6 24 5 24 1.5Z" 
+    fill="url(#fav-star-grad)" 
+  />
+
+  <path 
+    d="M9.5 2.5C9.5 3.5 9.75 3.75 10.75 3.75C9.75 3.75 9.5 4 9.5 5C9.5 4 9.25 3.75 8.25 3.75C9.25 3.75 9.5 3.5 9.5 2.5Z" 
+    fill="#38bdf8" 
+  />
+</svg>
