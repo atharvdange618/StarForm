@@ -30,6 +30,7 @@ export default function PreviewFormPage() {
       visibility: form.visibility,
       config: form.config,
     });
+    document.title = `Preview: ${form.title} | StarForm`;
     setIsHydrated(true);
   }, [form, loadFromForm, isHydrated]);
 
@@ -77,8 +78,8 @@ export default function PreviewFormPage() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-12">
-      <div className="rounded-[calc(var(--radius)*1.2)] border border-border bg-card p-8 shadow-(--shadow-card)">
+    <div className="mx-auto max-w-3xl px-4 py-12 animate-page-enter">
+      <div className="rounded-xl border border-border bg-card p-8 shadow-(--shadow-card) animate-fade-up">
         <div className="mb-8">
           <h1 className="font-display text-3xl font-light text-foreground">
             {title || 'Untitled Form'}

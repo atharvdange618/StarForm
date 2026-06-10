@@ -29,6 +29,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useFormsList, useArchiveForm, useCloneForm } from '@/modules/forms/hooks/useForms';
 import { toast } from 'sonner';
+import type { Form } from '@starform/trpc/server';
 
 const statusConfig = {
   draft: { label: 'Draft', variant: 'outline' as const, icon: Clock },
@@ -75,7 +76,8 @@ function EmptyState() {
 
 export default function DashboardPage() {
   const router = useRouter();
-  const { data: forms, isPending, isError, error } = useFormsList();
+  const { data, isPending, isError, error } = useFormsList();
+  const forms = data as Form[] | undefined;
   const archiveMutation = useArchiveForm();
   const cloneMutation = useCloneForm();
   const [actionLoading, setActionLoading] = useState<string | null>(null);
@@ -95,8 +97,8 @@ export default function DashboardPage() {
     try {
       await archiveMutation.mutateAsync({ id });
       toast.success('Form archived');
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Failed to archive form');
+    } catch {
+      // Handled globally
     } finally {
       setActionLoading(null);
     }
@@ -107,8 +109,8 @@ export default function DashboardPage() {
     try {
       await cloneMutation.mutateAsync({ id });
       toast.success('Form cloned');
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Failed to clone form');
+    } catch {
+      // Handled globally
     } finally {
       setActionLoading(null);
     }
@@ -125,7 +127,7 @@ export default function DashboardPage() {
         </div>
         <div className="mb-6 grid grid-cols-3 gap-4">
           {Array.from({ length: 3 }).map((_, i) => (
-            <Skeleton key={i} className="h-24 rounded-[calc(var(--radius)*1.2)]" />
+            <Skeleton key={i} className="h-24 rounded-xl" />
           ))}
         </div>
         <div className="space-y-3">
@@ -185,139 +187,151 @@ export default function DashboardPage() {
       </div>
 
       <div className="mb-6 grid grid-cols-3 gap-4">
-        <Card size="sm">
-          <CardHeader>
-            <CardTitle className="text-xs text-muted-foreground">Total Forms</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="font-display text-2xl font-light text-foreground">{forms.length}</p>
-          </CardContent>
-        </Card>
-        <Card size="sm">
-          <CardHeader>
-            <CardTitle className="text-xs text-muted-foreground">Published</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="font-display text-2xl font-light text-foreground">{publishedCount}</p>
-          </CardContent>
-        </Card>
-        <Card size="sm">
-          <CardHeader>
-            <CardTitle className="text-xs text-muted-foreground">Responses</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="font-display text-2xl font-light text-foreground">{totalSubmissions}</p>
-          </CardContent>
-        </Card>
+        <div className="animate-fade-up stagger-1">
+          <Card size="sm">
+            <CardHeader>
+              <CardTitle className="text-xs text-muted-foreground">Total Forms</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="font-display text-2xl font-light text-foreground">{forms.length}</p>
+            </CardContent>
+          </Card>
+        </div>
+        <div className="animate-fade-up stagger-2">
+          <Card size="sm">
+            <CardHeader>
+              <CardTitle className="text-xs text-muted-foreground">Published</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="font-display text-2xl font-light text-foreground">{publishedCount}</p>
+            </CardContent>
+          </Card>
+        </div>
+        <div className="animate-fade-up stagger-3">
+          <Card size="sm">
+            <CardHeader>
+              <CardTitle className="text-xs text-muted-foreground">Responses</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="font-display text-2xl font-light text-foreground">{totalSubmissions}</p>
+            </CardContent>
+          </Card>
+        </div>
       </div>
 
       <div className="space-y-3">
-        {forms.map((form) => {
+        {forms.map((form, index) => {
           const status = statusConfig[form.status] ?? statusConfig.draft;
           const StatusIcon = status.icon;
           return (
-            <Card key={form.id} size="sm">
-              <CardHeader>
-                <div className="flex items-start justify-between">
-                  <div className="min-w-0 flex-1">
-                    <CardTitle className="truncate font-heading text-sm font-medium">
-                      {form.title}
-                    </CardTitle>
-                    <CardDescription className="mt-0.5 flex items-center gap-2">
-                      <span className="font-mono text-xs">
-                        /{form.id}/{form.slug}
-                      </span>
-                      <span className="text-muted-foreground">&middot;</span>
-                      <Link
-                        href={`/dashboard/forms/${form.id}/responses`}
-                        className="text-xs hover:text-primary transition-colors underline decoration-dotted"
-                      >
-                        {form.submissionCount ?? 0} responses
-                      </Link>
-                    </CardDescription>
-                  </div>
-                  <div className="flex shrink-0 items-center gap-2">
-                    <Badge variant={status.variant} className="gap-1">
-                      <StatusIcon className="h-3 w-3" />
-                      {status.label}
-                    </Badge>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon-xs" disabled={actionLoading === form.id}>
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem
-                          onClick={() => {
-                            router.push(`/forms/${form.id}/edit`);
-                          }}
+            <div key={form.id} className={`animate-fade-up stagger-${Math.min(index + 1, 5)}`}>
+              <Card size="sm">
+                <CardHeader>
+                  <div className="flex items-start justify-between">
+                    <div className="min-w-0 flex-1">
+                      <CardTitle className="truncate font-heading text-sm font-medium">
+                        {form.title}
+                      </CardTitle>
+                      <CardDescription className="mt-0.5 flex items-center gap-2">
+                        <span className="font-mono text-xs">
+                          /{form.id}/{form.slug}
+                        </span>
+                        <span className="text-muted-foreground">&middot;</span>
+                        <Link
+                          href={`/dashboard/forms/${form.id}/responses`}
+                          className="text-xs hover:text-primary transition-colors underline decoration-dotted"
                         >
-                          <Edit className="h-4 w-4" />
-                          Edit
-                        </DropdownMenuItem>
-                        {form.status === 'published' ? (
-                          <DropdownMenuItem
-                            onClick={() => {
-                              window.open(`/${form.id}/${form.slug}`, '_blank');
-                            }}
-                          >
-                            <ExternalLink className="h-4 w-4" />
-                            Preview
-                          </DropdownMenuItem>
-                        ) : (
-                          <DropdownMenuItem
-                            onClick={() => {
-                              router.push(`/forms/${form.id}/preview`);
-                            }}
-                          >
-                            <Eye className="h-4 w-4" />
-                            Preview
-                          </DropdownMenuItem>
-                        )}
-                        <DropdownMenuItem
-                          onClick={() => {
-                            router.push(`/dashboard/forms/${form.id}/analytics`);
-                          }}
-                        >
-                          <BarChart3 className="h-4 w-4" />
-                          Analytics
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() => {
-                            router.push(`/dashboard/forms/${form.id}/responses`);
-                          }}
-                        >
-                          <FileText className="h-4 w-4" />
-                          Responses
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() => {
-                            void handleClone(form.id);
-                          }}
-                          disabled={actionLoading === form.id}
-                        >
-                          <Copy className="h-4 w-4" />
-                          Clone
-                        </DropdownMenuItem>
-                        {form.status !== 'archived' ? (
-                          <DropdownMenuItem
-                            onClick={() => {
-                              void handleArchive(form.id);
-                            }}
-                            variant="destructive"
+                          {form.submissionCount ?? 0} responses
+                        </Link>
+                      </CardDescription>
+                    </div>
+                    <div className="flex shrink-0 items-center gap-2">
+                      <Badge variant={status.variant} className="gap-1">
+                        <StatusIcon className="h-3 w-3" />
+                        {status.label}
+                      </Badge>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon-xs"
                             disabled={actionLoading === form.id}
                           >
-                            <Archive className="h-4 w-4" />
-                            Archive
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem
+                            onClick={() => {
+                              router.push(`/forms/${form.id}/edit`);
+                            }}
+                          >
+                            <Edit className="h-4 w-4" />
+                            Edit
                           </DropdownMenuItem>
-                        ) : null}
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                          {form.status === 'published' ? (
+                            <DropdownMenuItem
+                              onClick={() => {
+                                window.open(`/${form.id}/${form.slug}`, '_blank');
+                              }}
+                            >
+                              <ExternalLink className="h-4 w-4" />
+                              Preview
+                            </DropdownMenuItem>
+                          ) : (
+                            <DropdownMenuItem
+                              onClick={() => {
+                                router.push(`/forms/${form.id}/preview`);
+                              }}
+                            >
+                              <Eye className="h-4 w-4" />
+                              Preview
+                            </DropdownMenuItem>
+                          )}
+                          <DropdownMenuItem
+                            onClick={() => {
+                              router.push(`/dashboard/forms/${form.id}/analytics`);
+                            }}
+                          >
+                            <BarChart3 className="h-4 w-4" />
+                            Analytics
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => {
+                              router.push(`/dashboard/forms/${form.id}/responses`);
+                            }}
+                          >
+                            <FileText className="h-4 w-4" />
+                            Responses
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => {
+                              void handleClone(form.id);
+                            }}
+                            disabled={actionLoading === form.id}
+                          >
+                            <Copy className="h-4 w-4" />
+                            Clone
+                          </DropdownMenuItem>
+                          {form.status !== 'archived' ? (
+                            <DropdownMenuItem
+                              onClick={() => {
+                                void handleArchive(form.id);
+                              }}
+                              variant="destructive"
+                              disabled={actionLoading === form.id}
+                            >
+                              <Archive className="h-4 w-4" />
+                              Archive
+                            </DropdownMenuItem>
+                          ) : null}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
                   </div>
-                </div>
-              </CardHeader>
-            </Card>
+                </CardHeader>
+              </Card>
+            </div>
           );
         })}
       </div>

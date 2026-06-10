@@ -13,6 +13,7 @@ export default function NewFormPage() {
 
   useEffect(() => {
     reset();
+    document.title = 'New Form | StarForm';
   }, [reset]);
 
   return (

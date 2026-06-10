@@ -27,6 +27,7 @@ export default function EditFormPage() {
       visibility: form.visibility,
       config: form.config,
     });
+    document.title = `Edit: ${form.title} | StarForm`;
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsHydrated(true);
   }, [form, loadFromForm, isHydrated]);

@@ -1,7 +1,14 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
-import { LayoutDashboard, FileEdit, Zap } from 'lucide-react';
+import { LayoutDashboard, FileEdit } from 'lucide-react';
 import { UserButton } from '@clerk/nextjs';
 import { ThemeToggle } from '@/components/theme-toggle';
+import { StarFormLogo } from '@/components/logo';
+
+export const metadata: Metadata = {
+  title: 'Dashboard',
+  description: 'Manage your forms, view real-time feedback analytics, and share your forms.',
+};
 
 const navItems = [
   { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
@@ -15,11 +22,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4">
           <div className="flex items-center gap-6">
             <Link
-              href="/dashboard"
-              className="flex items-center gap-2 text-foreground transition-all hover:opacity-80"
+              href="/"
+              className="flex items-center text-foreground transition-all hover:opacity-80"
             >
-              <Zap className="h-5 w-5 text-primary" />
-              <span className="font-heading text-lg font-medium tracking-tight">StarForm</span>
+              <StarFormLogo size={24} showText={true} />
             </Link>
             <nav className="hidden items-center gap-1 md:flex">
               {navItems.map((item) => (
@@ -41,7 +47,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </div>
         </div>
       </header>
-      <main className="flex-1">{children}</main>
+      <main className="flex-1 animate-page-enter">{children}</main>
     </div>
   );
 }
