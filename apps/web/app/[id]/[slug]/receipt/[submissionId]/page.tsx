@@ -7,7 +7,8 @@ import { trpc } from '@/lib/trpc';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { CheckCircle2, RefreshCw } from 'lucide-react';
+import { CheckCircle2, RefreshCw, AlertCircle } from 'lucide-react';
+import { WarpDriveEffect, MatrixRainEffect } from '@/modules/forms/components/theme-effects';
 
 export default function ReceiptPage({
   params,
@@ -24,8 +25,11 @@ export default function ReceiptPage({
   } = trpc.submission.getById.useQuery({ id: submissionId }, { enabled: !!submissionId });
 
   useEffect(() => {
-    if (form && form.slug !== slug) {
-      router.replace(`/${form.id}/${form.slug}/receipt/${submissionId}`);
+    if (form) {
+      if (form.slug !== slug) {
+        router.replace(`/${form.id}/${form.slug}/receipt/${submissionId}`);
+      }
+      document.title = `Submission Receipt - ${form.title} | StarForm`;
     }
   }, [form, slug, submissionId, router]);
 
@@ -37,7 +41,7 @@ export default function ReceiptPage({
 
   const renderThemeEffects = useCallback(() => {
     if (themeClass === 'theme-space') {
-      return <div className="stars" />;
+      return <WarpDriveEffect />;
     }
     if (themeClass === 'theme-anime') {
       return (
@@ -55,6 +59,9 @@ export default function ReceiptPage({
           ))}
         </div>
       );
+    }
+    if (themeClass === 'theme-gaming') {
+      return <MatrixRainEffect />;
     }
     return null;
   }, [themeClass]);
@@ -95,6 +102,7 @@ export default function ReceiptPage({
     return (
       <div className="flex min-h-screen items-center justify-center bg-background px-4">
         <div className="text-center">
+          <AlertCircle className="mx-auto mb-4 h-12 w-12 text-destructive" />
           <h1 className="font-heading text-2xl font-semibold text-foreground">Receipt Not Found</h1>
           <p className="mt-2 font-body text-muted-foreground">
             We couldn&apos;t find this submission receipt.
@@ -117,67 +125,63 @@ export default function ReceiptPage({
   const thankYouMessage = (config.thankYouMessage as string) || 'Thank you for your response!';
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4 py-12">
-      <div
-        className={`${themeClass} relative w-full max-w-lg overflow-hidden rounded-[calc(var(--radius)*1.2)] border border-border p-8 shadow-(--shadow-card)`}
-      >
-        {renderThemeEffects()}
-        <div className="relative z-10 space-y-6 text-center">
-          <div className="space-y-2">
-            <CheckCircle2 className="mx-auto h-16 w-16 text-primary" />
-            <h1 className="font-heading text-2xl font-semibold text-foreground">
-              {thankYouMessage}
-            </h1>
-            <p className="font-body text-muted-foreground">
-              Your response to &ldquo;{formTitle}&rdquo; has been recorded.
-            </p>
-          </div>
+    <div
+      className={`${themeClass} relative flex min-h-screen items-center justify-center px-4 py-12 animate-page-enter`}
+    >
+      {renderThemeEffects()}
+      <div className="theme-form-container relative z-10 w-full max-w-lg space-y-6 text-center">
+        <div className="space-y-2">
+          <CheckCircle2 className="mx-auto h-16 w-16 text-primary" />
+          <h1 className="font-heading text-2xl font-semibold text-foreground">{thankYouMessage}</h1>
+          <p className="font-body text-muted-foreground">
+            Your response to &ldquo;{formTitle}&rdquo; has been recorded.
+          </p>
+        </div>
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="font-heading text-base">Submission Details</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3 text-left">
-              <div className="flex justify-between font-body text-sm">
-                <span className="text-muted-foreground">Reference</span>
-                <span className="font-medium font-mono text-foreground">
-                  {submission.id.slice(0, 8).toUpperCase()}
-                </span>
-              </div>
-              <div className="flex justify-between font-body text-sm">
-                <span className="text-muted-foreground">Submitted</span>
-                <span className="text-foreground">{submittedAt}</span>
-              </div>
-              {dataEntries.length > 0 && (
-                <div className="border-t border-border pt-3">
-                  <p className="mb-2 font-body text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                    Your Responses
-                  </p>
-                  <div className="space-y-2">
-                    {dataEntries.map(([key, value]) => (
-                      <div key={key} className="flex justify-between font-body text-sm">
-                        <span className="text-muted-foreground">{key}</span>
-                        <span className="max-w-48 truncate text-foreground">
-                          {Array.isArray(value) ? value.join(', ') : String(value)}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
+        <Card>
+          <CardHeader>
+            <CardTitle className="font-heading text-base">Submission Details</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3 text-left">
+            <div className="flex justify-between font-body text-sm">
+              <span className="text-muted-foreground">Reference</span>
+              <span className="font-medium font-mono text-foreground">
+                {submission.id.slice(0, 8).toUpperCase()}
+              </span>
+            </div>
+            <div className="flex justify-between font-body text-sm">
+              <span className="text-muted-foreground">Submitted</span>
+              <span className="text-foreground">{submittedAt}</span>
+            </div>
+            {dataEntries.length > 0 && (
+              <div className="border-t border-border pt-3">
+                <p className="mb-2 font-body text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                  Your Responses
+                </p>
+                <div className="space-y-2">
+                  {dataEntries.map(([key, value]) => (
+                    <div key={key} className="flex justify-between font-body text-sm">
+                      <span className="text-muted-foreground">{key}</span>
+                      <span className="max-w-48 truncate text-foreground">
+                        {Array.isArray(value) ? value.join(', ') : String(value)}
+                      </span>
+                    </div>
+                  ))}
                 </div>
-              )}
-            </CardContent>
-          </Card>
+              </div>
+            )}
+          </CardContent>
+        </Card>
 
-          <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
-            <Button
-              variant="outline"
-              onClick={() => router.push(`/${id}/${form?.slug || slug}`)}
-              className="btn-ghost"
-            >
-              <RefreshCw className="mr-2 h-4 w-4" />
-              Submit Another
-            </Button>
-          </div>
+        <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
+          <Button
+            variant="outline"
+            onClick={() => router.push(`/${id}/${form?.slug || slug}`)}
+            className="btn-ghost"
+          >
+            <RefreshCw className="mr-2 h-4 w-4" />
+            Submit Another
+          </Button>
         </div>
       </div>
     </div>

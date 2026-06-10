@@ -14,6 +14,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Send, Lock, AlertCircle } from 'lucide-react';
+import { WarpDriveEffect, MatrixRainEffect } from '@/modules/forms/components/theme-effects';
 
 export default function FormFillerPage({
   params,
@@ -29,15 +30,19 @@ export default function FormFillerPage({
   const [passwordVerified, setPasswordVerified] = useState(false);
 
   useEffect(() => {
-    if (form && form.slug !== slug) {
-      router.replace(`/${form.id}/${form.slug}`);
+    if (form) {
+      if (form.slug !== slug) {
+        router.replace(`/${form.id}/${form.slug}`);
+      }
+      document.title = `${form.title} | StarForm`;
     }
   }, [form, slug, router]);
 
   const config = (form?.config as Record<string, unknown>) ?? {};
   const formPassword = config.password as string | undefined;
   const requiresPassword = Boolean(formPassword) && !passwordVerified;
-  const hasEmailField = form?.fields?.some((f: { type: string }) => f.type === 'email') ?? false;
+  const hasEmailField =
+    (form?.fields as { type: string }[] | undefined)?.some((f) => f.type === 'email') ?? false;
 
   const themeClass = useMemo(() => {
     const theme = form?.theme as { name: string } | undefined;
@@ -47,7 +52,7 @@ export default function FormFillerPage({
 
   const renderThemeEffects = useCallback(() => {
     if (themeClass === 'theme-space') {
-      return <div className="stars" />;
+      return <WarpDriveEffect />;
     }
     if (themeClass === 'theme-anime') {
       return (
@@ -65,6 +70,9 @@ export default function FormFillerPage({
           ))}
         </div>
       );
+    }
+    if (themeClass === 'theme-gaming') {
+      return <MatrixRainEffect />;
     }
     return null;
   }, [themeClass]);
@@ -161,51 +169,56 @@ export default function FormFillerPage({
 
   if (requiresPassword) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background px-4">
-        <div className="w-full max-w-sm space-y-6">
-          <div className="text-center">
-            <Lock className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
-            <h1 className="font-heading text-2xl font-semibold text-foreground">{form.title}</h1>
-            <p className="mt-2 font-body text-sm text-muted-foreground">
-              This form is password protected. Enter the password to continue.
-            </p>
-          </div>
-          <form onSubmit={handlePasswordSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label className="font-body text-sm" htmlFor="password">
-                Password
-              </Label>
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => {
-                  setPassword(e.target.value);
-                  setPasswordError('');
-                }}
-                placeholder="Enter form password"
-                className="font-body"
-              />
-              {passwordError && (
-                <p className="font-body text-xs text-destructive">{passwordError}</p>
-              )}
+      <div
+        className={`${themeClass} relative flex min-h-screen items-center justify-center px-4 py-12 animate-page-enter`}
+      >
+        {renderThemeEffects()}
+        <div className="relative z-10 w-full max-w-sm animate-fade-up">
+          <div className="bg-card overflow-hidden rounded-2xl border border-border shadow-(--shadow-card-hover) p-8 space-y-6">
+            <div className="text-center">
+              <Lock className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
+              <h1 className="font-heading text-2xl font-semibold text-foreground">{form.title}</h1>
+              <p className="mt-2 font-body text-sm text-muted-foreground">
+                This form is password protected. Enter the password to continue.
+              </p>
             </div>
-            <Button type="submit" className="btn-primary w-full">
-              Continue
-            </Button>
-          </form>
+            <form onSubmit={handlePasswordSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <Label className="font-body text-sm" htmlFor="password">
+                  Password
+                </Label>
+                <Input
+                  id="password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    setPasswordError('');
+                  }}
+                  placeholder="Enter form password"
+                  className="font-body"
+                />
+                {passwordError && (
+                  <p className="font-body text-xs text-destructive">{passwordError}</p>
+                )}
+              </div>
+              <Button type="submit" className="w-full gap-2">
+                Continue
+              </Button>
+            </form>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="flex min-h-screen justify-center bg-background px-4 py-12">
-      <div
-        className={`${themeClass} relative w-full max-w-lg overflow-hidden rounded-[calc(var(--radius)*1.2)] border border-border p-8 shadow-(--shadow-card)`}
-      >
-        {renderThemeEffects()}
-        <div className="relative z-10 space-y-8">
+    <div
+      className={`${themeClass} relative flex min-h-screen justify-center px-4 py-12 animate-page-enter`}
+    >
+      {renderThemeEffects()}
+      <div className="relative z-10 w-full max-w-lg animate-fade-up">
+        <div className="bg-card overflow-hidden rounded-2xl border border-border shadow-(--shadow-card-hover) p-10 space-y-8">
           <div className="text-center">
             <h1 className="font-heading text-2xl font-semibold text-foreground">{form.title}</h1>
             {form.description && (
