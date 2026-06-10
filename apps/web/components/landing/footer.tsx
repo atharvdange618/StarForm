@@ -1,6 +1,9 @@
+'use client';
+
 import Link from 'next/link';
-import { Zap } from 'lucide-react';
+import { motion } from 'motion/react';
 import { FaGithub, FaXTwitter } from 'react-icons/fa6';
+import { StarFormLogo } from '@/components/logo';
 
 const footerLinks = [
   {
@@ -21,16 +24,45 @@ const footerLinks = [
   },
 ];
 
+function SocialLink({
+  href,
+  icon: Icon,
+  label,
+}: {
+  href: string;
+  icon: React.ElementType;
+  label: string;
+}) {
+  return (
+    <motion.a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="flex h-8 w-8 items-center justify-center rounded-full border border-border text-muted-foreground"
+      whileHover={{ scale: 1.1, borderColor: 'var(--primary)', color: 'var(--foreground)' }}
+      whileTap={{ scale: 0.95 }}
+      transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+      aria-label={label}
+    >
+      <Icon className="h-4 w-4" />
+    </motion.a>
+  );
+}
+
 export function Footer() {
   return (
     <footer className="border-t border-border py-16">
       <div className="mx-auto max-w-7xl px-6">
         <div className="grid grid-cols-2 gap-8 md:grid-cols-4 lg:grid-cols-5">
           <div className="col-span-2 flex flex-col gap-4 md:col-span-2 lg:col-span-2">
-            <Link href="/" className="flex items-center gap-2 text-foreground">
-              <Zap className="h-5 w-5 text-primary" />
-              <span className="font-heading text-lg font-medium tracking-tight">StarForm</span>
-            </Link>
+            <motion.div
+              whileHover={{ scale: 1.02 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+            >
+              <Link href="/" className="flex items-center text-foreground">
+                <StarFormLogo size={24} showText={true} />
+              </Link>
+            </motion.div>
             <p
               className="font-body max-w-[62ch] text-base leading-[1.75] text-muted-foreground"
               style={{ textWrap: 'pretty' }}
@@ -39,24 +71,16 @@ export function Footer() {
               complexity.
             </p>
             <div className="flex items-center gap-3">
-              <a
+              <SocialLink
                 href="https://github.com/atharvdange618/StarForm"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex h-8 w-8 items-center justify-center rounded-full border border-border text-muted-foreground transition-colors hover:text-foreground"
-                aria-label="GitHub"
-              >
-                <FaGithub className="h-4 w-4" />
-              </a>
-              <a
+                icon={FaGithub}
+                label="GitHub"
+              />
+              <SocialLink
                 href="https://x.com/atharvdangedev"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex h-8 w-8 items-center justify-center rounded-full border border-border text-muted-foreground transition-colors hover:text-foreground"
-                aria-label="X (Twitter)"
-              >
-                <FaXTwitter className="h-4 w-4" />
-              </a>
+                icon={FaXTwitter}
+                label="X (Twitter)"
+              />
             </div>
           </div>
 
@@ -69,7 +93,7 @@ export function Footer() {
                 <Link
                   key={link.label}
                   href={link.href}
-                  className="font-body text-sm text-muted-foreground transition-colors hover:text-foreground"
+                  className="font-body text-sm text-muted-foreground transition-colors hover:text-foreground w-fit"
                 >
                   {link.label}
                 </Link>
