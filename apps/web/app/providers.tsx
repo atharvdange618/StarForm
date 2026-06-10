@@ -1,23 +1,34 @@
 'use client';
 
 import { useState } from 'react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { MutationCache, QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { httpBatchLink } from '@trpc/client';
 import { ThemeProvider } from 'next-themes';
 import { ClerkProvider, useAuth } from '@clerk/nextjs';
+import { Toaster } from '@/components/ui/sonner';
+import { toast } from 'sonner';
 import { trpc } from '@/lib/trpc';
 import { env } from '@/lib/env';
+import { getTRPCErrorMessage } from '@/lib/trpc-error';
 
 function TRPCProvider({ children }: { children: React.ReactNode }) {
   const { getToken } = useAuth();
   const [queryClient] = useState<QueryClient>(
     () =>
       new QueryClient({
+        mutationCache: new MutationCache({
+          onError(err) {
+            toast.error(getTRPCErrorMessage(err));
+          },
+        }),
         defaultOptions: {
           queries: {
             refetchOnWindowFocus: false,
             retry: 1,
             staleTime: 30_000,
+          },
+          mutations: {
+            retry: false,
           },
         },
       }),
@@ -47,7 +58,15 @@ export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <ClerkProvider>
       <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-        <TRPCProvider>{children}</TRPCProvider>
+        <TRPCProvider>
+          {children}
+          <Toaster
+            position="top-right"
+            toastOptions={{
+              closeButton: true,
+            }}
+          />
+        </TRPCProvider>
       </ThemeProvider>
     </ClerkProvider>
   );
