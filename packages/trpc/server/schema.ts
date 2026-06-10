@@ -151,6 +151,14 @@ export const formBaseSchema = z.object({
     .optional(),
 });
 
+export const formConfigSchema = z.object({
+  expiryDate: z.string().datetime().nullable().optional(),
+  responseLimit: z.number().int().positive().nullable().optional(),
+  password: z.string().min(4).nullable().optional(),
+  thankYouMessage: z.string().max(1000).nullable().optional(),
+  webhookUrl: z.string().nullable().optional(),
+});
+
 export const formCreateSchema = formBaseSchema.extend({
   fields: z.array(fieldDefinitionSchema).min(1),
 });
@@ -158,15 +166,7 @@ export const formCreateSchema = formBaseSchema.extend({
 export const formUpdateSchema = formCreateSchema.partial().extend({
   themeId: z.string().uuid().nullable().optional(),
   visibility: z.enum(['public', 'unlisted']).optional(),
-  config: z
-    .object({
-      expiryDate: z.string().datetime().nullable().optional(),
-      responseLimit: z.number().int().positive().nullable().optional(),
-      password: z.string().min(4).nullable().optional(),
-      thankYouMessage: z.string().max(1000).nullable().optional(),
-      webhookUrl: z.string().nullable().optional(),
-    })
-    .optional(),
+  config: formConfigSchema.optional(),
 });
 
 export const publishConfigSchema = z.object({
@@ -323,6 +323,19 @@ export const userOutputSchema = z.object({
   deletedAt: z.date().nullable(),
 });
 
+export const themeOutputSchema = z.object({
+  id: z.string().uuid(),
+  name: z.string(),
+  config: z.unknown(),
+  isGlobal: z.boolean(),
+  creatorId: z.string().uuid().nullable(),
+  createdAt: z.date(),
+  updatedAt: z.date(),
+  deletedAt: z.date().nullable(),
+});
+
+export type Theme = z.infer<typeof themeOutputSchema>;
+
 export const formOutputSchema = z.object({
   id: z.string().uuid(),
   creatorId: z.string().uuid(),
@@ -331,39 +344,30 @@ export const formOutputSchema = z.object({
   slug: z.string(),
   visibility: formVisibilityEnum,
   status: formStatusEnum,
-  fields: z.any(),
+  fields: z.unknown(),
   themeId: z.string().uuid().nullable(),
-  config: z.any(),
+  config: z.unknown(),
   publishedVersion: z.number().int().nullable(),
   createdAt: z.date(),
   updatedAt: z.date(),
   deletedAt: z.date().nullable(),
   submissionCount: z.number().int().optional(),
-  theme: z.any().optional(),
-  versions: z.any().optional(),
+  theme: z.unknown().optional(),
+  versions: z.unknown().optional(),
 });
+
+export type Form = z.infer<typeof formOutputSchema>;
 
 export const submissionOutputSchema = z.object({
   id: z.string().uuid(),
   formId: z.string().uuid(),
   formVersionId: z.string().uuid(),
   respondentHash: z.string().nullable(),
-  data: z.any(),
-  metadata: z.any(),
+  data: z.unknown(),
+  metadata: z.unknown(),
   createdAt: z.date(),
   deletedAt: z.date().nullable(),
-  form: z.any().optional(),
-});
-
-export const themeOutputSchema = z.object({
-  id: z.string().uuid(),
-  name: z.string(),
-  config: z.any(),
-  isGlobal: z.boolean(),
-  creatorId: z.string().uuid().nullable(),
-  createdAt: z.date(),
-  updatedAt: z.date(),
-  deletedAt: z.date().nullable(),
+  form: z.unknown().optional(),
 });
 
 export { z };

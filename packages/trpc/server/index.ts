@@ -19,5 +19,5 @@ export const serverRouter = router({
 export { createContext, createServerContext } from './context';
 export type { Context } from './context';
 export type ServerRouter = typeof serverRouter;
-export type { FieldType, FieldDefinition } from './schema';
+export type { FieldType, FieldDefinition, Form, Theme } from './schema';
 export { buildSubmissionSchema } from './schema';
