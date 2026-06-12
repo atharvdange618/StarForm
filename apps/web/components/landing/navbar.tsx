@@ -9,9 +9,9 @@ import { ThemeToggle } from '@/components/theme-toggle';
 import { StarFormLogo } from '@/components/logo';
 
 const navLinks = [
-  { label: 'Features', href: '#features' },
-  { label: 'Pricing', href: '#pricing' },
-  { label: 'FAQ', href: '#faq' },
+  { label: 'Features', href: '/#features' },
+  { label: 'Pricing', href: '/pricing' },
+  { label: 'FAQ', href: '/#faq' },
   { label: 'Dashboard', href: '/dashboard', requiresAuth: true },
 ];
 

@@ -13,10 +13,16 @@ export const metadata: Metadata = {
   },
 };
 
-export default function SignUpPage() {
+interface PageProps {
+  searchParams: Promise<{ plan?: string }>;
+}
+
+export default async function SignUpPage({ searchParams }: PageProps) {
+  const { plan } = await searchParams;
+
   return (
     <div className="flex min-h-screen items-center justify-center">
-      <SignUp />
+      <SignUp unsafeMetadata={plan ? { plan } : undefined} />
     </div>
   );
 }

@@ -12,7 +12,7 @@ const plans = [
     price: { monthly: 0, yearly: 0 },
     description: 'Perfect for getting started.',
     cta: 'Get Started Free',
-    href: '/sign-up',
+    href: '/sign-up?plan=free',
     highlighted: false,
     features: [
       { label: 'Up to 3 forms', included: true },
@@ -30,7 +30,7 @@ const plans = [
     price: { monthly: 499, yearly: 3999 },
     description: 'For serious form builders.',
     cta: 'Get Started',
-    href: '/sign-up',
+    href: '/sign-up?plan=pro',
     highlighted: true,
     features: [
       { label: 'Unlimited forms', included: true },
