@@ -7,18 +7,28 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { usePublicFormsList } from '@/modules/forms/hooks/useForms';
 
+interface DisplayForm {
+  id: string;
+  title: string;
+  description: string | null;
+  slug: string;
+  createdAt: Date | string;
+  fields?: unknown[] | unknown;
+  submissionCount?: number;
+  creator?: { name: string | null } | null;
+  isPlaceholder: boolean;
+}
+
 const badgeVariants = ['cerulean', 'lavender', 'sage', 'gold', 'rose', 'coral'] as const;
 
 export function ExploreSection() {
   const { data: publicForms, isPending } = usePublicFormsList();
 
-  // We only show up to 3 featured forms
   const featuredForms = publicForms ? publicForms.slice(0, 3) : [];
 
-  // If loading or empty, show elegant template placeholders
-  const displayForms =
+  const displayForms: DisplayForm[] =
     featuredForms.length > 0
-      ? featuredForms.map((f) => ({ ...f, isPlaceholder: false }))
+      ? featuredForms.map((f) => ({ ...f, isPlaceholder: false as const }))
       : [
           {
             id: 'template-1',
@@ -58,11 +68,7 @@ export function ExploreSection() {
 
   return (
     <section className="relative py-24 lg:py-32">
-      <div className="max-w-7xl mx-auto px-8 lg:px-14">
-        <div className="brushstroke animate-fade-up stagger-1" />
-      </div>
-
-      <div className="max-w-7xl mx-auto px-8 lg:px-14 pt-24 pb-8 flex flex-col gap-12">
+      <div className="max-w-7xl mx-auto px-8 lg:px-14 pt-8 pb-8 flex flex-col gap-12">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 animate-fade-up stagger-1">
           <div className="flex flex-col gap-4">
             <span className="eyebrow inline-block">Public Showcase</span>
@@ -85,13 +91,13 @@ export function ExploreSection() {
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 items-stretch">
           {isPending
             ? Array.from({ length: 3 }).map((_, i) => (
                 <div key={i} className="animate-pulse">
                   <Card
                     size="sm"
-                    className="flex flex-col justify-between h-[230px] bg-card/60 border border-border/40"
+                    className="flex flex-col bg-card/60 border border-border/40 h-[260px]"
                   >
                     <CardHeader className="pb-2">
                       <div className="h-5 w-2/3 bg-muted rounded mb-2" />
@@ -101,7 +107,7 @@ export function ExploreSection() {
                   </Card>
                 </div>
               ))
-            : displayForms.map((form, index) => {
+            : displayForms.map((form: DisplayForm, index: number) => {
                 const badgeVariant = badgeVariants[index % badgeVariants.length];
                 const fieldCount = Array.isArray(form.fields) ? form.fields.length : 0;
                 const formattedDate = new Date(form.createdAt).toLocaleDateString(undefined, {
@@ -113,11 +119,11 @@ export function ExploreSection() {
                 return (
                   <div
                     key={form.id}
-                    className={`animate-fade-up stagger-${Math.min(index + 2, 5)}`}
+                    className={`animate-fade-up stagger-${Math.min(index + 2, 5)} flex`}
                   >
                     <Card
                       size="sm"
-                      className="flex flex-col justify-between h-[230px] bg-card/60 backdrop-blur-sm group/form-card border border-border/40 hover:border-primary/40"
+                      className="flex flex-col flex-1 bg-card/60 backdrop-blur-sm group/form-card border border-border/40 hover:border-primary/40"
                     >
                       <CardHeader className="pb-2">
                         <div className="flex justify-between items-start gap-4">
@@ -128,11 +134,11 @@ export function ExploreSection() {
                             {form.isPlaceholder ? 'Template' : 'Public'}
                           </Badge>
                         </div>
-                        <CardDescription className="line-clamp-2 mt-1 h-9 text-xs">
+                        <CardDescription className="line-clamp-2 mt-1 text-xs">
                           {form.description || 'No description provided.'}
                         </CardDescription>
                       </CardHeader>
-                      <CardContent className="flex flex-col gap-4 pt-0">
+                      <CardContent className="flex flex-col gap-4 pt-0 flex-1">
                         <div className="flex flex-wrap gap-2 text-xs">
                           <div className="flex items-center gap-1 text-muted-foreground bg-secondary/50 px-2 py-0.5 rounded-sm">
                             <ClipboardList className="h-3.5 w-3.5" />
@@ -149,35 +155,41 @@ export function ExploreSection() {
                           </div>
                         </div>
 
-                        <div className="pt-3 border-t border-border/40 flex items-center justify-between mt-auto">
-                          <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-body max-w-[150px] truncate">
-                            <User className="h-3.5 w-3.5 shrink-0" />
-                            <span className="truncate" title={form.creator?.name || 'Anonymous'}>
-                              {form.creator?.name || 'Anonymous'}
-                            </span>
+                        <div className="mt-auto flex flex-col gap-3">
+                          <div className="pt-3 border-t border-border/40 flex items-center justify-between">
+                            <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-body max-w-[150px] truncate">
+                              <User className="h-3.5 w-3.5 shrink-0" />
+                              <span className="truncate" title={form.creator?.name || 'Anonymous'}>
+                                {form.creator?.name || 'Anonymous'}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-1 text-[11px] text-muted-foreground font-body shrink-0">
+                              <Calendar className="h-3 w-3" />
+                              <span>{formattedDate}</span>
+                            </div>
                           </div>
-                          <div className="flex items-center gap-1 text-[11px] text-muted-foreground font-body shrink-0">
-                            <Calendar className="h-3 w-3" />
-                            <span>{formattedDate}</span>
-                          </div>
-                        </div>
 
-                        <Link
-                          href={form.isPlaceholder ? '/explore' : `/${form.id}/${form.slug}`}
-                          target={form.isPlaceholder ? undefined : '_blank'}
-                          className="w-full mt-2"
-                        >
-                          <Button className="w-full gap-2 text-xs" variant="default" size="sm">
-                            <ExternalLink className="h-3.5 w-3.5" />
-                            {form.isPlaceholder ? 'Explore templates' : 'Fill Form'}
-                          </Button>
-                        </Link>
+                          <Link
+                            href={form.isPlaceholder ? '/explore' : `/${form.id}/${form.slug}`}
+                            target={form.isPlaceholder ? undefined : '_blank'}
+                            className="w-full"
+                          >
+                            <Button className="w-full gap-2 text-xs" variant="default" size="sm">
+                              <ExternalLink className="h-3.5 w-3.5" />
+                              {form.isPlaceholder ? 'Explore templates' : 'Fill Form'}
+                            </Button>
+                          </Link>
+                        </div>
                       </CardContent>
                     </Card>
                   </div>
                 );
               })}
         </div>
+      </div>
+
+      <div className="max-w-[1280px] mx-auto mt-20 px-8 lg:px-14">
+        <div className="brushstroke" />
       </div>
     </section>
   );
