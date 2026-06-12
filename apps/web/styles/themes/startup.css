@@ -55,6 +55,7 @@
 
   --background: var(--theme-background);
   --card: var(--gf-white);
+  --card-foreground: var(--foreground);
   --foreground: var(--theme-text);
   --muted-foreground: var(--theme-muted-foreground);
   --border: var(--theme-border);

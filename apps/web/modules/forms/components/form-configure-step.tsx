@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback, useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { DateTimePicker } from '@/components/datetime-picker';
@@ -11,6 +11,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
+import { Eye, EyeOff, Lock } from 'lucide-react';
+import { useMe } from '@/modules/users/hooks/useUsers';
+import Link from 'next/link';
 
 const configureSchema = z.object({
   visibility: z.enum(['public', 'unlisted']),
@@ -24,6 +27,9 @@ const configureSchema = z.object({
 type ConfigureData = z.infer<typeof configureSchema>;
 
 export function FormConfigureStep() {
+  const [showPassword, setShowPassword] = useState(false);
+  const { data: me } = useMe();
+  const isPro = me?.plan === 'pro' || me?.plan === 'enterprise';
   const {
     themeId,
     visibility,
@@ -207,13 +213,23 @@ export function FormConfigureStep() {
           <Label htmlFor="form-password" className="font-body text-sm text-muted-foreground">
             Password Protection
           </Label>
-          <Input
-            id="form-password"
-            type="password"
-            {...register('password')}
-            placeholder="Leave empty for no password"
-            className="font-body"
-          />
+          <div className="relative">
+            <Input
+              id="form-password"
+              type={showPassword ? 'text' : 'password'}
+              {...register('password')}
+              placeholder="Leave empty for no password"
+              className="font-body pr-10"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors cursor-pointer flex items-center justify-center h-8 w-8"
+              aria-label={showPassword ? 'Hide password' : 'Show password'}
+            >
+              {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+            </button>
+          </div>
         </div>
       </section>
 
@@ -261,14 +277,26 @@ export function FormConfigureStep() {
             Pro
           </Badge>
         </div>
-        <div className="grid gap-2">
+        <div className="relative grid gap-2">
           <Input
             id="webhook-url"
             type="url"
             {...register('webhookUrl')}
             placeholder="https://discord.com/api/webhooks/..."
             className="font-body"
+            disabled={!isPro}
           />
+          {!isPro && (
+            <div className="absolute inset-0 flex items-center justify-center rounded-md bg-muted/60 backdrop-blur-[2px]">
+              <Link
+                href="/pricing"
+                className="flex items-center gap-1.5 rounded-full bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground shadow-sm transition-opacity hover:opacity-90"
+              >
+                <Lock className="h-3 w-3" />
+                Upgrade to Pro
+              </Link>
+            </div>
+          )}
         </div>
       </section>
     </div>

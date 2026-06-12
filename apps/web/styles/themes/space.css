@@ -53,6 +53,7 @@
 
   --background: var(--theme-background);
   --card: oklch(0.07 0.06 265 / 0.85);
+  --card-foreground: var(--foreground);
   --foreground: var(--theme-text);
   --muted-foreground: var(--theme-muted-foreground);
   --border: var(--theme-border);

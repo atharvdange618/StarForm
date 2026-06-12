@@ -13,7 +13,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Send, Lock, AlertCircle } from 'lucide-react';
+import { Send, Lock, AlertCircle, Eye, EyeOff } from 'lucide-react';
 import { WarpDriveEffect, MatrixRainEffect } from '@/modules/forms/components/theme-effects';
 import { isDarkColor } from '@/lib/utils';
 
@@ -29,6 +29,7 @@ export default function FormFillerPage({
   const [password, setPassword] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [passwordVerified, setPasswordVerified] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     if (form) {
@@ -46,7 +47,7 @@ export default function FormFillerPage({
     (form?.fields as { type: string }[] | undefined)?.some((f) => f.type === 'email') ?? false;
 
   const selectedTheme = useMemo(() => {
-    return (form?.theme as any) || null;
+    return (form?.theme as unknown as { name: string; config: unknown }) || null;
   }, [form?.theme]);
 
   const isBuiltIn = useMemo(() => {
@@ -269,17 +270,27 @@ export default function FormFillerPage({
                 <Label className="font-body text-sm" htmlFor="password">
                   Password
                 </Label>
-                <Input
-                  id="password"
-                  type="password"
-                  value={password}
-                  onChange={(e) => {
-                    setPassword(e.target.value);
-                    setPasswordError('');
-                  }}
-                  placeholder="Enter form password"
-                  className="font-body"
-                />
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type={showPassword ? 'text' : 'password'}
+                    value={password}
+                    onChange={(e) => {
+                      setPassword(e.target.value);
+                      setPasswordError('');
+                    }}
+                    placeholder="Enter form password"
+                    className="font-body pr-10"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors cursor-pointer flex items-center justify-center h-8 w-8"
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  >
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
                 {passwordError && (
                   <p className="font-body text-xs text-destructive">{passwordError}</p>
                 )}

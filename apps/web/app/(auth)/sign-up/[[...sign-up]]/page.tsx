@@ -22,7 +22,11 @@ export default async function SignUpPage({ searchParams }: PageProps) {
 
   return (
     <div className="flex min-h-screen items-center justify-center">
-      <SignUp unsafeMetadata={plan ? { plan } : undefined} />
+      <SignUp
+        unsafeMetadata={plan ? { plan } : undefined}
+        fallbackRedirectUrl="/dashboard"
+        signInFallbackRedirectUrl="/dashboard"
+      />
     </div>
   );
 }

@@ -4,6 +4,7 @@ import { useState, useRef } from 'react';
 import Link from 'next/link';
 import { motion, useInView } from 'motion/react';
 import { Check, X } from 'lucide-react';
+import { useUser } from '@clerk/nextjs';
 import { Button } from '@/components/ui/button';
 
 const plans = [
@@ -72,6 +73,11 @@ function PlanCard({
   isInView: boolean;
   yearly: boolean;
 }) {
+  const { isSignedIn } = useUser();
+  const isMailto = plan.href.startsWith('mailto:');
+  const buttonHref = isSignedIn && !isMailto ? '/dashboard' : plan.href;
+  const buttonText = isSignedIn && !isMailto ? 'Go to Dashboard' : plan.cta;
+
   return (
     <motion.div
       className={`relative flex flex-col rounded-xl border p-8 transition-all ${plan.highlighted ? 'border-primary/30 bg-card' : 'border-border bg-card'}`}
@@ -116,7 +122,7 @@ function PlanCard({
       </div>
 
       <Button asChild variant={plan.highlighted ? 'default' : 'outline'} className="mb-8 w-full">
-        <Link href={plan.href}>{plan.cta}</Link>
+        <Link href={buttonHref}>{buttonText}</Link>
       </Button>
 
       <div className="gradient-divider mb-6" />

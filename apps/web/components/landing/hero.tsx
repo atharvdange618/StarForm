@@ -4,6 +4,7 @@ import { useRef } from 'react';
 import Link from 'next/link';
 import { motion, useMotionValue, useTransform, useSpring, type Variants } from 'motion/react';
 import { ArrowRight, ChevronDown } from 'lucide-react';
+import { useUser } from '@clerk/nextjs';
 import { HeroArt } from './hero-art';
 
 function MagneticButton({
@@ -95,6 +96,8 @@ const itemVariants: Variants = {
 };
 
 export function Hero() {
+  const { isSignedIn } = useUser();
+
   return (
     <section className="relative flex min-h-dvh overflow-hidden">
       <HeroArt />
@@ -152,7 +155,7 @@ export function Hero() {
             <motion.div variants={itemVariants} className="flex flex-wrap items-center gap-4 pt-2">
               <MagneticButton className="inline-flex">
                 <Link
-                  href="/sign-up"
+                  href={isSignedIn ? '/dashboard' : '/sign-up'}
                   className="btn-primary group flex items-center gap-3 px-8 py-4 text-base"
                 >
                   <motion.span
@@ -161,7 +164,7 @@ export function Hero() {
                     animate="pulse"
                     className="flex items-center gap-2"
                   >
-                    Get Started Free
+                    {isSignedIn ? 'Go to Dashboard' : 'Get Started Free'}
                     <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary-foreground/20 text-sm transition-transform group-hover:translate-x-0.5">
                       <ArrowRight size={14} strokeWidth={2} />
                     </span>
@@ -255,15 +258,6 @@ export function Hero() {
                     </div>
                   </div>
                   <div className="flex items-center justify-between pt-2 border-t border-border/40">
-                    <div className="flex items-center gap-1.5">
-                      <span className="relative flex h-2 w-2">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                      </span>
-                      <span className="text-[10px] font-medium text-muted-foreground/80">
-                        Live responses active
-                      </span>
-                    </div>
                     <button className="h-9 px-4 rounded-xl bg-primary hover:bg-primary/95 text-primary-foreground text-xs font-medium shadow-sm transition-colors flex items-center justify-center">
                       Submit Response
                     </button>

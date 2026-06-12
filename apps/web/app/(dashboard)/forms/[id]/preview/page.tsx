@@ -61,7 +61,7 @@ export default function PreviewFormPage() {
   }, [sortedFields, reset]);
 
   const selectedTheme = useMemo(() => {
-    return (form?.theme as any) || null;
+    return (form?.theme as unknown as { name: string; config: unknown }) || null;
   }, [form?.theme]);
 
   const isBuiltIn = useMemo(() => {
