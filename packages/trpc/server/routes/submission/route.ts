@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { router, publicProcedure, creatorProcedure } from '../../trpc';
-import { submissionService, formService } from '@starform/services';
+import { submissionService, formService, quotaService } from '@starform/services';
 import { buildSubmissionSchema, submissionOutputSchema } from '../../schema';
 import { TRPCError } from '@trpc/server';
 import type { FieldDefinition } from '../../schema';
@@ -31,6 +31,8 @@ export const submissionRouter = router({
       if (!latestVersion) {
         throw new TRPCError({ code: 'BAD_REQUEST', message: 'Form has no published versions' });
       }
+
+      await quotaService.checkSubmissionLimit(form.creatorId);
 
       const formVersion = await formService.getPublishedVersion(form.id, latestVersion);
 

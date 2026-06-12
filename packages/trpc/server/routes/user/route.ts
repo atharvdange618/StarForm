@@ -1,7 +1,8 @@
 import { z } from 'zod';
 import { router, protectedProcedure } from '../../trpc';
-import { userService } from '@starform/services';
-import { zodUndefinedModel, userOutputSchema } from '../../schema';
+import { userService, quotaService } from '@starform/services';
+import { zodUndefinedModel, userOutputSchema, userUsageOutputSchema, planEnum } from '../../schema';
+import { clerkClient } from '@clerk/express';
 
 export const userRouter = router({
   me: protectedProcedure
@@ -20,6 +21,22 @@ export const userRouter = router({
       return await userService.me(ctx.user.clerkId);
     }),
 
+  usage: protectedProcedure
+    .meta({
+      openapi: {
+        method: 'GET',
+        path: '/user/usage',
+        tags: ['User'],
+        protect: true,
+        summary: 'Get current user plan usage stats',
+      },
+    })
+    .input(zodUndefinedModel)
+    .output(userUsageOutputSchema)
+    .query(async ({ ctx }) => {
+      return await quotaService.getPlanUsage(ctx.user.userId, ctx.user.plan);
+    }),
+
   updateProfile: protectedProcedure
     .meta({
       openapi: {
@@ -34,5 +51,28 @@ export const userRouter = router({
     .output(userOutputSchema.optional())
     .mutation(async ({ ctx, input }) => {
       return await userService.updateProfile(ctx.user.clerkId, input);
+    }),
+
+  updatePlan: protectedProcedure
+    .meta({
+      openapi: {
+        method: 'POST',
+        path: '/user/plan',
+        tags: ['User'],
+        protect: true,
+        summary: 'Update current user billing plan',
+      },
+    })
+    .input(z.object({ plan: planEnum }))
+    .output(userOutputSchema.optional())
+    .mutation(async ({ ctx, input }) => {
+      try {
+        await clerkClient.users.updateUserMetadata(ctx.user.clerkId, {
+          unsafeMetadata: { plan: input.plan },
+        });
+      } catch (err) {
+        ctx.log.error({ err }, `Failed to update Clerk user plan metadata for ${ctx.user.clerkId}`);
+      }
+      return await userService.updatePlan(ctx.user.clerkId, input.plan);
     }),
 });

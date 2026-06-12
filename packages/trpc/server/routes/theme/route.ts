@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { router, protectedProcedure, creatorProcedure } from '../../trpc';
-import { themeService } from '@starform/services';
+import { themeService, quotaService } from '@starform/services';
 import { themeOutputSchema, zodUndefinedModel } from '../../schema';
 
 const themeConfigSchema = z.object({
@@ -75,6 +75,8 @@ export const themeRouter = router({
     )
     .output(themeOutputSchema.optional())
     .mutation(async ({ ctx, input }) => {
+      quotaService.checkThemeAccess(ctx.user.plan, true);
+
       return await themeService.create(ctx.user.userId, {
         name: input.name,
         config: input.config,

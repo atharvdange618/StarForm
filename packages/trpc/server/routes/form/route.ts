@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { router, creatorProcedure, publicProcedure } from '../../trpc';
-import { formService } from '@starform/services';
+import { formService, quotaService } from '@starform/services';
 import {
   formCreateSchema,
   formUpdateSchema,
@@ -103,6 +103,8 @@ export const formRouter = router({
     .input(z.object({ id: z.string().uuid(), config: publishConfigSchema }))
     .output(formOutputSchema)
     .mutation(async ({ ctx, input }) => {
+      await quotaService.checkFormLimit(ctx.user.userId, ctx.user.plan);
+
       return await formService.publish(input.id, ctx.user.userId, input.config);
     }),
 
