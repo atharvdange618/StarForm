@@ -18,8 +18,8 @@ const footerLinks = [
   {
     title: 'Legal',
     links: [
-      { label: 'Privacy Policy', href: '#' },
-      { label: 'Terms of Service', href: '#' },
+      { label: 'Privacy Policy', href: '/privacy' },
+      { label: 'Terms of Service', href: '/terms' },
     ],
   },
 ];
@@ -105,7 +105,7 @@ export function Footer() {
         <div className="gradient-divider mt-12" />
         <div className="pt-6">
           <p className="font-body text-xs text-muted-foreground">
-            &copy; {new Date().getFullYear()} StarForm Studio · Pas de pure noir, jamais. All rights
+            &copy; {new Date().getFullYear()} StarForm · Pas de pure noir, jamais. All rights
             reserved.
           </p>
         </div>
