@@ -371,6 +371,26 @@ export const formOutputSchema = z.object({
 
 export type Form = z.infer<typeof formOutputSchema>;
 
+export const publicFormOutputSchema = z.object({
+  id: z.string().uuid(),
+  creatorId: z.string().uuid(),
+  title: z.string(),
+  description: z.string().nullable(),
+  slug: z.string(),
+  fields: z.unknown(),
+  createdAt: z.date(),
+  updatedAt: z.date(),
+  submissionCount: z.number().int().optional(),
+  theme: z.unknown().optional(),
+  creator: z
+    .object({
+      name: z.string().nullable(),
+    })
+    .optional(),
+});
+
+export type PublicForm = z.infer<typeof publicFormOutputSchema>;
+
 export const submissionOutputSchema = z.object({
   id: z.string().uuid(),
   formId: z.string().uuid(),

@@ -7,6 +7,7 @@ import {
   publishConfigSchema,
   formOutputSchema,
   zodUndefinedModel,
+  publicFormOutputSchema,
 } from '../../schema';
 
 export const formRouter = router({
@@ -40,6 +41,22 @@ export const formRouter = router({
     .output(z.array(formOutputSchema))
     .query(async ({ ctx }) => {
       return await formService.list(ctx.user.userId);
+    }),
+
+  listPublic: publicProcedure
+    .meta({
+      openapi: {
+        method: 'GET',
+        path: '/forms/public',
+        tags: ['Form'],
+        protect: false,
+        summary: 'List all public forms',
+      },
+    })
+    .input(z.object({ search: z.string().optional() }))
+    .output(z.array(publicFormOutputSchema))
+    .query(async ({ input }) => {
+      return await formService.listPublic(input.search);
     }),
 
   getById: creatorProcedure
@@ -87,7 +104,16 @@ export const formRouter = router({
     .input(z.object({ id: z.string().uuid(), data: formUpdateSchema }))
     .output(formOutputSchema)
     .mutation(async ({ ctx, input }) => {
-      return await formService.update(input.id, ctx.user.userId, input.data);
+      const isProOrEnterprise = ctx.user.plan === 'pro' || ctx.user.plan === 'enterprise';
+      const data = isProOrEnterprise
+        ? input.data
+        : {
+            ...input.data,
+            config: input.data.config
+              ? { ...input.data.config, webhookUrl: null }
+              : input.data.config,
+          };
+      return await formService.update(input.id, ctx.user.userId, data);
     }),
 
   publish: creatorProcedure

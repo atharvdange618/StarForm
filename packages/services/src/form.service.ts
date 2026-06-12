@@ -112,6 +112,51 @@ export async function list(creatorId: string) {
   }));
 }
 
+export async function listPublic(search?: string) {
+  let whereClause = and(
+    eq(forms.status, 'published'),
+    eq(forms.visibility, 'public'),
+    sql`${forms.deletedAt} IS NULL`,
+  );
+
+  if (search) {
+    whereClause = and(
+      whereClause,
+      sql`(${forms.title} ILIKE ${'%' + search + '%'} OR COALESCE(${forms.description}, '') ILIKE ${'%' + search + '%'})`,
+    );
+  }
+
+  const results = await db.query.forms.findMany({
+    where: whereClause,
+    orderBy: [desc(forms.createdAt)],
+    with: {
+      theme: true,
+      creator: {
+        columns: {
+          name: true,
+        },
+      },
+    },
+  });
+
+  const formIds = results.map((f) => f.id);
+  const counts =
+    formIds.length > 0
+      ? await db
+          .select({ formId: submissions.formId, value: count() })
+          .from(submissions)
+          .where(inArray(submissions.formId, formIds))
+          .groupBy(submissions.formId)
+      : [];
+
+  const countMap = new Map(counts.map((c) => [c.formId, c.value]));
+
+  return results.map((f) => ({
+    ...f,
+    submissionCount: countMap.get(f.id) ?? 0,
+  }));
+}
+
 export async function update(
   formId: string,
   creatorId: string,
