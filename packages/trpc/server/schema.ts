@@ -266,6 +266,7 @@ export function buildSubmissionSchema(fields: FieldDefinition[]) {
   return z.object(shape).superRefine((data, ctx) => {
     const dataRecord = data as Record<string, unknown>;
     for (const field of fields) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const visible = isFieldVisible(field as any, dataRecord, fields as any);
       if (visible) {
         const val = dataRecord[field.id];
@@ -321,6 +322,18 @@ export const userOutputSchema = z.object({
   createdAt: z.date(),
   updatedAt: z.date(),
   deletedAt: z.date().nullable(),
+});
+
+export const userUsageOutputSchema = z.object({
+  forms: z.object({
+    current: z.number(),
+    limit: z.number(),
+  }),
+  submissions: z.object({
+    current: z.number(),
+    limit: z.number(),
+  }),
+  customThemes: z.boolean(),
 });
 
 export const themeOutputSchema = z.object({

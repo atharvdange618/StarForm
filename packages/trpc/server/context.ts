@@ -1,12 +1,13 @@
 import { randomUUID } from 'node:crypto';
 
 import { eq } from 'drizzle-orm';
-import { getAuth } from '@clerk/express';
+import { getAuth, clerkClient } from '@clerk/express';
 import type { CreateExpressContextOptions } from '@trpc/server/adapters/express';
 
 import { logger, type Logger } from '@starform/logger';
 import { db } from '@starform/database/client';
 import { users } from '@starform/database';
+import { userService } from '@starform/services';
 
 type ExpressReq = CreateExpressContextOptions['req'] & {
   id?: string;
@@ -60,21 +61,20 @@ export async function createContext(opts: CreateExpressContextOptions): Promise<
       };
     }
 
-    const inserted = await db
-      .insert(users)
-      .values({
-        clerkId: clerkUserId,
-        email: null,
-        name: null,
-        roles: ['creator', 'respondent'],
-      })
-      .returning();
+    const clerkUser = await clerkClient.users.getUser(clerkUserId);
+    const primaryEmailObj = clerkUser.emailAddresses?.find(
+      (e) => e.id === clerkUser.primaryEmailAddressId,
+    );
+    const email = primaryEmailObj?.emailAddress ?? null;
+    const name = [clerkUser.firstName, clerkUser.lastName].filter(Boolean).join(' ') || null;
+    const plan =
+      clerkUser.unsafeMetadata?.plan === 'free' ||
+      clerkUser.unsafeMetadata?.plan === 'pro' ||
+      clerkUser.unsafeMetadata?.plan === 'enterprise'
+        ? (clerkUser.unsafeMetadata.plan as ContextUser['plan'])
+        : 'free';
 
-    if (!inserted[0]) {
-      return { user: null, req, log };
-    }
-
-    const newUser = inserted[0];
+    const newUser = await userService.upsertUser(clerkUserId, email, name, plan);
 
     return {
       user: {
