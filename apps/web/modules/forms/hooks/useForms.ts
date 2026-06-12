@@ -6,6 +6,10 @@ export function useFormsList() {
   return trpc.form.list.useQuery();
 }
 
+export function usePublicFormsList(search?: string) {
+  return trpc.form.listPublic.useQuery({ search });
+}
+
 export function useForm(id: string) {
   return trpc.form.getById.useQuery({ id }, { enabled: !!id });
 }

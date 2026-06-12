@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { LayoutDashboard, FileEdit } from 'lucide-react';
+import { LayoutDashboard, FileEdit, Compass } from 'lucide-react';
 import { UserButton } from '@clerk/nextjs';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { StarFormLogo } from '@/components/logo';
@@ -12,12 +12,13 @@ export const metadata: Metadata = {
 
 const navItems = [
   { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+  { label: 'Explore', href: '/explore', icon: Compass },
   { label: 'New Form', href: '/forms/new', icon: FileEdit },
 ];
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex min-h-screen flex-col bg-background">
+    <div className="flex min-h-screen flex-col bg-background dashboard-layout">
       <header className="sticky top-0 z-50 border-b border-border/40 bg-background/80 backdrop-blur-xl">
         <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4">
           <div className="flex items-center gap-6">
