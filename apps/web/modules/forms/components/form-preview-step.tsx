@@ -13,6 +13,7 @@ import { toast } from 'sonner';
 import { env } from '@/lib/env';
 import { trpc } from '@/lib/trpc';
 import { WarpDriveEffect, MatrixRainEffect } from './theme-effects';
+import { isDarkColor } from '@/lib/utils';
 
 interface FormPreviewStepProps {
   formId?: string;
@@ -60,11 +61,93 @@ export function FormPreviewStep({ formId, onPublished }: FormPreviewStepProps) {
   }, [sortedFields, reset]);
 
   const { data: themes } = trpc.theme.list.useQuery();
-  const themeClass = useMemo(() => {
-    if (!themeId || !themes) return 'theme-startup';
-    const theme = (themes as { id: string; name: string }[]).find((t) => t.id === themeId);
-    return theme ? `theme-${theme.name.toLowerCase()}` : 'theme-startup';
+  const selectedTheme = useMemo(() => {
+    if (!themeId || !themes) return null;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return (themes as any[]).find((t) => t.id === themeId) || null;
   }, [themeId, themes]);
+
+  const isBuiltIn = useMemo(() => {
+    if (!selectedTheme) return true;
+    return ['startup', 'anime', 'gaming', 'space', 'retro'].includes(
+      selectedTheme.name.toLowerCase(),
+    );
+  }, [selectedTheme]);
+
+  const themeClass = useMemo(() => {
+    if (!selectedTheme) return 'theme-startup';
+    return isBuiltIn ? `theme-${selectedTheme.name.toLowerCase()}` : 'theme-startup';
+  }, [selectedTheme, isBuiltIn]);
+
+  const customThemeStyles = useMemo(() => {
+    if (!selectedTheme || isBuiltIn) return {};
+    const config = selectedTheme.config as
+      | {
+          colors?: { primary?: string; background?: string; secondary?: string; text?: string };
+          fonts?: { heading?: string; body?: string };
+        }
+      | undefined;
+    if (!config || !config.colors) return {};
+
+    const primaryColor = config.colors.primary || '#3b82f6';
+    const bgColor = config.colors.background || '#ffffff';
+
+    const isDark = isDarkColor(bgColor);
+    const cardColor = isDark ? `color-mix(in srgb, ${bgColor} 92%, white)` : '#ffffff';
+    const borderCol = isDark
+      ? `color-mix(in srgb, ${bgColor} 80%, white)`
+      : `color-mix(in srgb, ${bgColor} 90%, black)`;
+    const textCol = isDark ? '#f9fafb' : '#1f2937';
+    const mutedTextCol = isDark ? '#9ca3af' : '#6b7280';
+
+    const isPrimaryDark = isDarkColor(primaryColor);
+    const primaryForeground = isPrimaryDark ? '#ffffff' : '#111827';
+
+    const styles: Record<string, string> = {
+      '--gf-blue': primaryColor,
+      '--theme-primary': primaryColor,
+      '--primary': primaryColor,
+      '--primary-foreground': primaryForeground,
+      '--theme-btn-bg': primaryColor,
+      '--theme-btn-text': primaryForeground,
+
+      '--gf-cream': bgColor,
+      '--theme-background': bgColor,
+      '--background': bgColor,
+
+      '--gf-white': cardColor,
+      '--theme-card-bg': cardColor,
+      '--card': cardColor,
+
+      '--gf-cream-dark': borderCol,
+      '--theme-border': borderCol,
+      '--border': borderCol,
+
+      '--gf-text': textCol,
+      '--theme-text': textCol,
+      '--foreground': textCol,
+
+      '--gf-muted': mutedTextCol,
+      '--theme-muted-foreground': mutedTextCol,
+      '--muted-foreground': mutedTextCol,
+
+      '--gf-blue-pale': `color-mix(in srgb, ${primaryColor} 10%, transparent)`,
+      '--theme-accent': `color-mix(in srgb, ${primaryColor} 10%, transparent)`,
+
+      '--gf-divider': borderCol,
+    };
+
+    if (config.fonts?.body) {
+      styles['--font-body'] = config.fonts.body;
+      styles['--theme-font-body'] = config.fonts.body;
+    }
+    if (config.fonts?.heading) {
+      styles['--font-heading'] = config.fonts.heading;
+      styles['--theme-font-heading'] = config.fonts.heading;
+    }
+
+    return styles as React.CSSProperties;
+  }, [selectedTheme, isBuiltIn]);
 
   const renderThemeEffects = useCallback(() => {
     if (themeClass === 'theme-space') {
@@ -219,6 +302,7 @@ export function FormPreviewStep({ formId, onPublished }: FormPreviewStepProps) {
       <div className="lg:col-span-3">
         <div
           className={`${themeClass} relative overflow-hidden rounded-xl border border-border p-8 shadow-(--shadow-card) transition-all duration-300`}
+          style={customThemeStyles}
         >
           {renderThemeEffects()}
           <div className="card relative z-10 rounded-xl border border-border bg-card p-6 shadow-(--shadow-card)">

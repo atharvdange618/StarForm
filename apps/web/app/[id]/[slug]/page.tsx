@@ -15,6 +15,7 @@ import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Send, Lock, AlertCircle } from 'lucide-react';
 import { WarpDriveEffect, MatrixRainEffect } from '@/modules/forms/components/theme-effects';
+import { isDarkColor } from '@/lib/utils';
 
 export default function FormFillerPage({
   params,
@@ -44,11 +45,91 @@ export default function FormFillerPage({
   const hasEmailField =
     (form?.fields as { type: string }[] | undefined)?.some((f) => f.type === 'email') ?? false;
 
-  const themeClass = useMemo(() => {
-    const theme = form?.theme as { name: string } | undefined;
-    if (!theme?.name) return 'theme-startup';
-    return `theme-${theme.name.toLowerCase()}`;
+  const selectedTheme = useMemo(() => {
+    return (form?.theme as any) || null;
   }, [form?.theme]);
+
+  const isBuiltIn = useMemo(() => {
+    if (!selectedTheme) return true;
+    return ['startup', 'anime', 'gaming', 'space', 'retro'].includes(
+      selectedTheme.name.toLowerCase(),
+    );
+  }, [selectedTheme]);
+
+  const themeClass = useMemo(() => {
+    if (!selectedTheme) return 'theme-startup';
+    return isBuiltIn ? `theme-${selectedTheme.name.toLowerCase()}` : 'theme-startup';
+  }, [selectedTheme, isBuiltIn]);
+
+  const customThemeStyles = useMemo(() => {
+    if (!selectedTheme || isBuiltIn) return {};
+    const config = selectedTheme.config as
+      | {
+          colors?: { primary?: string; background?: string; secondary?: string; text?: string };
+          fonts?: { heading?: string; body?: string };
+        }
+      | undefined;
+    if (!config || !config.colors) return {};
+
+    const primaryColor = config.colors.primary || '#3b82f6';
+    const bgColor = config.colors.background || '#ffffff';
+
+    const isDark = isDarkColor(bgColor);
+    const cardColor = isDark ? `color-mix(in srgb, ${bgColor} 92%, white)` : '#ffffff';
+    const borderCol = isDark
+      ? `color-mix(in srgb, ${bgColor} 80%, white)`
+      : `color-mix(in srgb, ${bgColor} 90%, black)`;
+    const textCol = isDark ? '#f9fafb' : '#1f2937';
+    const mutedTextCol = isDark ? '#9ca3af' : '#6b7280';
+
+    const isPrimaryDark = isDarkColor(primaryColor);
+    const primaryForeground = isPrimaryDark ? '#ffffff' : '#111827';
+
+    const styles: Record<string, string> = {
+      '--gf-blue': primaryColor,
+      '--theme-primary': primaryColor,
+      '--primary': primaryColor,
+      '--primary-foreground': primaryForeground,
+      '--theme-btn-bg': primaryColor,
+      '--theme-btn-text': primaryForeground,
+
+      '--gf-cream': bgColor,
+      '--theme-background': bgColor,
+      '--background': bgColor,
+
+      '--gf-white': cardColor,
+      '--theme-card-bg': cardColor,
+      '--card': cardColor,
+
+      '--gf-cream-dark': borderCol,
+      '--theme-border': borderCol,
+      '--border': borderCol,
+
+      '--gf-text': textCol,
+      '--theme-text': textCol,
+      '--foreground': textCol,
+
+      '--gf-muted': mutedTextCol,
+      '--theme-muted-foreground': mutedTextCol,
+      '--muted-foreground': mutedTextCol,
+
+      '--gf-blue-pale': `color-mix(in srgb, ${primaryColor} 10%, transparent)`,
+      '--theme-accent': `color-mix(in srgb, ${primaryColor} 10%, transparent)`,
+
+      '--gf-divider': borderCol,
+    };
+
+    if (config.fonts?.body) {
+      styles['--font-body'] = config.fonts.body;
+      styles['--theme-font-body'] = config.fonts.body;
+    }
+    if (config.fonts?.heading) {
+      styles['--font-heading'] = config.fonts.heading;
+      styles['--theme-font-heading'] = config.fonts.heading;
+    }
+
+    return styles as React.CSSProperties;
+  }, [selectedTheme, isBuiltIn]);
 
   const renderThemeEffects = useCallback(() => {
     if (themeClass === 'theme-space') {
@@ -171,6 +252,7 @@ export default function FormFillerPage({
     return (
       <div
         className={`${themeClass} relative flex min-h-screen items-center justify-center px-4 py-12 animate-page-enter`}
+        style={customThemeStyles}
       >
         {renderThemeEffects()}
         <div className="relative z-10 w-full max-w-sm animate-fade-up">
@@ -215,6 +297,7 @@ export default function FormFillerPage({
   return (
     <div
       className={`${themeClass} relative flex min-h-screen justify-center px-4 py-12 animate-page-enter`}
+      style={customThemeStyles}
     >
       {renderThemeEffects()}
       <div className="relative z-10 w-full max-w-lg animate-fade-up">
