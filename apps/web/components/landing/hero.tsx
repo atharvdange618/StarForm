@@ -128,7 +128,7 @@ export function Hero() {
               className="font-display text-[clamp(2.75rem,7vw,5.5rem)] leading-[1.05] font-light tracking-[-0.02em] text-foreground"
               style={{ textWrap: 'balance' }}
             >
-              Forms that feel{' '}
+              Give your questions{' '}
               <span
                 className="text-primary relative inline-block"
                 style={{
@@ -136,7 +136,7 @@ export function Hero() {
                     '0 0 60px oklch(0.47 0.155 248 / 0.35), 0 0 120px oklch(0.47 0.155 248 / 0.15)',
                 }}
               >
-                beautiful
+                a canvas
               </span>
             </motion.h1>
 

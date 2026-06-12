@@ -48,7 +48,7 @@ const plans = [
     price: { monthly: null, yearly: null },
     description: 'Custom solutions for teams.',
     cta: 'Contact Sales',
-    href: 'mailto:sales@starform.dev',
+    href: 'mailto:atharvdange.dev@gmail.com',
     highlighted: false,
     features: [
       { label: 'Everything in Pro', included: true },

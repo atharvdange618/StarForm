@@ -9,11 +9,11 @@ export default function Proof() {
 
   return (
     <section ref={ref} className="relative">
-      <div className="max-w-[1280px] mx-auto px-8 lg:px-14">
+      <div className="max-w-7xl mx-auto px-8 lg:px-14">
         <div className="brushstroke" />
       </div>
 
-      <div className="max-w-[1080px] mx-auto px-8 lg:px-14 py-24 lg:py-32">
+      <div className="max-w-7xl mx-auto px-8 lg:px-14 py-24 lg:py-32">
         <div className="grid lg:grid-cols-[1fr_auto] gap-12 lg:gap-20 items-center">
           <div>
             <motion.span
@@ -50,12 +50,12 @@ export default function Proof() {
                 whileHover={{ scale: 1.1, rotate: 5 }}
                 transition={{ type: 'spring', stiffness: 400, damping: 25 }}
               >
-                AR
+                KC
               </motion.div>
               <div>
-                <div className="font-body text-sm text-foreground font-medium">Aurélie Renaud</div>
+                <div className="font-body text-sm text-foreground font-medium">Kamlesh Chavan</div>
                 <div className="font-body italic text-sm text-muted-foreground">
-                  Editor, Maison Étretat · using StarForm since beta-3
+                  Game Developer · using StarForm since beta-3
                 </div>
               </div>
             </motion.div>
@@ -76,7 +76,7 @@ export default function Proof() {
         </div>
       </div>
 
-      <div className="max-w-[1280px] mx-auto px-8 lg:px-14">
+      <div className="max-w-7xl mx-auto px-8 lg:px-14">
         <div className="brushstroke" />
       </div>
     </section>

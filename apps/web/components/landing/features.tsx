@@ -161,7 +161,7 @@ function ParallaxOrb({ className, speed = 0.5 }: { className: string; speed?: nu
 export default function Features() {
   return (
     <section id="features" className="relative">
-      <div className="max-w-[1280px] mx-auto px-8 lg:px-14 py-28 lg:py-36">
+      <div className="max-w-7xl mx-auto px-8 lg:px-14 py-28 lg:py-36">
         <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-16">
           <div>
             <span className="eyebrow">The gallery</span>
@@ -222,31 +222,23 @@ export default function Features() {
                 Match the form to the moment.
               </h3>
               <p className="mt-3 font-body text-pretty text-muted-foreground max-w-[62ch] leading-[1.75] text-base">
-                Customizable themes that control everything from colors and fonts to spacing and
-                animations. Make your forms look perfectly on-brand.
+                Choose from 5 pre-built animated themes (Startup, Anime, Gaming, Space, and Retro)
+                or design custom themes to match your brand perfectly.
               </p>
 
               <div className="mt-auto pt-7 grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-3">
                 {[
                   {
-                    name: 'Morning Mist',
-                    chips: [
-                      'oklch(0.97 0.012 88)',
-                      'oklch(0.47 0.155 248)',
-                      'oklch(0.78 0.088 308)',
-                    ],
+                    name: 'Startup',
+                    chips: ['#3b82f6', '#e0f2fe', '#f0f9ff'],
                   },
                   {
-                    name: 'Dusk Seine',
-                    chips: [
-                      'oklch(0.19 0.042 268)',
-                      'oklch(0.67 0.13 245)',
-                      'oklch(0.76 0.108 82)',
-                    ],
+                    name: 'Anime',
+                    chips: ['#f472b6', '#fce7f3', '#fff1f2'],
                   },
                   {
-                    name: 'Haystacks',
-                    chips: ['oklch(0.95 0.04 82)', 'oklch(0.8 0.115 82)', 'oklch(0.6 0.17 22)'],
+                    name: 'Gaming',
+                    chips: ['#4ade80', '#14532d', '#052e16'],
                   },
                 ].map((t) => (
                   <div key={t.name} className="rounded-xl p-3 bg-background border border-border">
@@ -272,9 +264,9 @@ export default function Features() {
             colSpan={4}
             icon={History}
             tone={{ bg: 'var(--badge-sage-bg)', fg: 'var(--badge-sage-fg)' }}
-            label="Versions"
-            title="Safe, stress-free editing."
-            body="Update your live forms anytime without losing or messing up the answers you've already collected."
+            label="Integrity"
+            title="Protected submissions."
+            body="Forms are locked from edits once they collect their first response, ensuring your gathered answers always align with the schema."
             delay={0.15}
           />
           <FeatureTile
@@ -299,9 +291,9 @@ export default function Features() {
             colSpan={6}
             icon={Webhook}
             tone={{ bg: 'var(--badge-cerulean-bg)', fg: 'var(--badge-cerulean-fg)' }}
-            label="Integrations"
-            title="Connect to your favorite tools."
-            body="Send form responses instantly to Slack, email, or thousands of other apps the moment a respondent hits submit."
+            label="Webhooks"
+            title="Real-time notifications."
+            body="Send submissions instantly to Discord, Telegram, or custom endpoints using standard webhooks, plus email notifications."
             delay={0.3}
           />
           <FeatureTile
@@ -309,14 +301,14 @@ export default function Features() {
             icon={Lock}
             tone={{ bg: 'var(--badge-lavender-bg)', fg: 'var(--badge-lavender-fg)' }}
             label="Visibility"
-            title="Three flavours of share."
-            body="Make your form public, unlisted, or invite-only. Automatically close it on a specific date, after a certain number of replies, or manually."
+            title="Visibility controls."
+            body="Publish forms as public or unlisted. Automatically close responses on a specific date, after a certain number of replies, or manually."
             delay={0.35}
           />
         </div>
       </div>
 
-      <div className="max-w-[1280px] mx-auto px-8 lg:px-14">
+      <div className="max-w-7xl mx-auto px-8 lg:px-14">
         <div className="brushstroke" />
       </div>
     </section>

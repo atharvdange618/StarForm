@@ -3,6 +3,7 @@
 import { useRef } from 'react';
 import { motion, useInView } from 'motion/react';
 import { ArrowRight } from 'lucide-react';
+import Link from 'next/link';
 
 function ParticleOrb({ className, duration = 8 }: { className: string; duration?: number }) {
   return (
@@ -26,11 +27,11 @@ export function CTA() {
 
   return (
     <section ref={ref} className="relative overflow-hidden">
-      <div className="max-w-[1280px] mx-auto px-8 lg:px-14">
+      <div className="max-w-7xl mx-auto px-8 lg:px-14">
         <div className="brushstroke" />
       </div>
 
-      <div className="max-w-[920px] mx-auto px-8 lg:px-14 py-32 lg:py-48 text-center relative">
+      <div className="max-w-230 mx-auto px-8 lg:px-14 py-32 lg:py-48 text-center relative">
         <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
           <ParticleOrb className="w-80 h-80 -top-20 left-1/4 orb-gold opacity-40" duration={7} />
           <ParticleOrb
@@ -80,53 +81,71 @@ export function CTA() {
           No card. No demo call. Just a blank cream canvas, a cursor, and you.
         </motion.p>
 
-        <motion.div
-          className="mt-10 flex items-center justify-center gap-4 relative z-10"
-          initial={{ opacity: 0, y: 30 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ type: 'spring', stiffness: 80, damping: 18, delay: 0.45 }}
-        >
-          <motion.button
-            className="btn-primary relative group px-10 py-5 text-lg"
-            whileHover={{ scale: 1.04 }}
-            whileTap={{ scale: 0.96 }}
-            transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-            style={{
-              boxShadow:
-                '0 4px 20px oklch(0.47 0.155 248 / 0.45), 0 8px 40px oklch(0.47 0.155 248 / 0.25)',
-            }}
-          >
-            <span className="flex items-center gap-3">
-              Start composing
-              <motion.span
-                animate={{ x: [0, 4, 0] }}
-                transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
-              >
-                <ArrowRight size={18} strokeWidth={1.75} />
-              </motion.span>
-            </span>
-
+        {(() => {
+          const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+          const docsUrl = `${apiUrl}/docs`;
+          return (
             <motion.div
-              className="absolute inset-0 rounded-xl"
-              initial={{ opacity: 0, scale: 0.9 }}
-              whileHover={{ opacity: 1, scale: 1.05 }}
-              transition={{ duration: 0.2 }}
-              style={{
-                boxShadow: '0 0 0 2px var(--primary), 0 0 30px oklch(0.47 0.155 248 / 0.4)',
-                pointerEvents: 'none',
-              }}
-            />
-          </motion.button>
+              className="mt-10 flex flex-wrap items-center justify-center gap-4 relative z-10"
+              initial={{ opacity: 0, y: 30 }}
+              animate={isInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ type: 'spring', stiffness: 80, damping: 18, delay: 0.45 }}
+            >
+              <motion.div
+                whileHover={{ scale: 1.04 }}
+                whileTap={{ scale: 0.96 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                className="inline-block"
+              >
+                <Link
+                  href="/dashboard"
+                  className="btn-primary relative group px-10 py-5 text-lg inline-flex items-center justify-center"
+                  style={{
+                    boxShadow:
+                      '0 4px 20px oklch(0.47 0.155 248 / 0.45), 0 8px 40px oklch(0.47 0.155 248 / 0.25)',
+                  }}
+                >
+                  <span className="flex items-center gap-3">
+                    Start composing
+                    <motion.span
+                      animate={{ x: [0, 4, 0] }}
+                      transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
+                    >
+                      <ArrowRight size={18} strokeWidth={1.75} />
+                    </motion.span>
+                  </span>
 
-          <motion.button
-            className="btn-ghost px-8 py-5 text-lg"
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.96 }}
-            transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-          >
-            View the docs
-          </motion.button>
-        </motion.div>
+                  <motion.div
+                    className="absolute inset-0 rounded-xl"
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    whileHover={{ opacity: 1, scale: 1.05 }}
+                    transition={{ duration: 0.2 }}
+                    style={{
+                      boxShadow: '0 0 0 2px var(--primary), 0 0 30px oklch(0.47 0.155 248 / 0.4)',
+                      pointerEvents: 'none',
+                    }}
+                  />
+                </Link>
+              </motion.div>
+
+              <motion.div
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.96 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                className="inline-block"
+              >
+                <Link
+                  href={docsUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-ghost px-8 py-5 text-lg inline-flex items-center justify-center"
+                >
+                  View the docs
+                </Link>
+              </motion.div>
+            </motion.div>
+          );
+        })()}
       </div>
     </section>
   );
