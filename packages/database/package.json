@@ -25,6 +25,7 @@
     "db:push:test": "drizzle-kit push --config=./drizzle.test.config.ts",
     "db:studio": "drizzle-kit studio",
     "seed": "tsx src/seed.ts",
+    "db:nuke": "tsx src/nuke.ts && tsx src/seed.ts",
     "test": "vitest run"
   },
   "dependencies": {
