@@ -10,6 +10,7 @@ import { StarFormLogo } from '@/components/logo';
 
 const navLinks = [
   { label: 'Features', href: '/#features' },
+  { label: 'Explore', href: '/explore' },
   { label: 'Pricing', href: '/pricing' },
   { label: 'FAQ', href: '/#faq' },
   { label: 'Dashboard', href: '/dashboard', requiresAuth: true },

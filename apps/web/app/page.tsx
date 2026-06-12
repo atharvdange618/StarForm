@@ -9,6 +9,7 @@ import Manifesto from '@/components/landing/manifesto';
 import HowItComposes from '@/components/landing/how-it-composes';
 import Features from '@/components/landing/features';
 import Proof from '@/components/landing/proof';
+import { ExploreSection } from '@/components/landing/explore-section';
 
 export default function Home() {
   return (
@@ -20,6 +21,7 @@ export default function Home() {
         <Manifesto />
         <HowItComposes />
         <Features />
+        <ExploreSection />
         <Pricing />
         <Proof />
         <FAQ />
