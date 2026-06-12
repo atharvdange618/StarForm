@@ -3,7 +3,7 @@ import express from 'express';
 import { Webhook } from 'svix';
 import { logger } from '@starform/logger';
 import { env } from '../env.js';
-import { userService } from '@starform/services';
+import { userService, type Plan } from '@starform/services';
 import type { WebhookEvent } from '@clerk/express';
 
 export const webhooksRouter = Router();
@@ -48,16 +48,33 @@ webhooksRouter.post('/clerk', express.raw({ type: 'application/json' }), async (
       primary_email_address_id: string | null;
       first_name: string | null;
       last_name: string | null;
+      unsafe_metadata?: {
+        plan?: string;
+      };
     };
-    const { id, email_addresses, primary_email_address_id, first_name, last_name } = data;
+    const {
+      id,
+      email_addresses,
+      primary_email_address_id,
+      first_name,
+      last_name,
+      unsafe_metadata,
+    } = data;
     const primaryEmailObj = email_addresses?.find((e) => e.id === primary_email_address_id);
     const email = primaryEmailObj?.email_address ?? null;
     const name = [first_name, last_name].filter(Boolean).join(' ') || null;
 
+    const plan =
+      unsafe_metadata?.plan === 'free' ||
+      unsafe_metadata?.plan === 'pro' ||
+      unsafe_metadata?.plan === 'enterprise'
+        ? (unsafe_metadata.plan as Plan)
+        : undefined;
+
     if (email) {
       try {
-        await userService.upsertUser(id, email, name);
-        logger.info(`User ${id} upserted successfully`);
+        await userService.upsertUser(id, email, name, plan);
+        logger.info(`User ${id} upserted successfully with plan: ${plan ?? 'default'}`);
       } catch (err) {
         logger.error(
           `Error upserting user ${id}: ${err instanceof Error ? err.message : String(err)}`,
