@@ -18,7 +18,6 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { usePublicFormsList } from '@/modules/forms/hooks/useForms';
 import Atmosphere from '@/components/atmosphere';
-import type { PublicForm } from '@starform/trpc/server';
 
 const colorVariants = ['cerulean', 'lavender', 'sage', 'gold', 'rose', 'coral'] as const;
 type ColorVariant = (typeof colorVariants)[number];
@@ -75,7 +74,7 @@ export default function ExploreClient() {
 
   const { data: forms, isPending, isError, error } = usePublicFormsList(debouncedSearch);
 
-  const formattedForms = useMemo<PublicForm[]>(() => {
+  const formattedForms = useMemo(() => {
     if (!forms) return [];
     return forms;
   }, [forms]);
@@ -172,7 +171,7 @@ export default function ExploreClient() {
                       </div>
 
                       <div className="pt-3 border-t border-border/40 flex items-center justify-between">
-                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-body max-w-[150px] truncate">
+                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-body max-w-37.5 truncate">
                           <User className="h-3.5 w-3.5 shrink-0" />
                           <span className="truncate" title={form.creator?.name || 'Anonymous'}>
                             {form.creator?.name || 'Anonymous'}
