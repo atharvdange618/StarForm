@@ -17,7 +17,7 @@ StarForm is an elite, enterprise-grade form builder SaaS engineered for maximum 
 | **Validation** | Zod v4                          |
 | **Styling**    | Tailwind CSS v4 + shadcn/ui     |
 | **Charts**     | Recharts                        |
-| **Emails**     | Nodemailer + EJS templates      |
+| **Emails**     | Resend                          |
 | **API Docs**   | Scalar                          |
 
 ---
@@ -78,8 +78,8 @@ All structural decisions are thoroughly documented within the project's Architec
 
 ### 3. Immutable Snapshots on Publish (form_versions)
 
-- **Decision:** When a creator modifies a form, the changes are saved to a draft state. When they click Publish, we write a new version to the `form_versions` table. Submissions always link to the `formVersionId`, not the general `formId`.
-- **Rationale:** Modifying form questions after responses have been collected causes critical misalignment (e.g., changing a field's type from email to select makes older responses invalid). Snapshots ensure historical submissions remain consistent.
+- **Decision:** Form fields are locked from editing once a form collects its first submission. Before any submissions are received, creators can modify fields in a draft state and publish them, which writes a new snapshot to the `form_versions` table. Submissions always link to the `formVersionId`, not the general `formId`.
+- **Rationale:** Modifying form questions after responses have been collected causes critical misalignment (e.g., changing a field's type from email to select makes older responses invalid). Snapshots and edit-locking ensure response history remains completely consistent with the active schema.
 
 ### 4. Privacy-First Respondent Hashing
 
